@@ -1,17 +1,5 @@
-import { Routes, Route } from "react-router-dom";
-import Layout from "./Layout";
-import Home from "./Home";
-import Example from "./Example";
+import Login from "./pages/auth/Login";
 
-const Index = () => {
-  return (
-    <Routes>
-      <Route path="" element={<Layout />}>
-        <Route index element={<Home />} />
-        <Route path='example' element={<Example />} />
-      </Route>
-    </Routes>
-  );
-};
-
-export default Index;
+export default function LoginReturnPage() {
+  return <Login />
+}
