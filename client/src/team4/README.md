@@ -10,6 +10,13 @@
 **API Swagger:** `todu.mn/bs/lms/open-api-catalog/v1/`  
 **API Documentation (Ready to use):** `https://registry.scalar.com/@default-team-74qpj/apis/ords-generated-api-for-v1@1.0.0`
 
+### Даалгаврын шаардлага
+
+> • Админ нь оюутан, багш нарыг **бүртгэнэ**
+> • Багш нь оюутанг **бүртгэнэ**
+> • Багш нь өөрийн хичээл дээрээ оюутанг **нэмнэ**
+> • Багш нь хичээл дээрээ оюутнуудаа **багт хуваана**
+
 ---
 
 ### Тест хэрэглэгчид
@@ -24,26 +31,48 @@
 
 ---
 
-### ⚠️ API-тай ажиллах чухал дүрмүүд
+### ⚠️ Чухал: Эрхийн тодорхойлолт
 
-1. **Бүх request body утга нь STRING байна.** Тоо ч гэсэн `"1"` гэж илгээнэ, `1` биш.
+Хэрэглэгчийн эрх нь **сургууль бүрт өөр** байна. Нэг хүн А сургуульд админ, Б сургуульд оюутан байж болно.
 
-2. **`current_user` талбар заавал шаардлагатай.** Олон POST/PUT/DELETE endpoint-д `"current_user": "<user_id>"` body-д оруулна. Энэ нь нэвтэрсэн хэрэглэгчийн ID.
+**Эрхийг хэрхэн тодорхойлох:**
 
-3. **`{}` prefix-тэй талбарууд нь JSON string.** API-аас `"{}schools": "[{...}]"` гэх мэтээр ирнэ. Заавал `JSON.parse()` хийж задлана:
+```
+GET /users/{id}/schools → { items: [{ id, name, "{}role": "{\"name\":\"teacher\"}" }] }
+```
 
-   ```js
-   const user = await apiGet("/users/me");
-   const schools = JSON.parse(user["{}schools"] || "[]");
-   ```
+`{}role` талбарыг `JSON.parse()` хийж, сонгосон сургууль дахь role.name-г авна.
 
-4. **Auth header:** Нэвтэрсний дараа бүх хүсэлтэд:
+**SchoolSelect хуудас:**
 
-   ```
-   Authorization: Bearer <token>
-   ```
+- `GET /schools` биш → `GET /users/{me.id}/schools` дуудна
+- Зөвхөн тухайн хэрэглэгчийн **хамаарах сургуулиудыг** харуулна
+- Сонгосон сургуулийг localStorage-д хадгална
+- Сургууль сонгосны дараа тэр сургууль дахь role-г тодорхойлно
 
-5. **Pagination** API талаас байхгүй тул client-side pagination хийнэ.
+---
+
+### Эрхийн хяналт (PDF-ийн шаардлагаар)
+
+| Хуудас / Үйлдэл                                 | Админ                 | Багш                 | Оюутан               |
+| ----------------------------------------------- | --------------------- | -------------------- | -------------------- |
+| `/` Нүүр хуудас                                 | ✅ Системийн мэдээлэл | ✅ Миний хичээлүүд   | ✅ Миний хичээлүүд   |
+| `/login` Нэвтрэх                                | ✅                    | ✅                   | ✅                   |
+| `/register` Бүртгүүлэх                          | ✅                    | ✅                   | ✅                   |
+| `/forgot-password`                              | ✅                    | ✅                   | ✅                   |
+| `/reset-password`                               | ✅                    | ✅                   | ✅                   |
+| `/schools/current` Сургууль сонгох              | ✅ Өөрийн сургуулиуд  | ✅ Өөрийн сургуулиуд | ✅ Өөрийн сургуулиуд |
+| `/roles` Эрхийн удирдлага                       | ✅                    | ❌ redirect          | ❌ redirect          |
+| `/users` Хэрэглэгчийн жагсаалт                  | ✅ Бүх хэрэглэгч      | ❌ redirect          | ❌ redirect          |
+| `/users/create` Хэрэглэгч бүртгэх               | ✅ Бүгдийг            | ✅ Зөвхөн оюутан     | ❌ redirect          |
+| `/users/:id` Хэрэглэгч харах                    | ✅                    | ❌                   | ❌                   |
+| `/users/:id/edit` Хэрэглэгч засах               | ✅                    | ❌                   | ❌                   |
+| `/profile` Өөрийн мэдээлэл                      | ✅                    | ✅                   | ✅                   |
+| `/profile/change-password` Нууц үг солих        | ✅                    | ✅                   | ✅                   |
+| `/courses/:id/users` Хичээлийн хэрэглэгчид      | ✅                    | ✅ Өөрийн хичээл     | ❌ redirect          |
+| `/courses/:id/users/edit` Хэрэглэгч нэмэх/хасах | ✅                    | ✅ Өөрийн хичээл     | ❌ redirect          |
+| `/courses/:id/groups` Бүлэг удирдах             | ✅                    | ✅ Өөрийн хичээл     | ❌ redirect          |
+| `/courses/:id/groups/:gid/users` Бүлгийн гишүүд | ✅                    | ✅ Өөрийн хичээл     | ❌ redirect          |
 
 ---
 
@@ -51,109 +80,173 @@
 
 #### 🔐 Authentication
 
-| Method | Endpoint           | Body                                    | Тайлбар                    |
-| ------ | ------------------ | --------------------------------------- | -------------------------- |
-| POST   | `/token/email`     | `{ "email": "...", "password": "..." }` | Нэвтрэх → token авна       |
-| POST   | `/token/refresh`   | `{ "refresh_token": "..." }`            | Token шинэчлэх             |
-| DELETE | `/token`           | `{ "current_user": "..." }`             | Logout                     |
-| POST   | `/otp/email`       | `{ "email": "..." }`                    | Нууц үг сэргээх код илгээх |
-| POST   | `/otp/email/login` | `{ "email": "...", "code": "..." }`     | OTP кодоор нэвтрэх         |
+| Method | Endpoint           | Body                                        | Тайлбар                    |
+| ------ | ------------------ | ------------------------------------------- | -------------------------- |
+| POST   | `/token/email`     | `{ "email", "password", "push_token": "" }` | Нэвтрэх                    |
+| POST   | `/token/refresh`   | `{ "refresh_token" }`                       | Token шинэчлэх             |
+| DELETE | `/token`           | `{ "current_user" }`                        | Logout                     |
+| POST   | `/otp/email`       | `{ "email" }`                               | Нууц үг сэргээх код илгээх |
+| POST   | `/otp/email/login` | `{ "email", "code", "push_token": "" }`     | OTP кодоор нэвтрэх         |
 
-#### 👤 Users (BearerAuth шаардлагатай)
+#### 👤 Users (BearerAuth)
 
-| Method | Endpoint                   | Body / Params                                                                               | Тайлбар                   |
-| ------ | -------------------------- | ------------------------------------------------------------------------------------------- | ------------------------- |
-| GET    | `/users`                   | —                                                                                           | Бүх хэрэглэгчийн жагсаалт |
-| POST   | `/users`                   | `{ "email", "first_name", "last_name", "password", "username", "phone" }`                   | Хэрэглэгч бүртгэх         |
-| GET    | `/users/{user_id}`         | —                                                                                           | Нэг хэрэглэгчийн мэдээлэл |
-| PUT    | `/users/{user_id}`         | `{ "current_user", "email", "first_name", "last_name", "family_name", "phone", "picture" }` | Хэрэглэгч засах           |
-| DELETE | `/users/{user_id}`         | `{ "current_user": "..." }`                                                                 | Хэрэглэгч устгах          |
-| GET    | `/users/me`                | query: `?current_user=...`                                                                  | Өөрийн мэдээлэл           |
-| PUT    | `/users/me`                | `{ "current_user", "first_name", "last_name", "phone", ... }`                               | Өөрийн мэдээлэл засах     |
-| PUT    | `/users/me/password`       | `{ "current_user", "password": "old", "new_password": "new" }`                              | Нууц үг солих             |
-| POST   | `/users/me/picture`        | `{ "current_user", "body": "base64..." }`                                                   | Зураг оруулах             |
-| GET    | `/users/{user_id}/schools` | —                                                                                           | Хэрэглэгчийн сургуулиуд   |
-| GET    | `/users/{user_id}/courses` | —                                                                                           | Хэрэглэгчийн хичээлүүд    |
+| Method | Endpoint              | Body                                                                                        | Тайлбар                                    |
+| ------ | --------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| GET    | `/users`              | —                                                                                           | Бүх хэрэглэгч (items: [])                  |
+| POST   | `/users`              | `{ "email", "first_name", "last_name", "password", "username", "phone" }`                   | Хэрэглэгч бүртгэх                          |
+| GET    | `/users/{id}`         | —                                                                                           | Нэг хэрэглэгч ({}schools талбартай)        |
+| PUT    | `/users/{id}`         | `{ "current_user", "email", "first_name", "last_name", "family_name", "phone", "picture" }` | Засах                                      |
+| DELETE | `/users/{id}`         | `{ "current_user" }`                                                                        | Устгах                                     |
+| GET    | `/users/me`           | query: `?current_user=`                                                                     | Өөрийн мэдээлэл ({}schools талбартай)      |
+| PUT    | `/users/me`           | `{ "current_user", "first_name", "last_name", "phone" }`                                    | Өөрийгөө засах                             |
+| PUT    | `/users/me/password`  | `{ "current_user", "password", "new_password" }`                                            | Нууц үг солих                              |
+| POST   | `/users/me/picture`   | `{ "current_user", "body": "base64" }`                                                      | Зураг оруулах                              |
+| GET    | `/users/{id}/schools` | —                                                                                           | Хэрэглэгчийн сургуулиуд ({}role талбартай) |
+| GET    | `/users/{id}/courses` | —                                                                                           | Хэрэглэгчийн хичээлүүд ({}course, {}group) |
 
 #### 🛡️ Roles
 
-| Method | Endpoint           | Body                                     | Тайлбар             |
-| ------ | ------------------ | ---------------------------------------- | ------------------- |
-| GET    | `/roles`           | —                                        | Эрхийн жагсаалт     |
-| POST   | `/roles`           | `{ "current_user", "name", "priority" }` | Эрх үүсгэх          |
-| GET    | `/roles/{role_id}` | —                                        | Нэг эрхийн мэдээлэл |
-| PUT    | `/roles/{role_id}` | `{ "current_user", "name", "priority" }` | Эрх засах           |
-| DELETE | `/roles/{role_id}` | `{ "ROLE_ID": "..." }`                   | Эрх устгах          |
+| Method | Endpoint      | Body                                     | Тайлбар         |
+| ------ | ------------- | ---------------------------------------- | --------------- |
+| GET    | `/roles`      | —                                        | Эрхийн жагсаалт |
+| POST   | `/roles`      | `{ "current_user", "name", "priority" }` | Эрх нэмэх       |
+| GET    | `/roles/{id}` | —                                        | Нэг эрх         |
+| PUT    | `/roles/{id}` | `{ "current_user", "name", "priority" }` | Засах           |
+| DELETE | `/roles/{id}` | `{ "ROLE_ID": "..." }`                   | Устгах          |
 
 #### 🏫 Schools
 
-| Method | Endpoint                           | Body                                           | Тайлбар                   |
-| ------ | ---------------------------------- | ---------------------------------------------- | ------------------------- |
-| GET    | `/schools`                         | —                                              | Бүх сургуулийн жагсаалт   |
-| GET    | `/schools/{school_id}`             | —                                              | Нэг сургуулийн мэдээлэл   |
-| GET    | `/schools/{school_id}/users`       | —                                              | Сургуулийн хэрэглэгчид    |
-| POST   | `/schools/{school_id}/users`       | `{ "current_user", "role_id", "username" }`    | Хэрэглэгч сургуульд нэмэх |
-| DELETE | `/schools/{school_id}/users/{uid}` | —                                              | Хэрэглэгч хасах           |
-| GET    | `/schools/{school_id}/requests`    | —                                              | Гишүүнчлэлийн хүсэлтүүд   |
-| POST   | `/schools/{school_id}/requests`    | `{ "current_user", "role_id", "description" }` | Гишүүнчлэл хүсэх          |
+| Method | Endpoint                       | Body                                           | Тайлбар                              |
+| ------ | ------------------------------ | ---------------------------------------------- | ------------------------------------ |
+| GET    | `/users/{id}/schools`          | —                                              | **Хэрэглэгчийн** сургуулиуд ({}role) |
+| GET    | `/schools/{id}/users`          | —                                              | Сургуулийн хэрэглэгчид               |
+| POST   | `/schools/{id}/users`          | `{ "current_user", "role_id", "username" }`    | Сургуульд хэрэглэгч нэмэх            |
+| DELETE | `/schools/{id}/users/{uid}`    | —                                              | Сургуулиас хасах                     |
+| GET    | `/schools/{id}/requests`       | —                                              | Гишүүнчлэлийн хүсэлтүүд              |
+| POST   | `/schools/{id}/requests`       | `{ "current_user", "role_id", "description" }` | Гишүүнчлэл хүсэх                     |
+| POST   | `/schools/{id}/requests/{rid}` | `{ "current_user" }`                           | Хүсэлт зөвшөөрөх                     |
+| DELETE | `/schools/{id}/requests/{rid}` | `{ "current_user" }`                           | Хүсэлт татгалзах                     |
 
 #### 📚 Course Users
 
-| Method | Endpoint                               | Body                                        | Тайлбар                   |
-| ------ | -------------------------------------- | ------------------------------------------- | ------------------------- |
-| GET    | `/courses/{course_id}/users`           | —                                           | Хичээлийн хэрэглэгчид     |
-| POST   | `/courses/{course_id}/users`           | `{ "current_user", "user_id", "group_id" }` | Хэрэглэгч нэмэх           |
-| GET    | `/courses/{course_id}/users/{user_id}` | —                                           | Нэг хэрэглэгчийн мэдээлэл |
-| PUT    | `/courses/{course_id}/users/{user_id}` | `{ "group_id": "..." }`                     | Бүлэг солих               |
-| DELETE | `/courses/{course_id}/users/{user_id}` | `{ "COURSE_ID": "...", "USER_ID": "..." }`  | Хэрэглэгч хасах           |
+| Method | Endpoint                     | Body                                        | Тайлбар                                 |
+| ------ | ---------------------------- | ------------------------------------------- | --------------------------------------- |
+| GET    | `/courses/{cid}/users`       | —                                           | Хичээлийн хэрэглэгчид ({}user, {}group) |
+| POST   | `/courses/{cid}/users`       | `{ "current_user", "user_id", "group_id" }` | Хэрэглэгч нэмэх                         |
+| GET    | `/courses/{cid}/users/{uid}` | —                                           | Нэг хэрэглэгч                           |
+| PUT    | `/courses/{cid}/users/{uid}` | `{ "group_id" }`                            | Бүлэг солих                             |
+| DELETE | `/courses/{cid}/users/{uid}` | `{ "COURSE_ID", "USER_ID" }`                | Хасах                                   |
 
 #### 👥 Groups
 
-| Method | Endpoint                      | Body                                   | Тайлбар           |
-| ------ | ----------------------------- | -------------------------------------- | ----------------- |
-| GET    | `/courses/{course_id}/groups` | —                                      | Хичээлийн бүлгүүд |
-| POST   | `/courses/{course_id}/groups` | `{ "name": "...", "priority": "..." }` | Бүлэг үүсгэх      |
-| GET    | `/groups/{group_id}`          | —                                      | Бүлгийн мэдээлэл  |
-| PUT    | `/groups/{group_id}`          | `{ "course_id", "name", "priority" }`  | Бүлэг засах       |
-| DELETE | `/groups/{group_id}`          | —                                      | Бүлэг устгах      |
+| Method | Endpoint                | Body                                  | Тайлбар           |
+| ------ | ----------------------- | ------------------------------------- | ----------------- |
+| GET    | `/courses/{cid}/groups` | —                                     | Хичээлийн бүлгүүд |
+| POST   | `/courses/{cid}/groups` | `{ "name", "priority" }`              | Бүлэг үүсгэх      |
+| GET    | `/groups/{gid}`         | —                                     | Бүлгийн мэдээлэл  |
+| PUT    | `/groups/{gid}`         | `{ "course_id", "name", "priority" }` | Засах             |
+| DELETE | `/groups/{gid}`         | —                                     | Устгах            |
 
 ---
 
-### Хийх ёстой хуудсууд
+### ⚠️ API-тай ажиллах дүрмүүд
 
-#### Ерөнхий хуудсууд (Auth)
+1. **Бүх body утга STRING:** `"priority": "1"` биш `1`
+2. **`current_user` заавал:** Олон POST/PUT/DELETE-д `"current_user": "<user_id>"` шаардлагатай
+3. **`{}` prefix талбарууд JSON string:** `JSON.parse(obj["{}schools"] || "[]")` хийж задлана
+4. **List response:** `{ items: [...] }` бүтэцтэй
+5. **DELETE:** 204 status, body байхгүй
+6. **Auth header:** `Authorization: Bearer <token>`
 
-| Зам                      | Хуудас           | API                             |
-| ------------------------ | ---------------- | ------------------------------- |
-| `/team4/`                | Dashboard        | `GET /users/me`, `GET /schools` |
-| `/team4/login`           | Нэвтрэх          | `POST /token/email`             |
-| `/team4/forgot-password` | Нууц үг сэргээх  | `POST /otp/email`               |
-| `/team4/reset-password`  | Нууц үг шинэчлэх | `POST /otp/email/login`         |
-| `/team4/register`        | Бүртгүүлэх       | `POST /users`                   |
-| `/team4/schools/current` | Сургууль сонгох  | `GET /schools`                  |
+---
+
+### Хуудасны тодорхойлолт (PDF-ийн дагуу яг)
+
+#### Ерөнхий хуудсууд
+
+| Зам                      | Хуудас                      | API                                        | Тайлбар                         |
+| ------------------------ | --------------------------- | ------------------------------------------ | ------------------------------- |
+| `/team4/`                | Эхлэх хуудас                | `GET /users/me`, `GET /users/{id}/courses` | Role-аас хамааран өөр dashboard |
+| `/team4/login`           | Нэвтрэх                     | `POST /token/email`                        | Email + password                |
+| `/team4/forgot-password` | Нууц үг сэргээх код авах    | `POST /otp/email`                          | Email оруулах                   |
+| `/team4/reset-password`  | Код ашиглан нууц үг оруулах | `POST /otp/email/login`                    | Code + email                    |
+| `/team4/register`        | Бүртгүүлэх                  | `POST /users`                              | Шинэ хэрэглэгч                  |
+| `/team4/schools/current` | Нэвтрэх сургууль сонгох     | `GET /users/{id}/schools`                  | **Зөвхөн өөрийн сургуулиуд**    |
 
 #### Хэрэглэгчийн хуудсууд
 
-| Зам                              | Хуудас                | API                          |
-| -------------------------------- | --------------------- | ---------------------------- |
-| `/team4/roles`                   | Эрхийн удирдлага      | `GET/POST/PUT/DELETE /roles` |
-| `/team4/users`                   | Хэрэглэгчийн жагсаалт | `GET /users`                 |
-| `/team4/users/create`            | Хэрэглэгч бүртгэх     | `POST /users`                |
-| `/team4/users/:user_id`          | Дэлгэрэнгүй           | `GET /users/{id}`            |
-| `/team4/users/:user_id/edit`     | Засах                 | `PUT /users/{id}`            |
-| `/team4/profile`                 | Өөрийн мэдээлэл       | `GET/PUT /users/me`          |
-| `/team4/profile/change-password` | Нууц үг солих         | `PUT /users/me/password`     |
+| Зам                              | Хуудас                      | API                          | Эрх                            |
+| -------------------------------- | --------------------------- | ---------------------------- | ------------------------------ |
+| `/team4/roles`                   | Эрхийн төрөл удирдах        | `GET/POST/PUT/DELETE /roles` | Админ only                     |
+| `/team4/users`                   | Хэрэглэгчийн жагсаалт       | `GET /users`                 | Админ only                     |
+| `/team4/users/create`            | Хэрэглэгч бүртгэх           | `POST /users`                | Админ: бүгд, Багш: оюутан only |
+| `/team4/users/:user_id`          | Хэрэглэгчийн мэдээлэл харах | `GET /users/{id}`            | Админ only                     |
+| `/team4/users/:user_id/edit`     | Хэрэглэгч засах             | `PUT /users/{id}`            | Админ only                     |
+| `/team4/profile`                 | Өөрийн мэдээлэл засах       | `GET/PUT /users/me`          | Бүгд                           |
+| `/team4/profile/change-password` | Нууц үг солих               | `PUT /users/me/password`     | Бүгд                           |
 
 #### Хичээлийн хэрэглэгчийн хуудсууд
 
-| Зам                                                | Хуудас         | API                                     |
-| -------------------------------------------------- | -------------- | --------------------------------------- |
-| `/team4/courses/:course_id/users`                  | Хэрэглэгчид    | `GET /courses/{id}/users`               |
-| `/team4/courses/:course_id/users/edit`             | Нэмэх/хасах    | `POST/DELETE /courses/{id}/users/{uid}` |
-| `/team4/courses/:course_id/groups`                 | Бүлэг удирдах  | `GET/POST /courses/{id}/groups`         |
-| `/team4/courses/:course_id/groups/:group_id/users` | Бүлгийн гишүүд | `GET /courses/{id}/users` + filter      |
+| Зам                                                | Хуудас                          | API                                        | Эрх         |
+| -------------------------------------------------- | ------------------------------- | ------------------------------------------ | ----------- |
+| `/team4/courses/:course_id/users`                  | Хичээлийн хэрэглэгчийн жагсаалт | `GET /courses/{cid}/users`                 | Админ, Багш |
+| `/team4/courses/:course_id/users/edit`             | Хичээлийн хэрэглэгч удирдах     | `POST/DELETE /courses/{cid}/users`         | Админ, Багш |
+| `/team4/courses/:course_id/groups`                 | Хичээлийн бүлэг удирдах         | `GET/POST /courses/{cid}/groups`           | Админ, Багш |
+| `/team4/courses/:course_id/groups/:group_id/users` | Бүлгийн хэрэглэгчид             | `GET /courses/{cid}/users` filter by group | Админ, Багш |
 
-**Нийт: ~17 хуудас**
+**Нийт: 17 хуудас**
+
+---
+
+### Sidebar цэс (role-аас хамаарна)
+
+**Админ:**
+
+- Нүүр хуудас → `/team4/`
+- Хэрэглэгчид → `/team4/users`
+- Эрхийн удирдлага → `/team4/roles`
+- Сургууль сонгох → `/team4/schools/current`
+- Профайл → `/team4/profile`
+- Нууц үг солих → `/team4/profile/change-password`
+
+**Багш:**
+
+- Нүүр хуудас → `/team4/`
+- Оюутан бүртгэх → `/team4/users/create`
+- Сургууль сонгох → `/team4/schools/current`
+- Профайл → `/team4/profile`
+- Нууц үг солих → `/team4/profile/change-password`
+
+**Оюутан:**
+
+- Нүүр хуудас → `/team4/`
+- Сургууль сонгох → `/team4/schools/current`
+- Профайл → `/team4/profile`
+- Нууц үг солих → `/team4/profile/change-password`
+
+---
+
+### Dashboard (Нүүр хуудас) — role-аас хамаарна
+
+**Админ харна:**
+
+- StatCard: Нийт хэрэглэгч (GET /users → items.length)
+- StatCard: Эрхийн тоо (GET /roles → items.length)
+- StatCard: Сургуулийн тоо (GET /users/{id}/schools → items.length)
+- PieChart: Эрхийн тархалт (recharts)
+- Хурдан холбоосууд: Хэрэглэгчид, Эрхийн удирдлага, Профайл
+
+**Багш харна:**
+
+- StatCard: Миний хичээлүүд (GET /users/{id}/courses → items.length)
+- Хурдан холбоосууд: Оюутан бүртгэх, Профайл
+- Хичээлүүдийн жагсаалт (course_id-тай линкүүд → /courses/{id}/users)
+
+**Оюутан харна:**
+
+- StatCard: Миний хичээлүүд (GET /users/{id}/courses → items.length)
+- Хурдан холбоосууд: Профайл, Нууц үг солих
+- ❌ Системийн мэдээлэл ХАРУУЛАХГҮЙ
 
 ---
 
@@ -161,18 +254,32 @@
 
 ```
 client/src/team4/
-├── Index.jsx                     # Route тодорхойлолт
-├── Layout.jsx                    # Sidebar + Header + Outlet
-│
+├── Index.jsx
+├── Layout.jsx
 ├── components/
+│   ├── ui/                      # shadcn-style components
+│   │   ├── index.js             # Barrel export
+│   │   ├── Button.jsx
+│   │   ├── Input.jsx
+│   │   ├── Label.jsx
+│   │   ├── Select.jsx
+│   │   ├── Textarea.jsx
+│   │   ├── Card.jsx
+│   │   ├── Badge.jsx
+│   │   ├── Table.jsx
+│   │   ├── Dialog.jsx
+│   │   ├── Avatar.jsx
+│   │   ├── Alert.jsx
+│   │   ├── Separator.jsx
+│   │   ├── Skeleton.jsx
+│   │   ├── Tabs.jsx
+│   │   ├── DropdownMenu.jsx
+│   │   ├── Sheet.jsx
+│   │   ├── EmptyState.jsx
+│   │   ├── DataTable.jsx
+│   │   └── StatCard.jsx
 │   ├── header/Header.jsx
-│   ├── sidebar/SideMenu.jsx
-│   └── common/
-│       ├── Table.jsx             # Хүснэгт
-│       ├── Modal.jsx             # Dialog
-│       ├── Pagination.jsx        # Client-side pagination
-│       └── SearchBar.jsx         # Хайлт
-│
+│   └── sidebar/SideMenu.jsx
 ├── pages/
 │   ├── auth/
 │   │   ├── Login.jsx
@@ -195,161 +302,52 @@ client/src/team4/
 │       ├── CourseUserEdit.jsx
 │       ├── GroupManagement.jsx
 │       └── GroupUserList.jsx
-│
 └── utils/
-    └── api.js                    # API helper functions
+    └── api.js
 ```
-
----
-
-### utils/api.js — API Helper
-
-```js
-const BASE = "https://todu.mn/bs/lms/v1";
-
-function getToken() {
-  return localStorage.getItem("team4_token");
-}
-
-function getCurrentUserId() {
-  const user = JSON.parse(localStorage.getItem("team4_user") || "{}");
-  return user.id ? String(user.id) : "";
-}
-
-async function api(endpoint, method = "GET", body = null) {
-  const headers = { "Content-Type": "application/json" };
-  const token = getToken();
-  if (token) headers["Authorization"] = `Bearer ${token}`;
-
-  const opts = { method, headers };
-  if (body && method !== "GET") opts.body = JSON.stringify(body);
-
-  const res = await fetch(`${BASE}${endpoint}`, opts);
-
-  if (res.status === 401) {
-    localStorage.removeItem("team4_token");
-    localStorage.removeItem("team4_user");
-    window.location.href = "/team4/login";
-    return null;
-  }
-
-  if (res.status === 204) return null; // DELETE success
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
-}
-
-// Helpers
-export const apiGet = (url) => api(url);
-export const apiPost = (url, data) => api(url, "POST", data);
-export const apiPut = (url, data) => api(url, "PUT", data);
-export const apiDelete = (url, data) => api(url, "DELETE", data);
-
-// Auth helpers
-export async function login(email, password) {
-  const data = await apiPost("/token/email", { email, password });
-  // Save token — check actual response structure
-  if (data?.token) {
-    localStorage.setItem("team4_token", data.token);
-    // Fetch user info
-    const me = await apiGet("/users/me");
-    localStorage.setItem("team4_user", JSON.stringify(me));
-    return me;
-  }
-  return data;
-}
-
-export function logout() {
-  const uid = getCurrentUserId();
-  apiDelete("/token", { current_user: uid }).catch(() => {});
-  localStorage.removeItem("team4_token");
-  localStorage.removeItem("team4_user");
-  window.location.href = "/team4/login";
-}
-
-export function isLoggedIn() {
-  return !!getToken();
-}
-
-export function getMe() {
-  return JSON.parse(localStorage.getItem("team4_user") || "null");
-}
-
-// Parse {}fields helper
-export function parseJsonField(obj, field) {
-  try {
-    return JSON.parse(obj[`{}${field}`] || "[]");
-  } catch {
-    return [];
-  }
-}
-```
-
----
-
-### Эрхийн удирдлага (Role-based Access)
-
-| Үйлдэл                  | Admin | SchoolAdmin | Teacher     | Student |
-| ----------------------- | ----- | ----------- | ----------- | ------- |
-| Бүх хэрэглэгч харах     | ✅    | ✅          | ❌          | ❌      |
-| Хэрэглэгч бүртгэх       | ✅    | ✅          | ✅ (оюутан) | ❌      |
-| Хэрэглэгч засах/устгах  | ✅    | ✅          | ❌          | ❌      |
-| Эрх удирдах (roles)     | ✅    | ❌          | ❌          | ❌      |
-| Өөрийн profile засах    | ✅    | ✅          | ✅          | ✅      |
-| Хичээлд хэрэглэгч нэмэх | ✅    | ✅          | ✅          | ❌      |
-| Бүлэг удирдах           | ✅    | ✅          | ✅          | ❌      |
-
-> Эдгээр хязгаарлалтыг frontend талаас шалгаж хэрэгжүүлнэ.
 
 ---
 
 ### Гишүүдийн хуваарилалт (5 гишүүн)
 
-| Гишүүн | Хуудсууд                                                       | Гол API                                     |
-| ------ | -------------------------------------------------------------- | ------------------------------------------- |
-| **1**  | Login, Register, ForgotPassword, ResetPassword, Layout, api.js | `/token/email`, `/otp/email`, `/users` POST |
-| **2**  | UserList, UserCreate, UserDetail, UserEdit                     | `/users` CRUD                               |
-| **3**  | Profile, ChangePassword, RoleManagement, SchoolSelect          | `/users/me`, `/roles`, `/schools`           |
-| **4**  | CourseUserList, CourseUserEdit, Header, SideMenu               | `/courses/{id}/users`                       |
-| **5**  | GroupManagement, GroupUserList, Home (Dashboard + stats)       | `/groups`, `/courses/{id}/groups`           |
+| Гишүүн | Хуудсууд                                                        | Гол API                                      | Оноо              |
+| ------ | --------------------------------------------------------------- | -------------------------------------------- | ----------------- |
+| **1**  | Login, Register, ForgotPassword, ResetPassword + api.js, Layout | `/token/email`, `/otp/email`, `/users` POST  | Auth бүтэн        |
+| **2**  | UserList, UserCreate, UserDetail, UserEdit                      | `/users` CRUD                                | User CRUD         |
+| **3**  | Profile, ChangePassword, RoleManagement, SchoolSelect           | `/users/me`, `/roles`, `/users/{id}/schools` | Profile + Role    |
+| **4**  | CourseUserList, CourseUserEdit, Header, SideMenu                | `/courses/{id}/users`                        | Course хэрэглэгч  |
+| **5**  | GroupManagement, GroupUserList, Home (Dashboard + тайлан)       | `/groups`, `/courses/{id}/groups`, recharts  | Бүлэг + Dashboard |
 
 ---
 
 ### Дүгнэх зарчим (12 оноо)
 
-| Шалгуур                    | Оноо  |
-| -------------------------- | ----- |
-| UI — Өнгө үзэмж            | 1     |
-| UX — Бүх деталыг тусгасан  | 1     |
-| Хэрэглэгчийн эрхийн хяналт | 1     |
-| **API холбосон байдал**    | **5** |
-| **Gitlab commit-ууд**      | **3** |
-| Танилцуулга                | 1     |
-
-**Хугацаа:** 10-р долоо хоногийн лабораторийн цаг
+| Шалгуур                                | Оноо  |
+| -------------------------------------- | ----- |
+| UI — Өнгө үзэмж                        | 1     |
+| UX — Бүх деталыг тусгасан              | 1     |
+| Хэрэглэгчийн эрхээс хамаарах ажиллагаа | 1     |
+| **API холбосон байдал**                | **5** |
+| **Gitlab commit-ууд**                  | **3** |
+| Танилцуулга                            | 1     |
 
 ---
 
-### Технологи (package.json-д бэлэн суусан)
+### Технологи (package.json-д бэлэн)
 
-- **React 19** (Vite) — Frontend framework
-- **React Router DOM** — Client-side routing
-- **TailwindCSS 4** — Загварчлал
-- **react-icons** — Icon-ууд (`import { FiUser } from "react-icons/fi"`)
-- **recharts** — Тайлан/статистик график (`PieChart`, `BarChart` гэх мэт)
-- **@tinymce/tinymce-react** — Rich text editor (шаардлагатай бол)
-- **fetch API** — HTTP хүсэлт
-- **localStorage** — Token хадгалах
-
-> ⚠️ Дээрхээс **өөр** нэмэлт сан суулгахыг **хориглоно**.
+- React 19, react-dom 19, react-router-dom 7.13
+- TailwindCSS 4
+- react-icons 5.6
+- recharts 3.7 (тайлан/статистик)
+- @tinymce/tinymce-react 6.3
+- Бусад сан суулгахыг **хориглоно**
 
 ---
 
 ### Ажиллуулах
 
 ```bash
-cd client
-npm install
-npm run dev
+cd client && npm install && npm run dev
 ```
 
 Browser: `http://localhost:5173/team4/`
@@ -359,25 +357,22 @@ Browser: `http://localhost:5173/team4/`
 ### Git workflow
 
 ```bash
-# Өдөр бүр:
 git add .
 git commit -m "feat(team4): login page API integration"
 git push
-
-# Commit message жишээ:
-# "feat(team4): user list page with search"
-# "fix(team4): token expiry redirect"
-# "style(team4): responsive sidebar"
 ```
 
-> Гишүүн бүр олон удаа commit хийсэн байх ёстой (3 оноо!)
+Гишүүн бүр олон удаа commit хийсэн байх ёстой **(3 оноо!)**
 
 ---
 
-### Чухал дүрэм
+### Чухал дүрмүүд
 
 1. Зөвхөн `client/src/team4/` хавтасд код бичнэ
-2. Бусад багийн кодыг хөндөхгүй
-3. Код өөрчлөлтийг Gitlab руу тухай бүрт push хийнэ
-4. Бэлэн API ашиглан бүрэн ажиллагаатай систем хийнэ
-5. Нэмэлт сан суулгахгүй
+2. Бусад багийн кодыг **хөндөхгүй**
+3. `GET /schools` нь **бүх** сургуулийг буцаана — SchoolSelect хуудсанд ашиглахгүй
+4. `GET /users/{id}/schools` нь тухайн хэрэглэгчийн **хамаарах** сургуулиудыг буцаана — **үүнийг ашиглана**
+5. Эрх нь сургууль бүрт өөр → `{}role` талбараас авна
+6. Оюутан системийн тоо, бусдын мэдээлэл харах ёсгүй
+7. Багш зөвхөн оюутан бүртгэнэ, хэрэглэгчийн жагсаалт харахгүй
+8. URL-ээр шууд орохыг хориглох (ProtectedRoute + redirect)
