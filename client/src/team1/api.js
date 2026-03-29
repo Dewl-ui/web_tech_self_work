@@ -1,43 +1,68 @@
 // src/team1/api.js
+// Vite proxy: /bs/lms → https://todu.mn/bs/lms
+// Тиймээс BASE_URL = "/bs/lms/v1" болно
 
-const BASE_URL = "https://todu.mn/bs/lms/v1";
+const BASE_URL = "/bs/lms/v1";
 
-// Token авах
 function getToken() {
   return localStorage.getItem("token");
 }
 
-// Нийтлэг fetch wrapper
+export function getCurrentUser() {
+  try {
+    const user = localStorage.getItem("user");
+    return user ? JSON.parse(user) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function canCreate(user) {
+  return user && [1, 3, 4].includes(user.role_id);
+}
+export function canEdit(user) {
+  return user && [1, 3, 4].includes(user.role_id);
+}
+export function canDelete(user) {
+  return user && [1, 3].includes(user.role_id);
+}
+export function isStudent(user) {
+  return user && user.role_id === 5;
+}
+
 async function request(method, path, body = null) {
   const token = getToken();
-  const headers = {
-    "Content-Type": "application/json",
-  };
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
+  const headers = { "Content-Type": "application/json" };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
 
   const options = { method, headers };
   if (body) options.body = JSON.stringify(body);
 
   const res = await fetch(`${BASE_URL}${path}`, options);
 
+  if (res.status === 401) {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.href = "/team4/login";
+    return;
+  }
+
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.message || `Алдаа: ${res.status}`);
   }
 
+  if (res.status === 204) return null;
   return res.json();
 }
 
-// ==================== AUTH ====================
 export const authAPI = {
   login: (email, password) =>
-    request("POST", "/auth/login", { email, password }),
+    request("POST", "/token/email", { email, password }),
   me: () => request("GET", "/users/me"),
+  logout: () => request("DELETE", "/token"),
 };
 
-// ==================== COURSES ====================
 export const courseAPI = {
   getAll: () => request("GET", "/courses"),
   getOne: (courseId) => request("GET", `/courses/${courseId}`),
@@ -46,7 +71,6 @@ export const courseAPI = {
   delete: (courseId) => request("DELETE", `/courses/${courseId}`),
 };
 
-// ==================== LESSONS ====================
 export const lessonAPI = {
   getAll: (courseId) => request("GET", `/courses/${courseId}/lessons`),
   getOne: (courseId, lessonId) =>
@@ -59,13 +83,11 @@ export const lessonAPI = {
     request("DELETE", `/courses/${courseId}/lessons/${lessonId}`),
 };
 
-// ==================== SCHOOLS ====================
 export const schoolAPI = {
   getAll: () => request("GET", "/schools"),
-  getOne: (schoolId) => request("GET", `/schools/${schoolId}`),
+  getOne: (id) => request("GET", `/schools/${id}`),
 };
 
-// ==================== CATEGORIES ====================
 export const categoryAPI = {
   getAll: () => request("GET", "/categories"),
 };
