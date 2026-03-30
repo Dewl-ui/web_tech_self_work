@@ -2,14 +2,14 @@ import { Routes, Route } from "react-router-dom";
 import Layout from "./Layout";
 import Home from "./Home";
 import Example from "./Example";
-import QuestionTypes from "./QuestionTypes";
-import QuestionLevels from "./QuestionLevels";
-import QuestionList from "./QuestionList";
-import QuestionPoints from "./QuestionPoints";
-import QuestionCreate from "./QuestionCreate";
-import QuestionView from "./QuestionView";
-import QuestionEdit from "./QuestionEdit";
-import QuestionReport from "./QuestionReport";
+import QuestionTypes from "./pages/QuestionTypes";
+import QuestionLevels from "./pages/QuestionLevels";
+import QuestionList from "./pages/QuestionList";
+import QuestionPoints from "./pages/QuestionPoints";
+import QuestionCreate from "./pages/QuestionCreate";
+import QuestionView from "./pages/QuestionView";
+import QuestionEdit from "./pages/QuestionEdit";
+import QuestionReport from "./pages/QuestionReport";
 
 const Index = () => {
   return (
