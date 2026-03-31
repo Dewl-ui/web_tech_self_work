@@ -1,0 +1,53 @@
+# =============================================================================
+# PROFILE — /users/me, /users/me/password, /users/me/picture
+# Base URL: https://todu.mn/bs/lms/v1
+# Member 3 — Profile, ChangePassword
+# =============================================================================
+
+@baseUrl = https://todu.mn/bs/lms/v1
+
+# Paste token from auth.http login response:
+@token = PASTE_TOKEN_HERE
+@currentUser = 1
+
+# -----------------------------------------------------------------------------
+### Get current user profile
+GET {{baseUrl}}/users/me?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Update current user profile
+PUT {{baseUrl}}/users/me
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "first_name": "Амартувшин",
+  "last_name": "Бөхбат",
+  "phone": "99001122",
+  "current_user": {{currentUser}}
+}
+
+# -----------------------------------------------------------------------------
+### Change password
+PUT {{baseUrl}}/users/me/password
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "old_password": "oldPassword123",
+  "new_password": "newPassword456",
+  "current_user": {{currentUser}}
+}
+
+# -----------------------------------------------------------------------------
+### Upload profile picture (multipart — use Postman/Insomnia for binary)
+# PUT {{baseUrl}}/users/me/picture
+# Authorization: Bearer {{token}}
+# Content-Type: multipart/form-data; boundary=----Boundary
+#
+# ------Boundary
+# Content-Disposition: form-data; name="picture"; filename="avatar.jpg"
+# Content-Type: image/jpeg
+# <binary data>
+# ------Boundary--

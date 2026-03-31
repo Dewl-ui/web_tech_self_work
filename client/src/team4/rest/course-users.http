@@ -1,0 +1,80 @@
+# =============================================================================
+# COURSE USERS — /courses/{course_id}/users, /courses/{course_id}/users/{user_id}
+# Base URL: https://todu.mn/bs/lms/v1
+# Member 4 — CourseUserList, CourseUserEdit
+# =============================================================================
+
+@baseUrl = https://todu.mn/bs/lms/v1
+
+# Paste token from auth.http login response (admin or teacher):
+@token = PASTE_TOKEN_HERE
+@currentUser = 1
+@courseId = 1
+@userId = 2
+
+# -----------------------------------------------------------------------------
+### Get all users enrolled in a course
+GET {{baseUrl}}/courses/{{courseId}}/users?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Get a specific user's enrolment in a course
+GET {{baseUrl}}/courses/{{courseId}}/users/{{userId}}?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Enrol a user in a course
+POST {{baseUrl}}/courses/{{courseId}}/users
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "user_id": {{userId}},
+  "current_user": {{currentUser}}
+}
+
+# -----------------------------------------------------------------------------
+### Update a user's course enrolment (e.g. role, status)
+PUT {{baseUrl}}/courses/{{courseId}}/users/{{userId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "role": "student",
+  "current_user": {{currentUser}}
+}
+
+# -----------------------------------------------------------------------------
+### Remove a user from a course
+DELETE {{baseUrl}}/courses/{{courseId}}/users/{{userId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "current_user": {{currentUser}}
+}
+
+# -----------------------------------------------------------------------------
+### Get timetable for the course (all users)
+GET {{baseUrl}}/courses/{{courseId}}/timetables/users?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Get a specific user's timetable in the course
+GET {{baseUrl}}/courses/{{courseId}}/timetables/users/{{userId}}/1?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Get course gradebook — submissions
+GET {{baseUrl}}/courses/{{courseId}}/gradebook/submissions?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Get course gradebook — attendances
+GET {{baseUrl}}/courses/{{courseId}}/gradebook/attendances?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Get course gradebook — exams
+GET {{baseUrl}}/courses/{{courseId}}/gradebook/exams?current_user={{currentUser}}
+Authorization: Bearer {{token}}

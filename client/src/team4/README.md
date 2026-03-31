@@ -7,6 +7,7 @@
 Цахим сургалтын систем (LMS)-ийн **хэрэглэгчийн удирдлагын хэсэг**-ийг хариуцан хөгжүүлнэ.
 
 **API Base URL:** `https://todu.mn/bs/lms/v1`  
+**API Swagger editor:** `https://editor.swagger.io/`
 **API Swagger:** `todu.mn/bs/lms/open-api-catalog/v1/`  
 **API Documentation (Ready to use):** `https://registry.scalar.com/@default-team-74qpj/apis/ords-generated-api-for-v1@1.0.0`
 
