@@ -258,8 +258,8 @@ client/src/team4/
 ├── Index.jsx
 ├── Layout.jsx
 ├── components/
-│   ├── ui/                      # shadcn-style components
-│   │   ├── index.js             # Barrel export
+│   ├── ui/                      
+│   │   ├── index.js             
 │   │   ├── Button.jsx
 │   │   ├── Input.jsx
 │   │   ├── Label.jsx

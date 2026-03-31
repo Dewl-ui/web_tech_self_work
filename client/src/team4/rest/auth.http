@@ -13,7 +13,7 @@
 
 # -----------------------------------------------------------------------------
 ### Login with email + password
-POST {{baseUrl}}/token/email
+POST {{baseUrl}}/token/email  
 Content-Type: application/json
 
 {
