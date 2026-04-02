@@ -1,0 +1,107 @@
+# =============================================================================
+# AUTH — /token, /otp, /users (register)
+# Base URL: https://todu.mn/bs/lms/v1
+# Requires: VS Code REST Client extension
+# =============================================================================
+
+@baseUrl = https://todu.mn/bs/lms/v1
+@email = user@example.com
+@password = password123
+
+# After a successful login, copy the returned token here:
+@token = PASTE_TOKEN_HERE
+
+# -----------------------------------------------------------------------------
+### Login with email + password
+POST {{baseUrl}}/token/email  
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}",
+  "push_token": ""
+}
+
+# -----------------------------------------------------------------------------
+### Logout (delete token)
+DELETE {{baseUrl}}/token
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "current_user": 1
+}
+
+# -----------------------------------------------------------------------------
+### Refresh access token
+POST {{baseUrl}}/token/refresh
+Content-Type: application/json
+
+{
+  "refresh_token": "PASTE_REFRESH_TOKEN_HERE"
+}
+
+# -----------------------------------------------------------------------------
+### Register a new user
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "first_name": "Амартувшин",
+  "last_name": "Бөхбат",
+  "email": "{{email}}",
+  "username": "amartuvshinn",
+  "phone": "99001122",
+  "password": "{{password}}"
+}
+
+# -----------------------------------------------------------------------------
+### Send OTP to email (forgot password / reset flow)
+POST {{baseUrl}}/otp/email
+Content-Type: application/json
+
+{
+  "email": "{{email}}"
+}
+
+# -----------------------------------------------------------------------------
+### Login with OTP code (from email)
+POST {{baseUrl}}/otp/email/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "code": "123456",
+  "push_token": ""
+}
+
+# -----------------------------------------------------------------------------
+### Send OTP to phone
+POST {{baseUrl}}/otp/phone
+Content-Type: application/json
+
+{
+  "phone": "99001122"
+}
+
+# -----------------------------------------------------------------------------
+### Login with OTP code (from phone)
+POST {{baseUrl}}/otp/phone/login
+Content-Type: application/json
+
+{
+  "phone": "99001122",
+  "code": "123456",
+  "push_token": ""
+}
+
+# -----------------------------------------------------------------------------
+### Login with phone + password
+POST {{baseUrl}}/token/phone
+Content-Type: application/json
+
+{
+  "phone": "99001122",
+  "password": "{{password}}",
+  "push_token": ""
+}

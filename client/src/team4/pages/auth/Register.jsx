@@ -1,29 +1,43 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { apiPost } from "../../../utils/api";
-import { Button } from "../../components/ui/Button";
-import { Input } from "../../components/ui/Input";
-import { Label } from "../../components/ui/Label";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "../../components/ui/Card";
-import { Alert, AlertDescription } from "../../components/ui/Alert";
+import { Link, Navigate, useNavigate } from "react-router-dom";
+import { FcGoogle } from "react-icons/fc";
+import { useAuth } from "../../utils/AuthContext";
+import { apiPost } from "../../utils/api";
+import { AuthLayout } from "./AuthLayout";
 
 export default function Register() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
   const [form, setForm] = useState({
-    first_name: "", last_name: "", email: "", username: "", phone: "", password: "", confirm_password: ""
+    last_name: "",
+    first_name: "",
+    email: "",
+    username: "",
+    phone: "",
+    password: "",
+    confirm_password: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  if (user) return <Navigate to="/team4/" replace />;
+
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
-  const handleSubmit = async (e) => {
+  async function handleSubmit(e) {
     e.preventDefault();
     setError("");
+
+    if (form.password.length < 8) {
+      setError("Нууц үг дор хаяж 8 тэмдэгтэос бүрдэх ёстой");
+      return;
+    }
     if (form.password !== form.confirm_password) {
       setError("Нууц үг таарахгүй байна");
       return;
     }
+
     setLoading(true);
     try {
       await apiPost("/users", {
@@ -40,69 +54,155 @@ export default function Register() {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
-    // <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-50 overflow-y-auto py-8">
-    <div className="min-h-[60vh] flex items-center justify-center py-8 overflow-y-auto">
-      <div className="w-full max-w-lg px-4">
-        <Card>
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Бүртгүүлэх</CardTitle>
-            <CardDescription>Шинэ бүртгэл үүсгэнэ үү</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {error && (
-              <Alert variant="destructive" className="mb-4">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
+    <AuthLayout>
+      <div className="space-y-6">
+        {/* Heading */}
+        <div className="text-center space-y-1">
+          <h1 className="text-2xl font-bold text-zinc-900">Бүртгүүлэх</h1>
+          <p className="text-sm text-zinc-500">Доорх мэдааллийг үнэн зев бөглөне уу.</p>
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
+        )}
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Name row */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-zinc-700">Овог</label>
+              <input
+                type="text"
+                placeholder="Бөхбат"
+                value={form.last_name}
+                onChange={set("last_name")}
+                required
+                className="flex h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm
+                  placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-zinc-700">Нэр</label>
+              <input
+                type="text"
+                placeholder="Амартувшин"
+                value={form.first_name}
+                onChange={set("first_name")}
+                required
+                className="flex h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm
+                  placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+              />
+            </div>
+          </div>
+
+          {/* Email */}
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-zinc-700">И-Мэйл</label>
+            <input
+              type="email"
+              placeholder="B231910004@must.edu.mn"
+              value={form.email}
+              onChange={set("email")}
+              required
+              className="flex h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm
+                placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+            />
+          </div>
+
+          {/* Username */}
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-zinc-700">Хэрэглэгчийн нэр</label>
+            <input
+              type="text"
+              placeholder="username"
+              value={form.username}
+              onChange={set("username")}
+              required
+              className="flex h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm
+                placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+            />
+          </div>
+
+          {/* Password */}
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-zinc-700">Нууц үг</label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={form.password}
+              onChange={set("password")}
+              required
+              className="flex h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm
+                placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+            />
+            <p className="text-xs text-zinc-400">Дор хаяж 8 тэмдэгтэос бүрдэх ёстой.</p>
+          </div>
+
+          {/* Confirm password */}
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-zinc-700">Нууц үг давтах</label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={form.confirm_password}
+              onChange={set("confirm_password")}
+              required
+              className="flex h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm
+                placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+            />
+            <p className="text-xs text-zinc-400">Дор хаяж 8 тэмдэгтэос бүрдэх ёстой.</p>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-zinc-900 text-sm
+              font-medium text-white transition-colors hover:bg-zinc-700
+              disabled:pointer-events-none disabled:opacity-60"
+          >
+            {loading && (
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
             )}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Овог</Label>
-                  <Input placeholder="Овог" value={form.last_name} onChange={set("last_name")} required />
-                </div>
-                <div className="space-y-2">
-                  <Label>Нэр</Label>
-                  <Input placeholder="Нэр" value={form.first_name} onChange={set("first_name")} required />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Имэйл</Label>
-                <Input type="email" placeholder="email@example.com" value={form.email} onChange={set("email")} required />
-              </div>
-              <div className="space-y-2">
-                <Label>Хэрэглэгчийн нэр</Label>
-                <Input placeholder="username" value={form.username} onChange={set("username")} required />
-              </div>
-              <div className="space-y-2">
-                <Label>Утасны дугаар</Label>
-                <Input placeholder="99001234" value={form.phone} onChange={set("phone")} />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Нууц үг</Label>
-                  <Input type="password" placeholder="••••••••" value={form.password} onChange={set("password")} required />
-                </div>
-                <div className="space-y-2">
-                  <Label>Нууц үг давтах</Label>
-                  <Input type="password" placeholder="••••••••" value={form.confirm_password} onChange={set("confirm_password")} required />
-                </div>
-              </div>
-              <Button type="submit" className="w-full" loading={loading}>
-                Бүртгүүлэх
-              </Button>
-            </form>
-          </CardContent>
-          <CardFooter className="justify-center text-sm">
-            <span className="text-zinc-500">
-              Бүртгэлтэй юу?{" "}
-              <Link to="/team4/login" className="text-zinc-900 font-medium hover:underline">Нэвтрэх</Link>
-            </span>
-          </CardFooter>
-        </Card>
+            Бүртгүүлэх
+          </button>
+        </form>
+
+        {/* Divider */}
+        <div className="flex items-center gap-3">
+          <div className="h-px flex-1 bg-zinc-200" />
+          <span className="text-xs text-zinc-400">эсвэл</span>
+          <div className="h-px flex-1 bg-zinc-200" />
+        </div>
+
+        {/* Google button */}
+        <button
+          type="button"
+          onClick={() => alert("Gmail бүртгэл тохиргоогүй")}
+          className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-zinc-200
+            bg-white text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
+        >
+          <FcGoogle className="h-4 w-4" />
+          Gmail
+        </button>
+
+        {/* Login link */}
+        <p className="text-center text-sm text-zinc-500">
+          Та бүртгэлтэй юу?{" "}
+          <Link
+            to="/team4/login"
+            className="font-medium text-zinc-900 hover:underline underline-offset-4"
+          >
+            Нэвтрэх
+          </Link>
+        </p>
       </div>
-    </div>
+    </AuthLayout>
   );
 }

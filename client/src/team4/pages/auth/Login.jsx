@@ -1,98 +1,135 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { login } from "../../../utils/api";
-// import { Button } from "../../components/ui/Button";
-import { Input } from "../../components/ui/Input";
-import { Label } from "../../components/ui/Label";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "../../components/ui/Card";
-import { Alert, AlertDescription } from "../../components/ui/Alert";
-import { FiMail, FiLock } from "react-icons/fi";
+import { Link, Navigate, useNavigate } from "react-router-dom";
+import { FcGoogle } from "react-icons/fc";
+import { useAuth } from "../../utils/AuthContext";
+import { AuthLayout } from "./AuthLayout";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { user, login } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e) => {
+  // Already logged in → go home
+  if (user) return <Navigate to="/team4/" replace />;
+
+  async function handleSubmit(e) {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
       await login(email, password);
-      navigate("/team4/");
+      // School is always cleared on login — user must re-select their school
+      navigate("/team4/schools/current", { replace: true });
     } catch (err) {
       setError(err.message || "Нэвтрэх амжилтгүй боллоо");
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
-    // <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-50">
-    <div className="min-h-[60vh] flex items-center justify-center py-8">
-      <div className="w-full max-w-sm px-4">
-        <Card>
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Нэвтрэх</CardTitle>
-            <CardDescription>Системд нэвтрэхийн тулд мэдээллээ оруулна уу</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {error && (
-              <Alert variant="destructive" className="mb-4">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Имэйл</Label>
-                <div className="relative">
-                  <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="admin@must.edu.mn"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-9"
-                    required
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Нууц үг</Label>
-                <div className="relative">
-                  <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-9"
-                    required
-                  />
-                </div>
-              </div>
-              <Button type="submit" className="w-full" loading={loading}>
-                Нэвтрэх
-              </Button>
-            </form>
-          </CardContent>
-          <CardFooter className="flex flex-col gap-2 text-sm text-center">
-            <Link to="/team4/forgot-password" className="text-zinc-500 hover:text-zinc-900 underline-offset-4 hover:underline">
-              Нууц үгээ мартсан уу?
-            </Link>
-            <span className="text-zinc-400">
-              Бүртгэл байхгүй?{" "}
-              <Link to="/team4/register" className="text-zinc-900 font-medium hover:underline">
-                Бүртгүүлэх
+    <AuthLayout>
+      <div className="space-y-6">
+        {/* Heading */}
+        <div className="text-center space-y-1">
+          <h1 className="text-2xl font-bold text-zinc-900">Нэвтрэх</h1>
+          <p className="text-sm text-zinc-500">
+            Бүртгэлдээ нэвтрэхийн тулд доорх имэйл хаягаа оруулна уу
+          </p>
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
+        )}
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Email */}
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-zinc-700">И-Мэйл</label>
+            <input
+              type="email"
+              placeholder="m@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="flex h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm
+                placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+            />
+          </div>
+
+          {/* Password */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-zinc-700">Нууц үг</label>
+              <Link
+                to="/team4/forgot-password"
+                className="text-xs text-zinc-500 hover:text-zinc-900 underline-offset-4 hover:underline"
+              >
+                Нууц үгээ мартсан уу?
               </Link>
-            </span>
-          </CardFooter>
-        </Card>
+            </div>
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="flex h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm
+                placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-zinc-900 text-sm
+              font-medium text-white transition-colors hover:bg-zinc-700
+              disabled:pointer-events-none disabled:opacity-60"
+          >
+            {loading && (
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            )}
+            Нэвтрэх
+          </button>
+        </form>
+
+        {/* Divider */}
+        <div className="flex items-center gap-3">
+          <div className="h-px flex-1 bg-zinc-200" />
+          <span className="text-xs text-zinc-400">эсвэл</span>
+          <div className="h-px flex-1 bg-zinc-200" />
+        </div>
+
+        {/* Google button */}
+        <button
+          type="button"
+          onClick={() => alert("Gmail нэвтрэх тохиргоогүй")}
+          className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-zinc-200
+            bg-white text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
+        >
+          <FcGoogle className="h-4 w-4" />
+          Gmail
+        </button>
+
+        {/* Register link */}
+        <p className="text-center text-sm text-zinc-500">
+          Бүртгэлгүй байна уу?{" "}
+          <Link
+            to="/team4/register"
+            className="font-medium text-zinc-900 hover:underline underline-offset-4"
+          >
+            Бүртгүүлэх
+          </Link>
+        </p>
       </div>
-    </div>
+    </AuthLayout>
   );
 }
