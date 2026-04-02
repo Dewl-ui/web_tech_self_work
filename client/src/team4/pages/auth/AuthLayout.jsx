@@ -3,7 +3,7 @@ import { FiEdit2 } from "react-icons/fi";
 
 function RightPanel() {
   return (
-    <div className="relative hidden flex-1 overflow-hidden lg:min-h-screen lg:block">
+    <div className="relative hidden min-h-0 min-w-0 overflow-hidden lg:block lg:min-h-screen lg:w-1/2">
       <img
         src="/team4/auth_images/auth.jpg"
         alt=""
@@ -17,7 +17,7 @@ export function AuthLayout({ children }) {
   return (
     <div className="flex min-h-screen">
       {/* Left panel — form area */}
-      <div className="flex w-full flex-col lg:w-[460px] lg:shrink-0">
+      <div className="flex w-full min-w-0 flex-col lg:w-1/2 lg:min-h-screen">
         {/* Logo */}
         <div className="p-8">
           <Link
