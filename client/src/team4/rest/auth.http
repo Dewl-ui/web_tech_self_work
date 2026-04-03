@@ -5,8 +5,8 @@
 # =============================================================================
 
 @baseUrl = https://todu.mn/bs/lms/v1
-@email = user@example.com
-@password = password123
+@email = schooladmin@must.edu.mn
+@password = 123
 
 # After a successful login, copy the returned token here:
 @token = PASTE_TOKEN_HERE

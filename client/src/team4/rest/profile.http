@@ -1,7 +1,7 @@
 # =============================================================================
-# PROFILE — /users/me, /users/me/password, /users/me/picture
+# PROFILE — /users/me, /users/me/password, /users/me/picture, /users/me/exams
 # Base URL: https://todu.mn/bs/lms/v1
-# Member 3 — Profile, ChangePassword
+# Pages: /profile, /profile/change-password
 # =============================================================================
 
 @baseUrl = https://todu.mn/bs/lms/v1
@@ -9,14 +9,16 @@
 # Paste token from auth.http login response:
 @token = PASTE_TOKEN_HERE
 @currentUser = 1
+@examId = 1
 
 # -----------------------------------------------------------------------------
-### Get current user profile
+### Get current user profile — GET /users/me
 GET {{baseUrl}}/users/me?current_user={{currentUser}}
 Authorization: Bearer {{token}}
 
 # -----------------------------------------------------------------------------
-### Update current user profile
+### Update current user profile — PUT /users/me
+# Schema: v1_ITEM_59 (first_name, last_name, phone, and address fields)
 PUT {{baseUrl}}/users/me
 Content-Type: application/json
 Authorization: Bearer {{token}}
@@ -29,13 +31,24 @@ Authorization: Bearer {{token}}
 }
 
 # -----------------------------------------------------------------------------
-### Change password
+### Delete own account — DELETE /users/me
+DELETE {{baseUrl}}/users/me
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "current_user": {{currentUser}}
+}
+
+# -----------------------------------------------------------------------------
+### Change password — PUT /users/me/password
+# Schema: v1_ITEM_62 (password, new_password)
 PUT {{baseUrl}}/users/me/password
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "old_password": "oldPassword123",
+  "password": "oldPassword123",
   "new_password": "newPassword456",
   "current_user": {{currentUser}}
 }
@@ -51,3 +64,59 @@ Authorization: Bearer {{token}}
 # Content-Type: image/jpeg
 # <binary data>
 # ------Boundary--
+
+# =============================================================================
+# MY EXAMS — /users/me/exams, /users/me/exams/{exam_id}
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+### Get my exams — GET /users/me/exams
+GET {{baseUrl}}/users/me/exams?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Get my exam attempt details — GET /users/me/exams/{exam_id}
+# Returns: attempt_no, duration, grade_point, start_on, total_point, variant_id
+GET {{baseUrl}}/users/me/exams/{{examId}}?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Start or resume an exam — POST /users/me/exams/{exam_id}
+# Creates an exam sheet (шалгалт эхлүүлнэ / үргэлжлүүлнэ)
+POST {{baseUrl}}/users/me/exams/{{examId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "current_user": {{currentUser}}
+}
+
+# -----------------------------------------------------------------------------
+### Finish an exam — PUT /users/me/exams/{exam_id}
+# Schema: v1_ITEM_60 (body_text)
+PUT {{baseUrl}}/users/me/exams/{{examId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "body_text": "",
+  "current_user": {{currentUser}}
+}
+
+# -----------------------------------------------------------------------------
+### Get exam questions — GET /users/me/exams/{exam_id}/questions
+# Returns: answer, description, id, option, point, question, type_id, {}children
+GET {{baseUrl}}/users/me/exams/{{examId}}/questions?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Save exam question answer — PUT /users/me/exams/{exam_id}/questions
+# Schema: v1_ITEM_61 (id, answer)
+PUT {{baseUrl}}/users/me/exams/{{examId}}/questions
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "id": 1,
+  "answer": "A"
+}
