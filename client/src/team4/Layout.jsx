@@ -1,17 +1,15 @@
+import { useState } from "react";
 import { Outlet, Link, useNavigate } from "react-router-dom";
+import { FiMenu } from "react-icons/fi";
 import { useAuth } from "./utils/AuthContext";
 import SideMenu from "./components/sidebar/SideMenu";
 
 const ROLE_LABELS = { admin: "Админ", teacher: "Багш", student: "Оюутан" };
 
-/**
- * Authenticated layout shell.
- * SideMenu is Member 4's component (currently a null stub — swap in when ready).
- * Top bar provides school context, role badge and logout for all protected pages.
- */
 export default function Layout() {
   const { user, school, role, logout } = useAuth();
   const navigate = useNavigate();
+  const [sideOpen, setSideOpen] = useState(false);
 
   async function handleLogout() {
     await logout();
@@ -22,14 +20,46 @@ export default function Layout() {
 
   return (
     <div className="flex min-h-screen bg-zinc-50">
-      {/* SideMenu — Member 4 implements this */}
-      <SideMenu />
 
+      {/* ── Desktop sidebar ── */}
+      <aside className="hidden md:flex md:w-56 md:flex-col md:shrink-0 border-r border-zinc-200">
+        <SideMenu onClose={() => {}} />
+      </aside>
+
+      {/* ── Mobile sidebar overlay ── */}
+      {sideOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/30 md:hidden"
+          onClick={() => setSideOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* ── Mobile sidebar drawer ── */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-56 flex flex-col border-r border-zinc-200
+          transform transition-transform duration-200 ease-in-out md:hidden
+          ${sideOpen ? "translate-x-0" : "-translate-x-full"}`}
+      >
+        <SideMenu onClose={() => setSideOpen(false)} />
+      </aside>
+
+      {/* ── Main content area ── */}
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* ── Top bar ── */}
-        <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center justify-between border-b border-zinc-200 bg-white px-6">
-          {/* Left: school name + role badge */}
+
+        {/* Top bar */}
+        <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center justify-between border-b border-zinc-200 bg-white px-4 md:px-6">
+
+          {/* Left: hamburger (mobile) + school name + role badge */}
           <div className="flex items-center gap-2.5">
+            <button
+              onClick={() => setSideOpen(true)}
+              className="md:hidden p-1.5 rounded-md hover:bg-zinc-100 transition-colors"
+              aria-label="Цэс нээх"
+            >
+              <FiMenu className="h-5 w-5 text-zinc-600" />
+            </button>
+
             {school?.name ? (
               <Link
                 to="/team4/schools/current"
@@ -46,6 +76,7 @@ export default function Layout() {
                 Сургууль сонгоогүй
               </Link>
             )}
+
             {roleLabel && (
               <span className="rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-medium text-zinc-600 capitalize">
                 {roleLabel}
@@ -70,7 +101,7 @@ export default function Layout() {
           </div>
         </header>
 
-        {/* ── Page content ── */}
+        {/* Page content */}
         <main className="flex-1 p-6">
           <Outlet />
         </main>
