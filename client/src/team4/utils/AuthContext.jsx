@@ -4,6 +4,14 @@ import { login as apiLogin, logout as apiLogout, parseField } from "./api";
 
 const AuthContext = createContext(null);
 
+// Maps API role IDs to stable English keys used for access control
+const ROLE_ID_MAP = {
+  0:  "user",
+  10: "admin",
+  20: "teacher",
+  30: "student",
+};
+
 // ── Provider ──────────────────────────────────────────────────────────────────
 
 export function AuthProvider({ children }) {
@@ -48,11 +56,17 @@ export function AuthProvider({ children }) {
 
   /**
    * Called from SchoolSelect after the user picks a school.
-   * Extracts the per-school role from the {}role field.
+   * Maps the per-school role ID to a stable English key used throughout the app.
+   *
+   * Role IDs from the API:
+   *   0  → "user"    (Хэрэглэгч — general/unprivileged)
+   *   10 → "admin"   (Админ)
+   *   20 → "teacher" (Сургагч)
+   *   30 → "student" (Суралцагч)
    */
   function selectSchool(schoolObj) {
     const parsedRole = parseField(schoolObj, "role");
-    const roleName = parsedRole?.name?.toLowerCase() ?? "student";
+    const roleName = ROLE_ID_MAP[parsedRole?.id] ?? "user";
     localStorage.setItem("team4_school", JSON.stringify(schoolObj));
     localStorage.setItem("team4_role", roleName);
     setSchool(schoolObj);

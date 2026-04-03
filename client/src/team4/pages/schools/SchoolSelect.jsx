@@ -4,9 +4,12 @@ import { FiLogOut, FiChevronRight, FiAlertCircle } from "react-icons/fi";
 import { useAuth } from "../../utils/AuthContext";
 import { apiGet, parseField } from "../../utils/api";
 
-const ROLE_LABELS = { admin: "Админ", teacher: "Багш", student: "Оюутан" };
-const ROLE_COLORS = {
-  admin: "bg-purple-100 text-purple-700",
+// Must match the ROLE_ID_MAP in AuthContext
+const ROLE_ID_MAP = { 0: "user", 10: "admin", 20: "teacher", 30: "student" };
+const ROLE_LABELS  = { user: "Хэрэглэгч", admin: "Админ", teacher: "Багш", student: "Оюутан" };
+const ROLE_COLORS  = {
+  user:    "bg-zinc-100 text-zinc-600",
+  admin:   "bg-purple-100 text-purple-700",
   teacher: "bg-blue-100 text-blue-700",
   student: "bg-green-100 text-green-700",
 };
@@ -83,10 +86,10 @@ export default function SchoolSelect() {
         {!loading && !error && schools.length > 0 && (
           <div className="space-y-3">
             {schools.map((school) => {
-              const roleObj = parseField(school, "role");
-              const roleName = roleObj?.name?.toLowerCase() ?? "";
-              const roleLabel = ROLE_LABELS[roleName] ?? roleName;
-              const roleColor = ROLE_COLORS[roleName] ?? "bg-zinc-100 text-zinc-600";
+              const roleObj  = parseField(school, "role");
+              const roleName = ROLE_ID_MAP[roleObj?.id] ?? "user";
+              const roleLabel = ROLE_LABELS[roleName];
+              const roleColor = ROLE_COLORS[roleName];
 
               return (
                 <button
