@@ -30,11 +30,7 @@ function decodeJwt(token) {
 
 // ── {} prefix field parser ───────────────────────────────────────────────────
 
-/**
- * The API returns some fields with a `{}` prefix containing JSON strings.
- * e.g. obj["{}role"] = '{"name":"teacher"}'
- * Usage: parseField(obj, "role") → { name: "teacher" }
- */
+
 export function parseField(obj, key) {
   const raw = obj?.[`{}${key}`] ?? obj?.[key];
   if (raw == null) return null;
