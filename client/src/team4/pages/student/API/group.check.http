@@ -1,0 +1,54 @@
+### Group Management API Check File
+### Base URL: https://todu.mn/bs/lms/v1
+### Supports: Create, list, update, delete groups inside a course.
+### Assigning users to groups is done via course user update (see courseUser.check.http).
+
+@baseUrl = https://todu.mn/bs/lms/v1
+@courseId = 100
+@groupId = 50
+
+### 1. List all groups in a course
+# GET /courses/{course_id}/groups
+# Headers: Authorization: Bearer <access_token>
+# Response: { "items": [ { id, name, priority, created_on, ... } ] }
+GET {{baseUrl}}/courses/{{courseId}}/groups
+Authorization: Bearer {{accessToken}}
+
+### 2. Create a new group in a course
+# POST /courses/{course_id}/groups
+# Headers: Authorization: Bearer <access_token>
+# Request body: name, priority (optional)
+POST {{baseUrl}}/courses/{{courseId}}/groups
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Group A",
+  "priority": 1
+}
+
+### 3. Get group details by ID
+# GET /groups/{group_id}
+# Headers: Authorization: Bearer <access_token>
+GET {{baseUrl}}/groups/{{groupId}}
+Authorization: Bearer {{accessToken}}
+
+### 4. Update group (name, priority, or even move to another course)
+# PUT /groups/{group_id}
+# Headers: Authorization: Bearer <access_token>
+# Request body: name, priority, course_id (if moving)
+PUT {{baseUrl}}/groups/{{groupId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Group Alpha",
+  "priority": 2,
+  "course_id": "{{courseId}}"
+}
+
+### 5. Delete a group
+# DELETE /groups/{group_id}
+# Headers: Authorization: Bearer <access_token>
+DELETE {{baseUrl}}/groups/{{groupId}}
+Authorization: Bearer {{accessToken}}
