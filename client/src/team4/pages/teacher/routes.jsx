@@ -10,11 +10,11 @@
 import { Route } from "react-router-dom";
 import { ProtectedRoute } from "../../utils/AuthContext";
 
+import CourseUserEdit from "./CourseUserEdit";
+import CourseUserList from "./CourseUserList";
+import GroupManagement from "./GroupManagement";
+import GroupUserList from "./GroupUserList";
 import TeacherDashboard from "./TeacherDashboard";
-import CourseUserList   from "./CourseUserList";
-import CourseUserEdit   from "./CourseUserEdit";
-import GroupManagement  from "./GroupManagement";
-import GroupUserList    from "./GroupUserList";
 
 const teacherRoutes = [
   // Teacher dashboard — /team4/teacher
