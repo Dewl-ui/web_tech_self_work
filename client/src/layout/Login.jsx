@@ -4,7 +4,7 @@ import { Editor } from "@tinymce/tinymce-react";
 import { UserContext } from "../contexts/UserContext";
 
 const Login = () => {
-    const { login } = useContext(UserContext);
+    const { login, user, logout } = useContext(UserContext);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const handleSubmit = async (event) => {
@@ -31,7 +31,14 @@ const Login = () => {
         fontsize_formats: "8pt 10pt 12pt 14pt 18pt 24pt 36pt",
     };
 
-    return (
+    return user ? (
+        <div>
+            <div>Сайн уу, {user.username}</div>
+            <button onClick={logout} className="bg-red-400 text-white p-2 rounded my-2">
+                Гарах
+            </button>
+        </div>
+    ) : (
         <form onSubmit={handleSubmit}>
             <label>Нэвтрэх нэр:</label>
             <input
