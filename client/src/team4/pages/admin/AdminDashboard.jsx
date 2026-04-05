@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { FiUsers, FiShield, FiUser } from "react-icons/fi";
+import { FiUsers, FiBookOpen, FiUser } from "react-icons/fi";
 import {
   ResponsiveContainer,
   PieChart,
@@ -45,6 +45,7 @@ export default function AdminDashboard() {
   const { school, isAdmin } = useAuth();
 
   const [users, setUsers] = useState([]);
+  const [courseCount, setCourseCount] = useState(0);
   const [roleCounts, setRoleCounts] = useState({
     admins: 0,
     teachers: 0,
@@ -72,6 +73,9 @@ export default function AdminDashboard() {
         const schoolUsersRes = await apiGet(`/schools/${schoolId}/users`);
         const schoolUsers = schoolUsersRes?.items ?? [];
         setUsers(schoolUsers);
+
+        const schoolCoursesRes = await apiGet(`/schools/${schoolId}/courses`);
+        setCourseCount(schoolCoursesRes?.items?.length ?? 0);
 
         const membershipResults = await Promise.allSettled(
           schoolUsers.map((u) => apiGet(`/users/${u.id}/schools`))
@@ -197,10 +201,10 @@ export default function AdminDashboard() {
           description="Оюутан эрхтэй хэрэглэгч"
         />
         <StatCard
-          title="Нийт админ"
-          value={loading ? "..." : stats.totalAdmins}
-          icon={<FiShield className="h-5 w-5" />}
-          description="Админ эрхтэй хэрэглэгч"
+          title="Нийт хичээл"
+          value={loading ? "..." : courseCount}
+          icon={<FiBookOpen className="h-5 w-5" />}
+          description="Сонгосон сургуулийн бүх хичээл"
         />
       </div>
 
