@@ -5,7 +5,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FiBook } from "react-icons/fi";
-import { apiGet, parseField } from "../../utils/api";
+import { studentGet, parseField } from "./api/studentCourseApi";
 
 function StatCard({ title, value, icon, loading }) {
   return (
@@ -45,7 +45,7 @@ export default function StudentHome({ userId }) {
 
   useEffect(() => {
     if (!userId) return;
-    apiGet(`/users/${userId}/courses`)
+    studentGet(`/users/${userId}/courses`)
       .then((data) => setCourses(data?.items ?? []))
       .catch(() => setCourses([]))
       .finally(() => setLoading(false));

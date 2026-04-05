@@ -1,7 +1,7 @@
 // Member C OWNS this file — Student profile page at /team4/profile
 import { useEffect, useState } from "react";
 import { FiUser, FiSave, FiBook } from "react-icons/fi";
-import { apiGet, apiPut, parseField } from "../../utils/api";
+import { getStudentProfile, updateStudentProfile, getStudentCourses, parseField } from "./api/studentCourseApi";
 
 function Field({ label, value, onChange, type = "text", readOnly = false }) {
   return (
@@ -32,7 +32,7 @@ export default function StudentProfile() {
   const [error, setError]     = useState("");
 
   useEffect(() => {
-    apiGet("/users/me")
+    getStudentProfile()
       .then((data) => {
         setProfile(data);
         setForm({
@@ -41,7 +41,7 @@ export default function StudentProfile() {
           phone:      data.phone      ?? "",
         });
         if (data?.id) {
-          return apiGet(`/users/${data.id}/courses`);
+          return getStudentCourses(data.id);
         }
       })
       .then((res) => setCourses(res?.items ?? []))
@@ -55,7 +55,7 @@ export default function StudentProfile() {
     setSaved(false);
     setSaving(true);
     try {
-      await apiPut("/users/me", form);
+      await updateStudentProfile(form);
       setSaved(true);
     } catch (err) {
       setError(err.message || "Хадгалахад алдаа гарлаа.");
