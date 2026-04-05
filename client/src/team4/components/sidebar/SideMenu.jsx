@@ -29,8 +29,9 @@ const navItems = [
   },
   {
     to: "/team4/student",
-    label: "Оюутны самбар",
-    icon: FiUser,
+    label: "Сургалтууд",  
+    icon: FiBookOpen,
+    end: true,
     roles: ["student"],
   },
   {
@@ -69,12 +70,6 @@ const navItems = [
     to: "/team4/profile",
     label: "Профайл",
     icon: FiUser,
-    roles: ["admin", "teacher", "student"],
-  },
-  {
-    to: "/team4/profile/change-password",
-    label: "Нууц үг солих",
-    icon: FiLock,
     roles: ["admin", "teacher", "student"],
   },
 ];
