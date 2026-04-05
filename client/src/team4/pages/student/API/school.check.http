@@ -11,27 +11,17 @@
 @accessToken = 
 
 ### 1. List all schools (public? may not require auth)
-# GET /schools
-# Response: { "items": [ { id, name, picture, priority, ... } ] }
 GET {{baseUrl}}/schools
 
 ### 2. Get details of a specific school
-# GET /schools/{school_id}
-# Headers: Authorization: Bearer <access_token>
 GET {{baseUrl}}/schools/{{schoolId}}
 Authorization: Bearer {{accessToken}}
 
 ### 3. List users belonging to a school (admin only)
-# GET /schools/{school_id}/users
-# Headers: Authorization: Bearer <access_token>
-# Response: { "items": [ { id, username, first_name, last_name, email, phone, ... } ] }
 GET {{baseUrl}}/schools/{{schoolId}}/users
 Authorization: Bearer {{accessToken}}
 
 ### 4. Add an existing user to a school (admin)
-# POST /schools/{school_id}/users
-# Headers: Authorization: Bearer <access_token>
-# Request body: username, role_id
 POST {{baseUrl}}/schools/{{schoolId}}/users
 Authorization: Bearer {{accessToken}}
 Content-Type: application/json
@@ -42,15 +32,10 @@ Content-Type: application/json
 }
 
 ### 5. Remove a user from a school (admin)
-# DELETE /schools/{school_id}/users/{user_id}
-# Headers: Authorization: Bearer <access_token>
 DELETE {{baseUrl}}/schools/{{schoolId}}/users/{{userId}}
 Authorization: Bearer {{accessToken}}
 
 ### 6. Request membership to a school (student/teacher)
-# POST /schools/{school_id}/requests
-# Headers: Authorization: Bearer <access_token>
-# Request body: role_id, description (optional)
 POST {{baseUrl}}/schools/{{schoolId}}/requests
 Authorization: Bearer {{accessToken}}
 Content-Type: application/json
@@ -61,14 +46,10 @@ Content-Type: application/json
 }
 
 ### 7. List membership requests for a school (admin)
-# GET /schools/{school_id}/requests
-# Headers: Authorization: Bearer <access_token>
 GET {{baseUrl}}/schools/{{schoolId}}/requests
 Authorization: Bearer {{accessToken}}
 
 ### 8. Approve a school membership request (admin)
-# POST /schools/{school_id}/requests/{request_id}
-# Headers: Authorization: Bearer <access_token>
 POST {{baseUrl}}/schools/{{schoolId}}/requests/{{requestId}}
 Authorization: Bearer {{accessToken}}
 Content-Type: application/json
@@ -76,7 +57,5 @@ Content-Type: application/json
 {}
 
 ### 9. Reject a school membership request (admin)
-# DELETE /schools/{school_id}/requests/{request_id}
-# Headers: Authorization: Bearer <access_token>
 DELETE {{baseUrl}}/schools/{{schoolId}}/requests/{{requestId}}
 Authorization: Bearer {{accessToken}}

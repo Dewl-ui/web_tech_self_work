@@ -7,17 +7,10 @@
 @userId = 12345
 
 ### 1. List all users
-# GET /users
-# Headers: Authorization: Bearer <access_token>
-# Response: { "items": [ { id, username, first_name, last_name, email, phone, picture, ... } ] }
 GET {{baseUrl}}/users
 Authorization: Bearer {{accessToken}}
 
 ### 2. Create a new user (admin only)
-# POST /users
-# Headers: Authorization: Bearer <access_token>
-# Request body: username, password, first_name, last_name, email, phone, facebook_id (optional)
-# Note: Role assignment is done via school membership (see school.check.http)
 POST {{baseUrl}}/users
 Authorization: Bearer {{accessToken}}
 Content-Type: application/json
@@ -33,16 +26,10 @@ Content-Type: application/json
 }
 
 ### 3. Get user by ID
-# GET /users/{user_id}
-# Headers: Authorization: Bearer <access_token>
-# Response: { id, username, first_name, last_name, email, phone, picture, is_active, ... }
 GET {{baseUrl}}/users/{{userId}}
 Authorization: Bearer {{accessToken}}
 
 ### 4. Update user (admin only)
-# PUT /users/{user_id}
-# Headers: Authorization: Bearer <access_token>
-# Request body: fields to update (email, family_name, first_name, last_name, phone, picture)
 PUT {{baseUrl}}/users/{{userId}}
 Authorization: Bearer {{accessToken}}
 Content-Type: application/json
@@ -55,9 +42,6 @@ Content-Type: application/json
 }
 
 ### 5. Delete user (admin only)
-# DELETE /users/{user_id}
-# Headers: Authorization: Bearer <access_token>
-# Request body may contain current_user (auto-filled)
 DELETE {{baseUrl}}/users/{{userId}}
 Authorization: Bearer {{accessToken}}
 Content-Type: application/json
@@ -65,15 +49,9 @@ Content-Type: application/json
 {}
 
 ### 6. Get courses of a specific user (enrollments)
-# GET /users/{user_id}/courses
-# Headers: Authorization: Bearer <access_token>
-# Response: { "items": [ { course_id, group_id, payment_amount, ... , "course": { name } } ] }
 GET {{baseUrl}}/users/{{userId}}/courses
 Authorization: Bearer {{accessToken}}
 
 ### 7. Get schools of a specific user
-# GET /users/{user_id}/schools
-# Headers: Authorization: Bearer <access_token>
-# Response: { "items": [ { id, name, picture, priority, "role": { name } } ] }
 GET {{baseUrl}}/users/{{userId}}/schools
 Authorization: Bearer {{accessToken}}

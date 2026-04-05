@@ -8,9 +8,6 @@
 @userId = 12345
 
 ### 1. List users enrolled in a course
-# GET /courses/{course_id}/users
-# Headers: Authorization: Bearer <access_token>
-# Response: { "items": [ { user_id, group_id, payment_amount, payment_status_id, user: { name }, group: { name } } ] }
 POST {{baseUrl}}/token/email
 Content-Type: application/json
 
@@ -27,9 +24,6 @@ GET {{baseUrl}}/courses/{{courseId}}/users
 Authorization: Bearer {{accessToken}}
 
 ### 2. Add a user to a course (teacher/admin)
-# POST /courses/{course_id}/users
-# Headers: Authorization: Bearer <access_token>
-# Request body: user_id, group_id (optional)
 POST {{baseUrl}}/courses/{{courseId}}/users
 Authorization: Bearer {{accessToken}}
 Content-Type: application/json
@@ -40,15 +34,10 @@ Content-Type: application/json
 }
 
 ### 3. Get specific course user details
-# GET /courses/{course_id}/users/{user_id}
-# Headers: Authorization: Bearer <access_token>
 GET {{baseUrl}}/courses/{{courseId}}/users/{{userId}}
 Authorization: Bearer {{accessToken}}
 
 ### 4. Update user's group (or payment info) within a course
-# PUT /courses/{course_id}/users/{user_id}
-# Headers: Authorization: Bearer <access_token>
-# Request body: group_id (to assign to a different group)
 PUT {{baseUrl}}/courses/{{courseId}}/users/{{userId}}
 Authorization: Bearer {{accessToken}}
 Content-Type: application/json
@@ -58,7 +47,5 @@ Content-Type: application/json
 }
 
 ### 5. Remove a user from a course (teacher/admin)
-# DELETE /courses/{course_id}/users/{user_id}
-# Headers: Authorization: Bearer <access_token>
 DELETE {{baseUrl}}/courses/{{courseId}}/users/{{userId}}
 Authorization: Bearer {{accessToken}}
