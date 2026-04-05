@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { FiEye, FiEdit2, FiSearch, FiPlus } from "react-icons/fi";
+import { FiEye, FiEdit2, FiSearch, FiPlus, FiTrash2 } from "react-icons/fi";
 
 import { useAuth } from "../../utils/AuthContext";
-import { apiGet } from "../../utils/api";
+import { apiGet, apiDelete } from "../../utils/api";
 
 import { Input } from "../../components/ui/Input";
 import { Select } from "../../components/ui/Select";
@@ -26,12 +26,14 @@ import {
 } from "../../components/ui/Table";
 
 function getSchoolId(school) {
-  return school?.id ?? school?.school_id ?? school?.SCHOOL_ID ?? school?.ID ?? null;
+  return (
+    school?.id ?? school?.school_id ?? school?.SCHOOL_ID ?? school?.ID ?? null
+  );
 }
 
 function getRoleNameFromUserDetail(userDetail, currentSchoolId) {
   const matchedSchool = (userDetail?.schools || []).find(
-    (s) => String(s.id) === String(currentSchoolId)
+    (s) => String(s.id) === String(currentSchoolId),
   );
 
   return matchedSchool?.role?.name || "-";
@@ -58,6 +60,7 @@ export default function UserList() {
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
     const schoolId = getSchoolId(school);
@@ -77,7 +80,7 @@ export default function UserList() {
         const schoolUsers = schoolUsersRes?.items ?? [];
 
         const detailResults = await Promise.allSettled(
-          schoolUsers.map((u) => apiGet(`/users/${u.id}`))
+          schoolUsers.map((u) => apiGet(`/users/${u.id}`)),
         );
 
         const enrichedUsers = schoolUsers.map((user, index) => {
@@ -111,18 +114,49 @@ export default function UserList() {
     loadUsers();
   }, [school]);
 
+  async function handleDeleteUser(userId) {
+    const schoolId = getSchoolId(school);
+
+    if (schoolId == null) {
+      alert("Сургуулийн мэдээлэл олдсонгүй.");
+      return;
+    }
+
+    const ok = window.confirm("Энэ хэрэглэгчийг сургуулиас хасах уу?");
+    if (!ok) return;
+
+    try {
+      setDeletingId(userId);
+      await apiDelete(`/schools/${schoolId}/users/${userId}`);
+      setUsers((prev) => prev.filter((u) => u.id !== userId));
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Хэрэглэгч устгахад алдаа гарлаа.");
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
   const filteredUsers = useMemo(() => {
     let result = [...users];
 
     if (search.trim()) {
       const q = search.toLowerCase();
       result = result.filter((u) => {
-        const fullName = `${u.first_name || ""} ${u.last_name || ""}`.toLowerCase();
+        const fullName =
+          `${u.first_name || ""} ${u.last_name || ""}`.toLowerCase();
+
         return (
           fullName.includes(q) ||
-          String(u.email || "").toLowerCase().includes(q) ||
-          String(u.username || "").toLowerCase().includes(q) ||
-          String(u.phone || "").toLowerCase().includes(q)
+          String(u.email || "")
+            .toLowerCase()
+            .includes(q) ||
+          String(u.username || "")
+            .toLowerCase()
+            .includes(q) ||
+          String(u.phone || "")
+            .toLowerCase()
+            .includes(q)
         );
       });
     }
@@ -154,54 +188,24 @@ export default function UserList() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-zinc-900">Хэрэглэгчид</h1>
-          <p className="mt-1 text-sm text-zinc-500">
-            {school?.name
-              ? `${school.name} сургуулийн хэрэглэгчдийн жагсаалт`
-              : "Сонгосон сургуулийн хэрэглэгчдийн жагсаалт"}
-          </p>
-        </div>
-
-        <Link to="/team4/users/create">
-          <Button className="w-full sm:w-auto">
-            <FiPlus className="h-4 w-4" />
-            Хэрэглэгч нэмэх
-          </Button>
-        </Link>
-      </div>
-
-      {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
-        </div>
-      )}
-
+    <div className="mx-auto max-w-7xl space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle>Шүүлтүүр</CardTitle>
-          <CardDescription>
-            Хэрэглэгчийг нэр, имэйл, username-ээр хайх боломжтой
-          </CardDescription>
-        </CardHeader>
-
-        <CardContent>
-          <div className="grid gap-3 md:grid-cols-3">
-            <div className="relative">
+        <CardContent className="px-4 pb-4 pt-5">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+            <div className="relative w-full">
               <FiSearch className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Нэр, имэйл, username..."
-                className="pl-9"
+                className="w-full pl-9"
               />
             </div>
 
             <Select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
+              className="w-full"
             >
               <option value="all">Бүх эрх</option>
               <option value="Админ">Админ</option>
@@ -212,20 +216,34 @@ export default function UserList() {
             <Select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full"
             >
               <option value="all">Бүх төлөв</option>
               <option value="active">Идэвхтэй</option>
               <option value="inactive">Идэвхгүй</option>
             </Select>
+
+            <Link to="/team4/users/create" className="w-full">
+              <Button className="w-full">
+                <FiPlus className="h-4 w-4" />
+                Хэрэглэгч нэмэх
+              </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>
+
+      {error && (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
       <Card>
         <CardHeader>
           <CardTitle>Жагсаалт</CardTitle>
           <CardDescription>
-            Нийт {filteredUsers.length} хэрэглэгч харагдаж байна
+            Нийт {filteredUsers.length} хэрэглэгч
           </CardDescription>
         </CardHeader>
 
@@ -233,7 +251,10 @@ export default function UserList() {
           {loading ? (
             <div className="space-y-3">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-12 animate-pulse rounded-lg bg-zinc-100" />
+                <div
+                  key={i}
+                  className="h-12 animate-pulse rounded-lg bg-zinc-100"
+                />
               ))}
             </div>
           ) : filteredUsers.length === 0 ? (
@@ -261,7 +282,9 @@ export default function UserList() {
                     <TableCell>{user.id}</TableCell>
 
                     <TableCell className="font-medium text-zinc-900">
-                      {[user.last_name, user.first_name].filter(Boolean).join(" ") || "-"}
+                      {[user.last_name, user.first_name]
+                        .filter(Boolean)
+                        .join(" ") || "-"}
                     </TableCell>
 
                     <TableCell>{user.email || "-"}</TableCell>
@@ -295,6 +318,19 @@ export default function UserList() {
                             Засах
                           </Button>
                         </Link>
+
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteUser(user.id)}
+                          disabled={deletingId === user.id}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <FiTrash2 className="h-4 w-4" />
+                          {deletingId === user.id
+                            ? "Устгаж байна..."
+                            : "Устгах"}
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>

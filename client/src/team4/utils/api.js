@@ -45,8 +45,10 @@ export function parseField(obj, key) {
 
 async function request(method, path, body) {
   const token = getToken();
-  const headers = { "Content-Type": "application/json" };
+  const headers = {};
+
   if (token) headers["Authorization"] = `Bearer ${token}`;
+  if (body !== undefined) headers["Content-Type"] = "application/json";
 
   const res = await fetch(`${BASE_URL}${path}`, {
     method,
@@ -59,13 +61,13 @@ async function request(method, path, body) {
   const text = await res.text();
   let data;
   try {
-    data = JSON.parse(text);
+    data = text ? JSON.parse(text) : {};
   } catch {
     data = {};
   }
 
   if (!res.ok) {
-    throw new Error(data?.message || data?.error || `HTTP ${res.status}`);
+    throw new Error(data?.message || data?.error || text || `HTTP ${res.status}`);
   }
 
   return data;
