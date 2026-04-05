@@ -7,7 +7,8 @@ function RightPanel() {
       <img
         src="/team4/auth_images/auth.jpg"
         alt=""
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-cover select-none"
+        draggable="false"
       />
     </div>
   );
