@@ -4,12 +4,12 @@
 ### ============================================================
 
 @baseUrl = https://todu.mn/bs/lms/v1
-@token = 3b3QTVQjVa-Vaq_aL5E_WQ
+@token = 9nMygePbUeYhO9kt7ibQ7w
 @userId = 732
 @schoolId = 1
 @courseId = 1
 @groupId = 1
-@roleId = 1
+@roleId = 41
 
 
 ### ============================================================
@@ -22,7 +22,7 @@ POST {{baseUrl}}/token/email
 Content-Type: application/json
 
 {
-  "email": "schooladmin@must.edu.mn",
+  "email": "schoolstudent@must.edu.mn" ,
   "password": "123",
   "push_token": ""
 }
@@ -138,7 +138,8 @@ Content-Type: application/json
 ###
 
 ### 3.3 Хэрэглэгчийн мэдээлэл харах  [GET /users/:user_id]
-GET {{baseUrl}}/users/{{userId}}
+# GET {{baseUrl}}/users/{{userId}}
+GET {{baseUrl}}/users/121
 Authorization: Bearer {{token}}
 
 ###
@@ -171,14 +172,16 @@ Content-Type: application/json
 
 ###
 
-### 3.6 Хэрэглэгчийн бүртгэлтэй сургуулиуд  [GET /users/:user_id/schools]
-GET {{baseUrl}}/users/{{userId}}/schools
-Authorization: Bearer {{token}}
+  ### 3.6 Хэрэглэгчийн бүртгэлтэй сургуулиуд  [GET /users/:user_id/schools]
+  # GET {{baseUrl}}/users/{{userId}}/schools
+  GET {{baseUrl}}/users/539/schools
+  Authorization: Bearer {{token}}
 
 ###
 
 ### 3.7 Хэрэглэгчийн хичээлүүд  [GET /users/:user_id/courses]
-GET {{baseUrl}}/users/{{userId}}/courses
+# GET {{baseUrl}}/users/{{userId}}/courses
+GET {{baseUrl}}/users/539/courses
 Authorization: Bearer {{token}}
 
 ###
@@ -301,7 +304,7 @@ Content-Type: application/json
 ### ============================================================
 
 ### 6.1 Сургуулийн хэрэглэгчдийн жагсаалт  [GET /schools/:school_id/users]
-GET {{baseUrl}}/schools/{{schoolId}}/users
+GET {{baseUrl}}/schools/{{userId}}/users
 Authorization: Bearer {{token}}
 
 ###

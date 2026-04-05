@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 import {
   FiHome, FiUsers, FiShield, FiBookOpen,
   FiUser, FiLock, FiX,
+  FiCalendar,
 } from "react-icons/fi";
 import { useAuth } from "../../utils/AuthContext";
 
@@ -30,6 +31,18 @@ const navItems = [
     to: "/team4/student",
     label: "Оюутны самбар",
     icon: FiUser,
+    roles: ["student"],
+  },
+  {
+    to: "/team4/student/groups",
+    label: "Баг",
+    icon: FiUsers,
+    roles: ["student"],
+  },
+  {
+    to: "/team4/student/calendar",
+    label: "Хуанли",
+    icon: FiCalendar,
     roles: ["student"],
   },
   // ── Shared admin tools ──
@@ -98,7 +111,7 @@ export default function SideMenu({ onClose }) {
       <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
         {visible.map((item) => (
           <NavLink
-            key={item.to}
+            key={`${item.to}-${item.label}`}
             to={item.to}
             end={item.end}
             onClick={onClose}

@@ -39,7 +39,7 @@ function QuickLink({ to, label }) {
   );
 }
 
-export default function StudentHomeSummary({ userId }) {
+export default function StudentHome({ userId }) {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
 

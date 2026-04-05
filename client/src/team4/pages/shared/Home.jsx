@@ -5,13 +5,13 @@
 // Each member updates their own summary file instead:
 //   Admin   → pages/admin/AdminHomeSummary.jsx    (Member A)
 //   Teacher → pages/teacher/TeacherHomeSummary.jsx (Member B)
-//   Student → pages/student/StudentHomeSummary.jsx (Member C)
+//   Student → pages/student/studentHome.jsx (Member C)
 // ============================================================
 import { Link } from "react-router-dom";
 import { useAuth } from "../../utils/AuthContext";
 import AdminHomeSummary   from "../admin/AdminHomeSummary";
 import TeacherHomeSummary from "../teacher/TeacherHomeSummary";
-import StudentHomeSummary from "../student/StudentHomeSummary";
+import StudentHome from "../student/studentHome";
 
 const ROLE_TITLES = {
   admin:   "Системийн дашбоард",
@@ -35,7 +35,7 @@ export default function Home() {
 
       {isAdmin   && <AdminHomeSummary   userId={user?.id} />}
       {isTeacher && <TeacherHomeSummary userId={user?.id} />}
-      {isStudent && <StudentHomeSummary userId={user?.id} />}
+      {isStudent && <StudentHome userId={user?.id} />}
 
       {!isAdmin && !isTeacher && !isStudent && (
         <div className="rounded-xl border border-zinc-200 bg-white p-8 text-center text-sm text-zinc-500">

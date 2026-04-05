@@ -4,6 +4,8 @@
 
 @baseUrl = https://todu.mn/bs/lms/v1
 
+@accessToken = 9nMygePbUeYhO9kt7ibQ7w
+
 ### 1. Get own profile
 GET {{baseUrl}}/users/me
 Authorization: Bearer {{accessToken}}
