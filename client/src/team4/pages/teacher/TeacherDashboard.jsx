@@ -3,12 +3,25 @@ import { useAuth } from "../../utils/AuthContext";
 import { apiGet, parseField } from "../../utils/api";
 
 const DAY_SHORT = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
-const HOURS = Array.from({ length: 14 }, (_, i) => i + 1);
+const HOURS = Array.from({ length: 8 }, (_, i) => i + 1);
 
-function getWeekDates(offset = 0) {
+
+const SEMESTER_START = new Date("2026-01-26");
+const MAX_WEEKS = 18;
+
+function getCurrentSemesterWeek() {
   const now = new Date();
-  const sunday = new Date(now);
-  sunday.setDate(now.getDate() - now.getDay() + offset * 7);
+  const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+  const week = Math.floor((now - SEMESTER_START) / msPerWeek) + 1;
+  return Math.max(1, Math.min(MAX_WEEKS, week));
+}
+
+function getWeekDatesForSemesterWeek(semWeek) {
+  const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+  // SEMESTER_START Даваа гараг тул Ням = SEMESTER_START - 1 өдөр
+  const firstSunday = new Date(SEMESTER_START);
+  firstSunday.setDate(SEMESTER_START.getDate() - 1);
+  const sunday = new Date(firstSunday.getTime() + (semWeek - 1) * msPerWeek);
   return Array.from({ length: 7 }, (_, i) => {
     const d = new Date(sunday);
     d.setDate(sunday.getDate() + i);
@@ -25,14 +38,22 @@ const EVENT_COLORS = [
 
 export default function TeacherDashboard() {
   const { user } = useAuth();
-  const [weekOffset, setWeekOffset] = useState(0);
+  const [semWeek, setSemWeek] = useState(getCurrentSemesterWeek);
   const [timetable, setTimetable] = useState([]);
   const [view, setView] = useState("өдөр");
   const [loading, setLoading] = useState(true);
 
-  const weekDates = getWeekDates(weekOffset);
-  const weekLabel = `${weekOffset + 3}-р долоо хоног`;
+  const weekDates = getWeekDatesForSemesterWeek(semWeek);
   const today = new Date();
+  const canGoPrev = semWeek > 1;
+  const canGoNext = semWeek < MAX_WEEKS;
+
+  const rangeLabel = (() => {
+    const start = weekDates[0];
+    const end   = weekDates[6];
+    const opts  = { month: "short", day: "numeric" };
+    return `${start.toLocaleDateString("en", opts)} – ${end.toLocaleDateString("en", opts)}`;
+  })();
 
   useEffect(() => {
     if (!user?.id) return;
@@ -44,12 +65,14 @@ export default function TeacherDashboard() {
           const c = parseField(item, "course") ?? item;
           const name = c.name ?? c.title ?? `Хичээл #${c.id ?? idx}`;
           events.push({
-            name, day: (idx * 2 + 1) % 7, hour: 2, minute: 40,
-            type: "Лекц", colorIdx: idx % 4,
+            name, day: (idx * 2 + 1) % 7,
+            hour: (idx % 6) + 2,
+            minute: 40, type: "Лекц", colorIdx: idx % 4,
           });
           events.push({
-            name, day: (idx * 2 + 1) % 7, hour: 4, minute: 20,
-            type: "Лаб", colorIdx: idx % 4,
+            name, day: (idx * 2 + 2) % 7,
+            hour: (idx % 5) + 3,
+            minute: 20, type: "Лаб", colorIdx: idx % 4,
           });
         });
         setTimetable(events);
@@ -67,13 +90,20 @@ export default function TeacherDashboard() {
         <div className="flex items-center justify-between px-5 py-3 border-b border-zinc-100">
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setWeekOffset(w => w - 1)}
-              className="h-7 w-7 rounded-full hover:bg-zinc-100 flex items-center justify-center text-zinc-500 text-lg transition-colors"
+              onClick={() => canGoPrev && setSemWeek(w => w - 1)}
+              disabled={!canGoPrev}
+              className={`h-7 w-7 rounded-full flex items-center justify-center text-lg transition-colors
+                ${canGoPrev ? "hover:bg-zinc-100 text-zinc-500" : "text-zinc-200 cursor-not-allowed"}`}
             >‹</button>
-            <span className="text-sm font-medium text-zinc-700 min-w-[120px] text-center">{weekLabel}</span>
+            <div className="text-center min-w-[160px]">
+              <p className="text-sm font-semibold text-zinc-700">{semWeek}-р долоо хоног</p>
+              <p className="text-[10px] text-zinc-400">{rangeLabel}</p>
+            </div>
             <button
-              onClick={() => setWeekOffset(w => w + 1)}
-              className="h-7 w-7 rounded-full hover:bg-zinc-100 flex items-center justify-center text-zinc-500 text-lg transition-colors"
+              onClick={() => canGoNext && setSemWeek(w => w + 1)}
+              disabled={!canGoNext}
+              className={`h-7 w-7 rounded-full flex items-center justify-center text-lg transition-colors
+                ${canGoNext ? "hover:bg-zinc-100 text-zinc-500" : "text-zinc-200 cursor-not-allowed"}`}
             >›</button>
           </div>
           <div className="flex items-center gap-0.5 bg-zinc-100 rounded-full p-1">
@@ -82,9 +112,7 @@ export default function TeacherDashboard() {
                 key={v}
                 onClick={() => setView(v)}
                 className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
-                  view === v
-                    ? "bg-blue-600 text-white shadow-sm"
-                    : "text-zinc-500 hover:text-zinc-800"
+                  view === v ? "bg-blue-600 text-white shadow-sm" : "text-zinc-500 hover:text-zinc-800"
                 }`}
               >{v}</button>
             ))}
@@ -94,7 +122,7 @@ export default function TeacherDashboard() {
         {/* Grid */}
         <div className="overflow-x-auto">
           <div className="min-w-[680px]">
-            {/* Day header row */}
+            {/* Day headers */}
             <div className="grid border-b border-zinc-100" style={{ gridTemplateColumns: "44px repeat(7, 1fr) 44px" }}>
               <div />
               {weekDates.map((date, i) => {
@@ -115,7 +143,7 @@ export default function TeacherDashboard() {
               </div>
             </div>
 
-            {/* Hour rows */}
+            {/* Hour rows 1–8 */}
             {HOURS.map(hour => (
               <div
                 key={hour}
@@ -138,7 +166,7 @@ export default function TeacherDashboard() {
                         const col = EVENT_COLORS[ev.colorIdx];
                         const h12 = ev.hour > 12 ? ev.hour - 12 : ev.hour;
                         const ampm = ev.hour >= 12 ? "PM" : "AM";
-                        const timeStr = `${String(h12).padStart(2,"0")}:${String(ev.minute).padStart(2,"0")} ${ampm}`;
+                        const timeStr = `${String(h12).padStart(2, "0")}:${String(ev.minute).padStart(2, "0")} ${ampm}`;
                         return (
                           <div key={ei} className={`rounded-md border px-1.5 py-1 mb-0.5 cursor-pointer hover:brightness-95 transition-all ${col.bg} ${col.border}`}>
                             <p className={`text-[9px] font-semibold flex items-center gap-1 ${col.text}`}>
@@ -146,7 +174,7 @@ export default function TeacherDashboard() {
                               {timeStr}
                             </p>
                             <p className={`text-[10px] font-medium truncate ${col.text}`}>
-                              {ev.name}– {ev.type}
+                              {ev.name} – {ev.type}
                             </p>
                           </div>
                         );
