@@ -22,7 +22,7 @@ export default function ForgotPassword() {
       await apiPost("/otp/email", { email });
       navigate("/team4/reset-password", { state: { email } });
     } catch (err) {
-      setError(err.message || "Код илгээхэд алдаа гарлаа");
+      setError(err.message || "Код илгээж чадсангүй.");
     } finally {
       setLoading(false);
     }
@@ -35,7 +35,7 @@ export default function ForgotPassword() {
         <div className="text-center space-y-1">
           <h1 className="text-2xl font-bold text-zinc-900">Нууц үг сэргээх</h1>
           <p className="text-sm text-zinc-500">
-            Имэйл хаягаа оруулна уу. Баталгаажуулах код илгээгдэх болно.
+            Баталгаажуулах кодыг имэйлээр илгээнэ.
           </p>
         </div>
 
@@ -49,10 +49,10 @@ export default function ForgotPassword() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-zinc-700">И-Мэйл</label>
+            <label className="text-sm font-medium text-zinc-700">И-мэйл</label>
             <input
               type="email"
-              placeholder="m@example.com"
+              placeholder="a@must.edu.mn"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -71,7 +71,7 @@ export default function ForgotPassword() {
             {loading && (
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
             )}
-            Код илгээх
+            Код авах
           </button>
         </form>
 
@@ -81,7 +81,7 @@ export default function ForgotPassword() {
             to="/team4/login"
             className="text-zinc-500 hover:text-zinc-900 underline-offset-4 hover:underline"
           >
-            ← Нэвтрэх хуудас руу буцах
+            ← Нэвтрэх
           </Link>
         </p>
       </div>

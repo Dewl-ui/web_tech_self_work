@@ -82,7 +82,7 @@ export default function ResetPassword() {
   async function handleSubmit(e) {
     e.preventDefault();
     if (code.length < 6) {
-      setError("6 оронтой кодоо бүрэн оруулна уу");
+      setError("6 оронтой кодыг бүрэн оруулна уу.");
       return;
     }
     setError("");
@@ -92,7 +92,7 @@ export default function ResetPassword() {
       // Hard navigate so AuthProvider re-reads localStorage on mount
       window.location.href = "/team4/schools/current";
     } catch (err) {
-      setError(err.message || "Код буруу байна");
+      setError(err.message || "Баталгаажуулалт амжилтгүй.");
     } finally {
       setLoading(false);
     }
@@ -106,7 +106,7 @@ export default function ResetPassword() {
       await apiPost("/otp/email", { email });
       setResent(true);
     } catch (err) {
-      setError(err.message || "Дахин илгээхэд алдаа гарлаа");
+      setError(err.message || "Дахин илгээж чадсангүй.");
     } finally {
       setResending(false);
     }
@@ -117,10 +117,8 @@ export default function ResetPassword() {
       <div className="space-y-6">
         {/* Heading */}
         <div className="text-center space-y-1">
-          <h1 className="text-2xl font-bold text-zinc-900">Баталгаажуулах</h1>
-          <p className="text-sm text-zinc-500">
-            Бид таны имэйл хаяг руу 6 оронтой код илгээсэн.
-          </p>
+          <h1 className="text-2xl font-bold text-zinc-900">Код баталгаажуулалт</h1>
+          <p className="text-sm text-zinc-500">Имэйлээр 6 оронтой код илгээгдсэн.</p>
           {emailFromState && (
             <p className="text-sm font-medium text-zinc-700">{emailFromState}</p>
           )}
@@ -134,17 +132,17 @@ export default function ResetPassword() {
         )}
         {resent && (
           <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-            Код дахин илгээгдлээ
+            Шинэ код илгээгдлээ.
           </div>
         )}
 
         {/* If no email passed via state, show email field */}
         {!emailFromState && (
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-zinc-700">И-Мэйл</label>
+            <label className="text-sm font-medium text-zinc-700">И-мэйл</label>
             <input
               type="email"
-              placeholder="m@example.com"
+              placeholder="a@must.edu.mn"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -159,7 +157,7 @@ export default function ResetPassword() {
           <OtpInput value={code} onChange={setCode} />
 
           <p className="text-center text-xs text-zinc-400">
-            Таны имэйлд илгээсэн 6 оронтой кодыг оруулна уу.
+            Имэйлд ирсэн кодыг оруулна уу.
           </p>
 
           <button
@@ -172,20 +170,20 @@ export default function ResetPassword() {
             {loading && (
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
             )}
-            Баталгаажуулах
+            Үргэлжлүүлэх
           </button>
         </form>
 
         {/* Resend */}
         <p className="text-center text-sm text-zinc-500">
-          Код хүлээн аваагүй юу?{" "}
+          Код ирээгүй юу?{" "}
           <button
             type="button"
             onClick={handleResend}
             disabled={resending}
             className="font-medium text-zinc-900 hover:underline underline-offset-4 disabled:opacity-50"
           >
-            {resending ? "Илгээж байна..." : "Дахин илгээх"}
+            {resending ? "Илгээж байна…" : "Дахин илгээх"}
           </button>
         </p>
 
@@ -195,7 +193,7 @@ export default function ResetPassword() {
             to="/team4/forgot-password"
             className="text-zinc-400 hover:text-zinc-900 underline-offset-4 hover:underline"
           >
-            ← Буцах
+            ← Нууц үг сэргээх
           </Link>
         </p>
       </div>

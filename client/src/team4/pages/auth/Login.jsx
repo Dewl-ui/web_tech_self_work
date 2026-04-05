@@ -25,7 +25,7 @@ export default function Login() {
       // School is always cleared on login — user must re-select their school
       navigate("/team4/schools/current", { replace: true });
     } catch (err) {
-      setError(err.message || "Нэвтрэх амжилтгүй боллоо");
+      setError(err.message || "Нэвтрэлт амжилтгүй.");
     } finally {
       setLoading(false);
     }
@@ -37,9 +37,7 @@ export default function Login() {
         {/* Heading */}
         <div className="text-center space-y-1">
           <h1 className="text-2xl font-bold text-zinc-900">Нэвтрэх</h1>
-          <p className="text-sm text-zinc-500">
-            Бүртгэлдээ нэвтрэхийн тулд доорх имэйл хаягаа оруулна уу
-          </p>
+          <p className="text-sm text-zinc-500">И-мэйл болон нууц үгээ оруулна уу.</p>
         </div>
 
         {/* Error */}
@@ -53,10 +51,10 @@ export default function Login() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Email */}
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-zinc-700">И-Мэйл</label>
+            <label className="text-sm font-medium text-zinc-700">И-мэйл</label>
             <input
               type="email"
-              placeholder="m@example.com"
+              placeholder="a@must.edu.mn"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -73,7 +71,7 @@ export default function Login() {
                 to="/team4/forgot-password"
                 className="text-xs text-zinc-500 hover:text-zinc-900 underline-offset-4 hover:underline"
               >
-                Нууц үгээ мартсан уу?
+                Нууц үг сэргээх
               </Link>
             </div>
             <input
@@ -111,17 +109,17 @@ export default function Login() {
         {/* Google button */}
         <button
           type="button"
-          onClick={() => alert("Gmail нэвтрэх тохиргоогүй")}
+          onClick={() => alert("Google-аар нэвтрэх одоогоор идэвхгүй.")}
           className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-zinc-200
             bg-white text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
         >
           <FcGoogle className="h-4 w-4" />
-          Gmail
+          Google
         </button>
 
         {/* Register link */}
         <p className="text-center text-sm text-zinc-500">
-          Бүртгэлгүй байна уу?{" "}
+          Бүртгэл байхгүй юу?{" "}
           <Link
             to="/team4/register"
             className="font-medium text-zinc-900 hover:underline underline-offset-4"
