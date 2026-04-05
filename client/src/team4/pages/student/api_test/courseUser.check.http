@@ -4,24 +4,30 @@
 ### Note: Teachers can add students to their courses. Admins can manage all.
 
 @baseUrl = https://todu.mn/bs/lms/v1
-@courseId = 100
+@courseId = 204
 @userId = 12345
+
+@accessToken = i8zSSGzb7UhwvExNCT4jIw
 
 ### 1. List users enrolled in a course
 POST {{baseUrl}}/token/email
 Content-Type: application/json
 
 {
-  "email": "admin@must.edu.mn",
+  "email": "schoolstudent@must.edu.mn",
   "password": "123",
   "push_token": "fcm_token_optional"
 }
 
-
+### Get own info
+GET {{baseUrl}}/users/me
+Authorization: Bearer {{accessToken}}
 
 ###
 GET {{baseUrl}}/courses/{{courseId}}/users
 Authorization: Bearer {{accessToken}}
+
+
 
 ### 2. Add a user to a course (teacher/admin)
 POST {{baseUrl}}/courses/{{courseId}}/users

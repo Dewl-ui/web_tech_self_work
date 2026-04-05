@@ -11,7 +11,8 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../utils/AuthContext";
 import AdminHomeSummary   from "../admin/AdminHomeSummary";
 import TeacherHomeSummary from "../teacher/TeacherHomeSummary";
-import StudentHome from "../student/studentHome";
+// import StudentHome from "../student/StudentHome";
+import StudentHome from "../student/StudentHome";
 
 const ROLE_TITLES = {
   admin:   "Системийн дашбоард",

@@ -6,6 +6,8 @@
 @baseUrl = https://todu.mn/bs/lms/v1
 @userId = 12345
 
+@accessToken = i8zSSGzb7UhwvExNCT4jIw
+
 ### 1. List all users
 GET {{baseUrl}}/users
 Authorization: Bearer {{accessToken}}
