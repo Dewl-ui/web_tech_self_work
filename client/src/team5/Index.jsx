@@ -4,7 +4,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./Layout";
 import Home from "./Home";
 import Example from "./Example";
-import Login from "../layout/Login";
+import Login from "../layout/Login"; 
 
 // Question Bank Pages
 import QuestionTypes from "./pages/QuestionTypes";
