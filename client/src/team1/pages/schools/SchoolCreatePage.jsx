@@ -1,45 +1,64 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SchoolForm from "../../components/school/SchoolForm";
+import useTeam1Role from "../../hooks/useTeam1Role";
+import { createRequest } from "../../services/requestService";
 import { createSchool } from "../../services/schoolService";
+import { canCreateSchool, getErrorMessage } from "../../utils/school";
 
 export default function SchoolCreatePage() {
   const navigate = useNavigate();
+  const role = useTeam1Role();
+  const canCreateDirectly = canCreateSchool(role);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
-  const role = (localStorage.getItem("role") || "").trim().toLowerCase();
-
-  console.log("ROLE CHECK:", role);
 
   async function handleSubmit(values) {
     try {
       setSaving(true);
       setError("");
-      await createSchool(values);
+
+      if (canCreateDirectly) {
+        await createSchool(values);
+      } else {
+        await createRequest({
+          type: "school_admin",
+          name: values.name,
+          picture: values.picture,
+          parent_id: values.parent_id || "",
+        });
+      }
+
       navigate("/team1/schools");
     } catch (saveError) {
-      setError(saveError.message || "Сургууль үүсгэж чадсангүй.");
+      setError(
+        getErrorMessage(
+          saveError,
+          canCreateDirectly
+            ? "Сургууль үүсгэж чадсангүй."
+            : "Сургууль нэмэх хүсэлт илгээж чадсангүй."
+        )
+      );
     } finally {
       setSaving(false);
     }
   }
 
-  if (role !== "admin" && role !== "teacher") {
-    return (
-      <div className="rounded bg-yellow-100 p-4">
-        Энэ хуудсанд зөвхөн багш эсвэл админ хандах боломжтой
-      </div>
-    );
-  }
-
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="space-y-2">
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="text-sm text-indigo-500 hover:underline"
+        >
+          ← Буцах
+        </button>
         <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-600">
-          Create School
+          Сургууль
         </p>
         <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-          Шинэ сургууль нэмэх
+          {canCreateDirectly ? "Шинэ сургууль нэмэх" : "Сургууль нэмэх хүсэлт илгээх"}
         </h1>
       </div>
 
@@ -50,9 +69,9 @@ export default function SchoolCreatePage() {
       ) : null}
 
       <SchoolForm
-        key="create-school"
+        key={canCreateDirectly ? "create-school" : "request-school"}
         onSubmit={handleSubmit}
-        submitLabel="Сургууль үүсгэх"
+        submitLabel={canCreateDirectly ? "Сургууль үүсгэх" : "Хүсэлт илгээх"}
         loading={saving}
       />
     </div>

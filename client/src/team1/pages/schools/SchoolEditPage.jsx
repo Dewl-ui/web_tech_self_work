@@ -1,51 +1,38 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SchoolForm from "../../components/school/SchoolForm";
+import useTeam1Role from "../../hooks/useTeam1Role";
 import { getSchool, updateSchool } from "../../services/schoolService";
-
-function normalizeSchool(school) {
-  return {
-    name: school.name || school.school_name || "",
-    picture: school.picture || school.image || "",
-    priority: school.priority ?? 1,
-  };
-}
+import { canCreateSchool, getErrorMessage } from "../../utils/school";
 
 export default function SchoolEditPage() {
   const { school_id } = useParams();
   const navigate = useNavigate();
-  const [initialValues, setInitialValues] = useState(null);
+  const role = useTeam1Role();
+  const [school, setSchool] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const role = (localStorage.getItem("role") || "").trim().toLowerCase();
-
-  console.log("ROLE CHECK:", role);
 
   useEffect(() => {
     let isMounted = true;
 
-    async function loadSchool() {
-      try {
-        setLoading(true);
-        setError("");
-        const result = await getSchool(school_id);
-
+    getSchool(school_id)
+      .then((item) => {
         if (isMounted) {
-          setInitialValues(normalizeSchool(result || {}));
+          setSchool(item);
         }
-      } catch (loadError) {
+      })
+      .catch((loadError) => {
         if (isMounted) {
-          setError(loadError.message || "Засах мэдээллийг ачаалж чадсангүй.");
+          setError(getErrorMessage(loadError, "Сургууль олдсонгүй."));
         }
-      } finally {
+      })
+      .finally(() => {
         if (isMounted) {
           setLoading(false);
         }
-      }
-    }
-
-    loadSchool();
+      });
 
     return () => {
       isMounted = false;
@@ -59,36 +46,35 @@ export default function SchoolEditPage() {
       await updateSchool(school_id, values);
       navigate(`/team1/schools/${school_id}`);
     } catch (saveError) {
-      setError(saveError.message || "Сургуулийг шинэчилж чадсангүй.");
+      setError(getErrorMessage(saveError, "Сургуулийг шинэчилж чадсангүй."));
     } finally {
       setSaving(false);
     }
   }
 
-  if (role !== "admin" && role !== "teacher") {
-    return (
-      <div className="rounded bg-yellow-100 p-4">
-        Энэ хуудсанд зөвхөн багш эсвэл админ хандах боломжтой
-      </div>
-    );
+  if (!canCreateSchool(role)) {
+    return <div className="rounded bg-yellow-100 p-4">Хандах эрхгүй</div>;
   }
 
   if (loading) {
-    return (
-      <div className="rounded-[2rem] border border-dashed border-slate-300 bg-white px-6 py-16 text-center text-slate-500 shadow-sm">
-        Засварлах мэдээлэл ачаалж байна...
-      </div>
-    );
+    return <div className="rounded bg-white p-6 shadow-sm">Ачаалж байна...</div>;
   }
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="space-y-2">
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="text-sm text-indigo-500 hover:underline"
+        >
+          ← Буцах
+        </button>
         <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-600">
-          Edit School
+          Сургууль
         </p>
         <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-          Сургуулийн мэдээлэл засах
+          Сургууль засах
         </h1>
       </div>
 
@@ -99,10 +85,10 @@ export default function SchoolEditPage() {
       ) : null}
 
       <SchoolForm
-        key={`edit-school-${school_id}-${initialValues?.name || ""}-${initialValues?.priority ?? ""}-${initialValues?.picture || ""}`}
-        initialValues={initialValues || undefined}
+        key={`edit-school-${school_id}`}
+        initialValues={school}
         onSubmit={handleSubmit}
-        submitLabel="Өөрчлөлт хадгалах"
+        submitLabel="Хадгалах"
         loading={saving}
       />
     </div>

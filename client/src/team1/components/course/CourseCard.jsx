@@ -27,37 +27,27 @@ export default function CourseCard({
 
   const handleMenuToggle = (event) => {
     event.stopPropagation();
-    if (onMenuToggle) {
-      onMenuToggle(course.id);
-    }
+    onMenuToggle?.(course.id);
   };
 
   const handleBookmark = (event) => {
     event.stopPropagation();
-    if (onBookmarkToggle) {
-      onBookmarkToggle(course.id);
-    }
+    onBookmarkToggle?.(course.id);
   };
 
   const handleHide = (event) => {
     event.stopPropagation();
-    if (onHide) {
-      onHide(course.id);
-    }
+    onHide?.(course.id);
   };
 
   const handleEditClick = (event) => {
     event.stopPropagation();
-    if (onEdit) {
-      onEdit(course.id);
-    }
+    onEdit?.(course.id);
   };
 
   const handleDeleteClick = (event) => {
     event.stopPropagation();
-    if (onDelete) {
-      onDelete(course.id);
-    }
+    onDelete?.(course.id);
   };
 
   return (
@@ -67,7 +57,7 @@ export default function CourseCard({
     >
       <div className="h-[120px]" style={{ background }} />
 
-      {isTeacherOrAdmin && (
+      {isTeacherOrAdmin ? (
         <div className="absolute right-3 top-3 flex gap-1.5">
           <button
             type="button"
@@ -84,13 +74,13 @@ export default function CourseCard({
             🗑
           </button>
         </div>
-      )}
+      ) : null}
 
-      {bookmarked && (
+      {bookmarked ? (
         <div className="absolute right-3 top-14 flex h-9 w-9 items-center justify-center rounded-full bg-yellow-400 shadow">
           ★
         </div>
-      )}
+      ) : null}
 
       <div className="p-4">
         <h3 className="mb-3 text-base font-bold text-gray-800">{course.name}</h3>
@@ -98,14 +88,24 @@ export default function CourseCard({
         <div className="mb-1 flex justify-between text-xs text-gray-400">
           <span>Явц</span>
           <span style={{ color: progressColor }} className="font-semibold">
-            {course.progress}%
+            {course.progress || 0}%
           </span>
         </div>
         <div className="mb-4 h-1.5 rounded-full bg-gray-100">
           <div
             className="h-1.5 rounded-full"
-            style={{ width: `${course.progress}%`, backgroundColor: progressColor }}
+            style={{
+              width: `${course.progress || 0}%`,
+              backgroundColor: progressColor,
+            }}
           />
+        </div>
+
+        <div className="mb-3 flex items-center justify-between text-xs text-slate-400">
+          <span>Сурагч</span>
+          <span className="font-semibold text-slate-600">
+            {course.studentCount || 0}
+          </span>
         </div>
 
         <div className="flex items-center justify-between">
@@ -122,8 +122,8 @@ export default function CourseCard({
               ⋮
             </button>
 
-            {menuOpen && (
-              <div className="absolute bottom-8 right-0 z-50 min-w-[150px] overflow-hidden rounded-xl bg-white shadow-[0_10px_25px_rgba(15,23,42,0.15)]">
+            {menuOpen ? (
+              <div className="absolute bottom-8 right-0 z-50 min-w-[160px] overflow-hidden rounded-xl bg-white shadow-[0_10px_25px_rgba(15,23,42,0.15)]">
                 <button
                   className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50"
                   onClick={handleBookmark}
@@ -138,7 +138,7 @@ export default function CourseCard({
                   Хасах
                 </button>
               </div>
-            )}
+            ) : null}
           </div>
         </div>
       </div>

@@ -18,7 +18,7 @@ export default function SchoolCard({ school, onDelete, canDelete = false }) {
 
         <div className="flex items-center justify-between border-t border-slate-100 pt-4">
           <div className="text-sm text-slate-500">
-            Priority: <span className="font-semibold text-slate-700">{school.priority ?? 0}</span>
+            Эрэмбэ: <span className="font-semibold text-slate-700">{school.priority ?? 0}</span>
           </div>
           <div className="flex items-center gap-2">
             {canDelete ? (

@@ -11,6 +11,8 @@ function getImage(school) {
 export default function SchoolHeader({
   school,
   canEdit = false,
+  canDelete = false,
+  onDelete,
   onReport,
 }) {
   const navigate = useNavigate();
@@ -20,7 +22,7 @@ export default function SchoolHeader({
       <div className="space-y-5">
         <div className="space-y-3">
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-600">
-            School Profile
+            Сургуулийн танилцуулга
           </p>
           <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
             {school.name}
@@ -38,7 +40,16 @@ export default function SchoolHeader({
               onClick={() => navigate(`/team1/schools/${school.id}/edit`)}
               className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700"
             >
-              Edit
+              Засах
+            </button>
+          ) : null}
+          {canDelete ? (
+            <button
+              type="button"
+              onClick={onDelete}
+              className="rounded-2xl bg-red-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-600"
+            >
+              Устгах
             </button>
           ) : null}
           <button
@@ -46,7 +57,7 @@ export default function SchoolHeader({
             onClick={onReport}
             className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
           >
-            Report
+            Тайлан
           </button>
         </div>
       </div>

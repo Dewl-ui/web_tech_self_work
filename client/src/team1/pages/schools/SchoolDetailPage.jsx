@@ -1,9 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import SchoolHeader from "../../components/school/SchoolHeader";
 import SchoolStats from "../../components/school/SchoolStats";
-import { getSchool } from "../../services/schoolService";
-import { getRole, setCurrentSchool } from "../../utils/school";
+import useTeam1Role from "../../hooks/useTeam1Role";
+import { deleteSchool, getSchool } from "../../services/schoolService";
+import {
+  canCreateSchool,
+  getCurrentSchool,
+  getErrorMessage,
+  setCurrentSchool,
+} from "../../utils/school";
 
 function normalizeSchool(school, id) {
   return {
@@ -21,50 +27,67 @@ function normalizeSchool(school, id) {
 
 export default function SchoolDetailPage() {
   const { school_id } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
-  const [school, setSchool] = useState(null);
+  const role = useTeam1Role();
+  const fallbackSchool = useMemo(() => {
+    const routeSchool = location.state?.school;
+    if (routeSchool && Number(routeSchool.id) === Number(school_id)) {
+      return normalizeSchool(routeSchool, school_id);
+    }
+
+    const storedSchool = getCurrentSchool();
+    if (storedSchool && Number(storedSchool.id) === Number(school_id)) {
+      return normalizeSchool(storedSchool, school_id);
+    }
+
+    return null;
+  }, [location.state, school_id]);
+  const [school, setSchool] = useState(fallbackSchool);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const role = getRole();
-  const canEdit = role === "admin" || role === "teacher";
+  const [requestMessage, setRequestMessage] = useState("");
 
   useEffect(() => {
     let isMounted = true;
 
-    async function loadSchool() {
-      try {
-        setLoading(true);
-        setError("");
-        const result = await getSchool(school_id);
-        const normalized = normalizeSchool(result || {}, school_id);
+    if (fallbackSchool) {
+      setCurrentSchool(fallbackSchool);
+    }
 
-        if (isMounted) {
-          setSchool(normalized);
+    getSchool(school_id)
+      .then((result) => {
+        if (!isMounted) {
+          return;
         }
-      } catch (loadError) {
-        if (isMounted) {
-          setError(loadError.message || "Сургуулийн мэдээлэл ачаалж чадсангүй.");
+
+        const normalized = normalizeSchool(result || {}, school_id);
+        setSchool(normalized);
+        setCurrentSchool(normalized);
+      })
+      .catch((loadError) => {
+        if (!isMounted) {
+          return;
         }
-      } finally {
+
+        if (loadError?.response?.status === 401 && fallbackSchool) {
+          setSchool(fallbackSchool);
+          setError("");
+          return;
+        }
+
+        setError(getErrorMessage(loadError, "Сургуулийн мэдээлэл олдсонгүй."));
+      })
+      .finally(() => {
         if (isMounted) {
           setLoading(false);
         }
-      }
-    }
-
-    loadSchool();
+      });
 
     return () => {
       isMounted = false;
     };
-  }, [school_id]);
-
-  useEffect(() => {
-    if (school) {
-      setCurrentSchool(school);
-      localStorage.setItem("selectedSchool", JSON.stringify(school));
-    }
-  }, [school]);
+  }, [fallbackSchool, school_id]);
 
   const stats = useMemo(() => {
     if (!school) {
@@ -79,23 +102,57 @@ export default function SchoolDetailPage() {
     ];
   }, [school]);
 
+  const handleSchoolAction = async () => {
+    if (canCreateSchool(role)) {
+      navigate("/team1/schools/create");
+      return;
+    }
+
+    navigate("/team1/schools/create");
+  };
+
+  const handleDeleteSchool = async () => {
+    try {
+      setError("");
+      await deleteSchool(school_id);
+      setCurrentSchool(null);
+      navigate("/team1/schools");
+    } catch (deleteError) {
+      setError(getErrorMessage(deleteError, "Сургуулийг устгаж чадсангүй."));
+    }
+  };
+
   if (loading) {
-    return <div className="rounded-[2rem] border border-dashed border-slate-300 bg-white px-6 py-16 text-center text-slate-500 shadow-sm">Сургуулийн мэдээлэл ачаалж байна...</div>;
+    return (
+      <div className="rounded-[2rem] bg-white px-6 py-16 text-center text-slate-500 shadow-sm">
+        Сургуулийн мэдээлэл ачаалж байна...
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="rounded-[2rem] border border-rose-200 bg-rose-50 px-6 py-5 text-sm font-medium text-rose-600 shadow-sm">{error}</div>;
+    return (
+      <div className="rounded-[2rem] border border-rose-200 bg-rose-50 px-6 py-5 text-sm font-medium text-rose-600 shadow-sm">
+        {error}
+      </div>
+    );
   }
 
   if (!school) {
-    return <div className="rounded-[2rem] border border-dashed border-slate-300 bg-white px-6 py-16 text-center text-slate-500 shadow-sm">Сургууль олдсонгүй.</div>;
+    return (
+      <div className="rounded-[2rem] bg-white px-6 py-16 text-center text-slate-500 shadow-sm">
+        Сургууль олдсонгүй.
+      </div>
+    );
   }
 
   return (
     <div className="space-y-8">
       <SchoolHeader
         school={school}
-        canEdit={canEdit}
+        canEdit={canCreateSchool(role)}
+        canDelete={canCreateSchool(role)}
+        onDelete={handleDeleteSchool}
         onReport={() => navigate("/team1/report")}
       />
 
@@ -107,23 +164,17 @@ export default function SchoolDetailPage() {
         >
           Энэ сургуулийн хичээлүүд
         </button>
+
+        <button
+          type="button"
+          onClick={handleSchoolAction}
+          className="rounded-xl border border-indigo-200 bg-white px-4 py-2 text-sm font-semibold text-indigo-600"
+        >
+          {canCreateSchool(role) ? "+ Сургууль нэмэх" : "Сургууль нэмэх хүсэлт"}
+        </button>
       </div>
 
       <SchoolStats stats={stats} />
-
-      <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-bold text-slate-900">Ерөнхий мэдээлэл</h2>
-        <dl className="mt-6 grid gap-5 sm:grid-cols-2">
-          <div className="rounded-2xl bg-slate-50 p-4">
-            <dt className="text-sm font-medium text-slate-500">Сургуулийн нэр</dt>
-            <dd className="mt-2 text-base font-semibold text-slate-900">{school.name}</dd>
-          </div>
-          <div className="rounded-2xl bg-slate-50 p-4">
-            <dt className="text-sm font-medium text-slate-500">Эрэмбэ</dt>
-            <dd className="mt-2 text-base font-semibold text-slate-900">{school.priority}</dd>
-          </div>
-        </dl>
-      </section>
     </div>
   );
 }

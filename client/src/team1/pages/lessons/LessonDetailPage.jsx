@@ -1,167 +1,154 @@
-import { useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { mockCourses } from "../../data/mockCourses";
-import { mockLessons } from "../../data/mockLessons";
-import { mockLessonDetails } from "../../data/mockLessonsDetail";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { getCourse } from "../../services/courseService";
+import { getLessonsByCourse } from "../../services/lessonService";
+import { inferLessonKindFromTypeName } from "../../utils/lessonType";
+import {
+  getCompletedLessonIds,
+  getCurrentCourse,
+  getCurrentLesson,
+  getErrorMessage,
+  isLessonCompleted,
+  setCurrentLesson,
+  setLessonCompleted,
+} from "../../utils/school";
 
-const getStoredWeekContexts = () => {
-  const keys = Object.keys(localStorage).filter((key) =>
-    key.startsWith("team1-course-weeks-")
+function getLessonVideoUrl(lesson) {
+  const candidates = [lesson?.video_url, lesson?.content, lesson?.description];
+  return (
+    candidates.find(
+      (value) =>
+        typeof value === "string" &&
+        (value.includes("youtube.com/") || value.includes("youtu.be/"))
+    ) || ""
   );
+}
 
-  return keys.map((key) => {
-    const courseId = Number(key.replace("team1-course-weeks-", ""));
+function normalizeVideoUrl(url = "") {
+  if (!url) return "";
+  if (url.includes("watch?v=")) return url.replace("watch?v=", "embed/");
+  if (url.includes("youtu.be/")) {
+    const videoId = url.split("youtu.be/")[1]?.split("?")[0];
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
+  }
+  return url;
+}
 
-    try {
-      return {
-        courseId,
-        weeks: JSON.parse(localStorage.getItem(key) || "[]"),
-      };
-    } catch {
-      return { courseId, weeks: [] };
-    }
-  });
-};
+function getLessonKind(lesson) {
+  const rawType =
+    lesson?.type?.name || lesson?.type || lesson?.lesson_type?.name || "";
+  const hasVideoUrl = Boolean(getLessonVideoUrl(lesson));
+  const kindFromType = inferLessonKindFromTypeName(rawType);
 
-const getFallbackContexts = () =>
-  mockCourses.map((course) => ({
-    courseId: Number(course.id),
-    weeks: mockLessons,
-  }));
-
-const normalizeVideoUrl = (url = "") => {
-  if (!url) {
-    return "";
+  if (hasVideoUrl) return "video";
+  if (kindFromType === "assignment") return "assignment";
+  if (lesson?.has_submission || lesson?.open_on || lesson?.close_on || lesson?.end_on) {
+    return "assignment";
   }
 
-  return url.includes("watch?v=") ? url.replace("watch?v=", "embed/") : url;
-};
+  return kindFromType;
+}
+
+function getAssignmentStatus(lesson) {
+  if (lesson?.has_submission) {
+    return { label: "Илгээсэн", color: "text-green-600 bg-green-50" };
+  }
+
+  if (lesson?.close_on && new Date(lesson.close_on) < new Date()) {
+    return { label: "Хоцорсон", color: "text-red-600 bg-red-50" };
+  }
+
+  return { label: "Илгээгээгүй", color: "text-slate-600 bg-slate-100" };
+}
 
 export default function LessonDetailPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { lessonId, lesson_id } = useParams();
-  const currentLessonId = Number(lessonId || lesson_id);
-  const [refreshKey, setRefreshKey] = useState(0);
-  const [submissionFile, setSubmissionFile] = useState(null);
+  const currentLessonId = lessonId || lesson_id;
+  const fallbackCourse = getCurrentCourse();
+  const currentCourseId = location.state?.courseId || fallbackCourse?.id || "";
+  const fallbackLesson = useMemo(() => {
+    const routeLesson = location.state?.lesson;
+    if (routeLesson && Number(routeLesson.id) === Number(currentLessonId)) {
+      return routeLesson;
+    }
 
-  const lessonContext = useMemo(() => {
-    const storedContexts = getStoredWeekContexts();
-    const allContexts = storedContexts.length > 0 ? storedContexts : getFallbackContexts();
+    const storedLesson = getCurrentLesson();
+    if (storedLesson && Number(storedLesson.id) === Number(currentLessonId)) {
+      return storedLesson;
+    }
 
-    for (const context of allContexts) {
-      for (const week of context.weeks) {
-        const foundLesson = (week.lessons || []).find(
-          (item) => Number(item.id) === currentLessonId
+    return null;
+  }, [currentLessonId, location.state]);
+
+  const [courseName, setCourseName] = useState(fallbackCourse?.name || "Хичээл");
+  const [lesson, setLesson] = useState(fallbackLesson);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [completed, setCompleted] = useState(
+    currentCourseId && currentLessonId
+      ? isLessonCompleted(currentCourseId, currentLessonId)
+      : false
+  );
+
+  useEffect(() => {
+    if (!currentCourseId || !currentLessonId) {
+      setError("Хичээлийн мэдээлэл дутуу байна.");
+      setLoading(false);
+      return;
+    }
+
+    Promise.all([getCourse(currentCourseId), getLessonsByCourse(currentCourseId)])
+      .then(([course, lessonItems]) => {
+        const lessonItem = (lessonItems || []).find(
+          (item) => Number(item?.id) === Number(currentLessonId)
         );
 
-        if (foundLesson) {
-          return {
-            courseId: context.courseId,
-            course:
-              mockCourses.find(
-                (courseItem) => Number(courseItem.id) === Number(context.courseId)
-              ) || null,
-            weeks: context.weeks,
-            activeWeek: week,
-            lesson: {
-              ...foundLesson,
-              weekTitle: week.title,
-            },
-          };
+        if (!lessonItem) {
+          throw new Error("Хичээлийн хэсэг олдсонгүй.");
         }
-      }
-    }
 
-    const fallbackLesson =
-      mockLessonDetails.find((item) => Number(item.id) === currentLessonId) ||
-      null;
+        setCourseName(course?.name || "Хичээл");
+        setLesson(lessonItem);
+        setCurrentLesson(lessonItem);
+      })
+      .catch((loadError) => {
+        if (fallbackLesson) {
+          setLesson(fallbackLesson);
+        } else {
+          setError(getErrorMessage(loadError, "Хичээлийн хэсэг олдсонгүй."));
+        }
+      })
+      .finally(() => setLoading(false));
+  }, [currentCourseId, currentLessonId, fallbackLesson]);
 
-    if (!fallbackLesson) {
-      return null;
-    }
+  useEffect(() => {
+    if (!currentCourseId || !currentLessonId) return;
+    setCompleted(isLessonCompleted(currentCourseId, currentLessonId));
+  }, [currentCourseId, currentLessonId, lesson]);
 
-    return {
-      courseId: null,
-      course: null,
-      weeks: mockLessons,
-      activeWeek: null,
-      lesson: fallbackLesson,
-    };
-  }, [currentLessonId, refreshKey]);
+  const lessonKind = useMemo(() => getLessonKind(lesson), [lesson]);
+  const videoUrl = useMemo(() => normalizeVideoUrl(getLessonVideoUrl(lesson)), [lesson]);
+  const assignmentStatus = useMemo(() => getAssignmentStatus(lesson), [lesson]);
+  const completedCount = useMemo(
+    () => (currentCourseId ? getCompletedLessonIds(currentCourseId).length : 0),
+    [currentCourseId, completed]
+  );
 
-  const updateStoredLesson = (updater) => {
-    const keys = Object.keys(localStorage).filter((key) =>
-      key.startsWith("team1-course-weeks-")
+  const handleToggleCompleted = () => {
+    const nextValue = !completed;
+    setLessonCompleted(currentCourseId, currentLessonId, nextValue);
+    setCompleted(nextValue);
+  };
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-5xl px-8 py-6 text-slate-500">Ачаалж байна...</div>
     );
+  }
 
-    keys.forEach((key) => {
-      try {
-        const weeks = JSON.parse(localStorage.getItem(key) || "[]");
-        const updatedWeeks = weeks.map((week) => ({
-          ...week,
-          lessons: week.lessons.map((item) =>
-            Number(item.id) === currentLessonId ? updater(item) : item
-          ),
-        }));
-        localStorage.setItem(key, JSON.stringify(updatedWeeks));
-      } catch {
-        return;
-      }
-    });
-
-    setRefreshKey((prev) => prev + 1);
-  };
-
-  const handleSubmit = () => {
-    updateStoredLesson((item) => ({
-      ...item,
-      submitted: true,
-      submittedAt: new Date().toISOString(),
-      submissionFileName: submissionFile?.name || item.submissionFileName || "",
-    }));
-    setSubmissionFile(null);
-  };
-
-  const handleEditSubmission = () => {
-    updateStoredLesson((item) => ({
-      ...item,
-      submitted: false,
-      submissionFileName: "",
-      submittedAt: "",
-    }));
-  };
-
-  const handleDeleteSubmission = () => {
-    updateStoredLesson((item) => ({
-      ...item,
-      submitted: false,
-      submissionFileName: "",
-      submittedAt: "",
-    }));
-  };
-
-  const getStatus = (lesson) => {
-    if (!lesson?.submitted) {
-      return {
-        label: "Илгээгээгүй",
-        classes: "bg-slate-100 text-slate-600",
-      };
-    }
-
-    if (lesson.dueDate && new Date(lesson.dueDate) < new Date()) {
-      return {
-        label: "Хоцорсон",
-        classes: "bg-red-100 text-red-600",
-      };
-    }
-
-    return {
-      label: "Илгээсэн",
-      classes: "bg-emerald-100 text-emerald-600",
-    };
-  };
-
-  if (!lessonContext?.lesson) {
+  if (error || !lesson) {
     return (
       <div className="mx-auto max-w-5xl px-8 py-6">
         <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
@@ -172,249 +159,7 @@ export default function LessonDetailPage() {
           >
             ← Буцах
           </button>
-          <p className="text-gray-600">Lesson not found</p>
-        </div>
-      </div>
-    );
-  }
-
-  const { lesson, weeks, activeWeek, course } = lessonContext;
-  const status = getStatus(lesson);
-  const assignmentMaterials =
-    lesson.materials ||
-    [
-      {
-        id: `${lesson.id}-brief`,
-        name: "Сем",
-        meta: "PDF Document • 2.4 MB",
-        action: "Татаж авах",
-      },
-      {
-        id: `${lesson.id}-guide`,
-        name: "Сем",
-        meta: "PDF Document • 1.8 MB",
-        action: "Татаж авах",
-      },
-    ];
-
-  if (lesson.type === "assignment") {
-    return (
-      <div className="px-8 py-6">
-        <div className="flex gap-0 overflow-hidden rounded-[24px] bg-white shadow-[0_10px_30px_rgba(15,23,42,0.08)]">
-          <div className="w-[260px] bg-slate-50 p-5">
-            <button
-              type="button"
-              onClick={() => navigate(-1)}
-              className="mb-4 text-sm text-indigo-500 hover:underline"
-            >
-              ← Буцах
-            </button>
-
-            <div className="border-b border-slate-200 pb-4">
-              <h2 className="text-sm font-bold text-slate-800">
-                {course?.name || "Хичээл"}
-              </h2>
-              <p className="mt-1 text-xs text-slate-400">
-                {weeks.length} долоо хоног
-              </p>
-            </div>
-
-            <div className="mt-4 space-y-3">
-              {weeks.map((week) => {
-                const isActive = week.id === activeWeek?.id;
-
-                return (
-                  <div
-                    key={week.id}
-                    className={`rounded-xl px-3 py-3 ${
-                      isActive ? "bg-indigo-50" : "bg-white"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold ${
-                          isActive
-                            ? "bg-indigo-500 text-white"
-                            : "bg-slate-200 text-slate-500"
-                        }`}
-                      >
-                        {week.id}
-                      </div>
-                      <div className="min-w-0">
-                        <p
-                          className={`text-sm font-medium ${
-                            isActive ? "text-indigo-600" : "text-slate-600"
-                          }`}
-                        >
-                          {week.title}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="flex-1 bg-slate-50 p-8">
-            <div>
-              <h1 className="text-2xl font-bold text-slate-800">Даалгавар</h1>
-              <p className="mt-3 text-sm text-slate-500">
-                Нээгдсэн: {lesson.dueDate || "2026-01-25"}, 12:00 AM
-              </p>
-            </div>
-
-            <div className="mt-4 rounded-2xl bg-white p-6 shadow-sm">
-              <p className="mb-3 text-xs font-bold uppercase tracking-wide text-slate-500">
-                Тайлбар
-              </p>
-              <div className="min-h-[88px] text-sm leading-6 text-slate-700">
-                {lesson.content}
-              </div>
-            </div>
-
-            <div className="mt-4 grid gap-4 md:grid-cols-2">
-              {assignmentMaterials.map((material, index) => (
-                <div
-                  key={material.id || index}
-                  className="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm"
-                >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-lg">
-                    {index % 2 === 0 ? "📄" : "📘"}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-slate-700">{material.name}</p>
-                    <p className="mt-1 text-xs text-slate-400">{material.meta}</p>
-                    <button
-                      type="button"
-                      className="mt-2 text-xs font-medium text-indigo-500 hover:underline"
-                    >
-                      {material.action}
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {!lesson.submitted ? (
-              <div className="mt-8">
-                <h3 className="text-xl font-bold text-slate-800">
-                  Даалгаврын гүйцэтгэл нэмэх
-                </h3>
-
-                <div className="mx-auto mt-5 max-w-md rounded-2xl bg-white p-6 shadow-sm">
-                  <label className="flex min-h-[170px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 text-center">
-                    <span className="text-2xl text-indigo-400">↥</span>
-                    <span className="mt-3 text-sm text-slate-500">
-                      select your file or drag and drop
-                    </span>
-                    <span className="mt-1 text-xs text-slate-300">
-                      jpg, png, pdf under 10mb
-                    </span>
-                    <span className="mt-4 rounded-md bg-indigo-500 px-4 py-1.5 text-xs font-semibold text-white">
-                      Browse
-                    </span>
-                    <input
-                      type="file"
-                      className="hidden"
-                      onChange={(event) =>
-                        setSubmissionFile(event.target.files?.[0] || null)
-                      }
-                    />
-                  </label>
-                  {submissionFile ? (
-                    <p className="mt-3 text-sm text-slate-500">
-                      Сонгосон файл: {submissionFile.name}
-                    </p>
-                  ) : null}
-                </div>
-
-                <div className="mt-4 flex justify-end gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setSubmissionFile(null)}
-                    className="rounded-xl border border-indigo-200 bg-white px-6 py-2 text-sm font-semibold text-indigo-500"
-                  >
-                    Цуцлах
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSubmit}
-                    className="rounded-xl bg-indigo-500 px-6 py-2 text-sm font-semibold text-white"
-                  >
-                    Байршуулах
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="mt-8">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-slate-800">
-                    Даалгаврын гүйцэтгэлийн төлөв
-                  </h3>
-                  <div className="flex gap-3">
-                    <button
-                      type="button"
-                      onClick={handleEditSubmission}
-                      className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700"
-                    >
-                      Засах
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleDeleteSubmission}
-                      className="rounded-xl border border-red-200 px-4 py-2 text-sm font-semibold text-red-500"
-                    >
-                      Устгах
-                    </button>
-                  </div>
-                </div>
-
-                <div className="mt-4 overflow-hidden rounded-2xl bg-white shadow-sm">
-                  <div className="grid grid-cols-[220px_1fr] border-b border-slate-100">
-                    <div className="bg-slate-50 px-5 py-4 text-sm font-semibold text-slate-600">
-                      Даалгаврын гүйцэтгэлийн төлөв
-                    </div>
-                    <div className="px-5 py-4 text-sm text-slate-500">
-                      Даалгаврыг гүйцэтгэлийг хараахан үнэлээгүй байна
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-[220px_1fr] border-b border-slate-100">
-                    <div className="bg-slate-50 px-5 py-4 text-sm font-semibold text-slate-600">
-                      Дүнгийн төлөв
-                    </div>
-                    <div className="px-5 py-4 text-sm text-slate-500">Дүнгүй</div>
-                  </div>
-                  <div className="grid grid-cols-[220px_1fr] border-b border-slate-100">
-                    <div className="bg-slate-50 px-5 py-4 text-sm font-semibold text-slate-600">
-                      Хамгийн сүүлд өөрчлөгдсөн
-                    </div>
-                    <div className="px-5 py-4 text-sm text-slate-500">
-                      {lesson.submittedAt
-                        ? new Date(lesson.submittedAt).toLocaleString()
-                        : "-"}
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-[220px_1fr]">
-                    <div className="bg-slate-50 px-5 py-4 text-sm font-semibold text-slate-600">
-                      Илгээх материалын тайлбар хийх
-                    </div>
-                    <div className="px-5 py-4 text-sm text-indigo-500">
-                      {lesson.submissionFileName || "Сэтгэгдэлүүд (0)"}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-4">
-                  <span
-                    className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${status.classes}`}
-                  >
-                    {status.label}
-                  </span>
-                </div>
-              </div>
-            )}
-          </div>
+          <p className="text-gray-600">{error || "Хичээлийн хэсэг олдсонгүй."}</p>
         </div>
       </div>
     );
@@ -431,47 +176,127 @@ export default function LessonDetailPage() {
           >
             ← Буцах
           </button>
-          <h1 className="text-2xl font-bold text-gray-800">{lesson.name}</h1>
-          {lesson.weekTitle ? (
-            <p className="mt-1 text-sm text-gray-400">{lesson.weekTitle}</p>
-          ) : null}
-          {(lesson.description || lesson.content) && (
-            <p className="mt-2 text-gray-600">
-              {lesson.description || lesson.content}
-            </p>
-          )}
+          <p className="text-sm text-slate-400">{courseName}</p>
+          <h1 className="text-2xl font-bold text-gray-800">
+            {lesson.name || lesson.title}
+          </h1>
+          <p className="mt-2 text-gray-600">
+            {lesson.description || lesson.content || "Тайлбар алга."}
+          </p>
+
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={handleToggleCompleted}
+              className={`rounded-xl px-4 py-2 text-sm font-semibold ${
+                completed
+                  ? "bg-emerald-100 text-emerald-700"
+                  : "bg-indigo-600 text-white"
+              }`}
+            >
+              {completed ? "Хийснийг цуцлах" : "Хийсэн гэж тэмдэглэх"}
+            </button>
+            <span
+              className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                completed ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-500"
+              }`}
+            >
+              {completed ? "Хийсэн" : "Хийж амжаагүй"}
+            </span>
+            <span className="text-xs text-slate-400">
+              Хийсэн хичээлийн тоо: {completedCount}
+            </span>
+          </div>
         </div>
 
-        {lesson.type === "video" && (
+        {lessonKind === "video" && videoUrl ? (
           <div className="overflow-hidden rounded-2xl border border-gray-100">
             <iframe
               width="100%"
-              height="400"
-              src={normalizeVideoUrl(lesson.videoUrl || lesson.content)}
-              title="video"
+              height="420"
+              src={videoUrl}
+              title="Видео"
               frameBorder="0"
               allowFullScreen
             />
           </div>
-        )}
+        ) : null}
 
-        {lesson.type === "text" && (
-          <div className="rounded-2xl border border-gray-100 bg-slate-50 p-6 text-gray-700">
-            {lesson.content}
-          </div>
-        )}
-
-        {(lesson.type === "file" || lesson.type === "pdf") && (
+        {lessonKind === "file" ? (
           <div className="rounded-2xl border border-gray-100 bg-slate-50 p-6">
             <a
-              href={lesson.file || lesson.content}
-              download
+              href={lesson.file_url || lesson.content}
               className="font-semibold text-indigo-600 hover:underline"
+              download
             >
-              📄 Файл татах
+              Файл татах
             </a>
           </div>
-        )}
+        ) : null}
+
+        {lessonKind === "text" ? (
+          <div className="rounded-2xl border border-gray-100 bg-slate-50 p-6 text-gray-700">
+            {lesson.content || "Контент алга."}
+          </div>
+        ) : null}
+
+        {lessonKind === "assignment" ? (
+          <div className="space-y-5">
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="rounded-xl bg-slate-50 p-4">
+                <p className="text-xs text-slate-400">Нээгдсэн огноо</p>
+                <p className="mt-2 font-semibold text-slate-700">
+                  {lesson.open_on || "—"}
+                </p>
+              </div>
+              <div className="rounded-xl bg-slate-50 p-4">
+                <p className="text-xs text-slate-400">Хаагдах огноо</p>
+                <p className="mt-2 font-semibold text-slate-700">
+                  {lesson.close_on || "—"}
+                </p>
+              </div>
+              <div className="rounded-xl bg-slate-50 p-4">
+                <p className="text-xs text-slate-400">Төлөв</p>
+                <span
+                  className={`mt-2 inline-flex rounded-full px-3 py-1 text-sm font-semibold ${assignmentStatus.color}`}
+                >
+                  {assignmentStatus.label}
+                </span>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-gray-100 bg-slate-50 p-6 text-gray-700">
+              {lesson.content || "Даалгаврын тайлбар алга."}
+            </div>
+
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center">
+              <p className="font-semibold text-slate-700">Файл оруулах</p>
+              <p className="mt-2 text-sm text-slate-400">
+                Энд файл чирж оруулах эсвэл товч ашиглан сонгоно.
+              </p>
+              <div className="mt-4 flex justify-center gap-3">
+                <button
+                  type="button"
+                  className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white"
+                >
+                  Даалгавар илгээх
+                </button>
+                <button
+                  type="button"
+                  className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600"
+                >
+                  Засах
+                </button>
+                <button
+                  type="button"
+                  className="rounded-xl border border-red-200 px-4 py-2 text-sm font-semibold text-red-500"
+                >
+                  Устгах
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );

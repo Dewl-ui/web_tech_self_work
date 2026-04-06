@@ -1,92 +1,97 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import useTeam1Role from "../../hooks/useTeam1Role";
+import { createLesson } from "../../services/lessonService";
+import { getLessonTypes } from "../../services/lessonTypeService";
 import {
-  useLocation,
-  useNavigate,
-  useParams,
-  useSearchParams,
-} from "react-router-dom";
-import { mockLessons } from "../../data/mockLessons";
-import { getRole } from "../../utils/school";
-
-const getWeeksStorageKey = (courseId) => `team1-course-weeks-${courseId}`;
-
-const readFileAsDataUrl = (selectedFile) =>
-  new Promise((resolve, reject) => {
-    if (!selectedFile) {
-      resolve("");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(new Error("Файл унших үед алдаа гарлаа."));
-    reader.readAsDataURL(selectedFile);
-  });
+  getFallbackLessonTypeId,
+  getLessonKindFromType,
+  sortLessonTypes,
+} from "../../utils/lessonType";
+import { canCreateLesson, getErrorMessage, toApiIsoString } from "../../utils/school";
 
 export default function LessonCreatePage() {
   const { course_id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const [params] = useSearchParams();
-  const role = getRole();
-  const weekId = params.get("weekId");
-  const searchCourseId = params.get("courseId");
-  const currentCourseId =
-    course_id || searchCourseId || location.state?.courseId || "";
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [name, setName] = useState("");
-  const [type, setType] = useState("video");
-  const [videoUrl, setVideoUrl] = useState("");
-  const [file, setFile] = useState(null);
-  const [content, setContent] = useState("");
-  const [dueDate, setDueDate] = useState("");
+  const role = useTeam1Role();
+  const currentCourseId = course_id || location.state?.courseId || "";
+  const initialWeekNumber = Number(location.state?.weekNumber || 1);
 
-  if (role !== "admin" && role !== "teacher") {
-    return <p>Хандах эрхгүй</p>;
+  const [lessonTypes, setLessonTypes] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [form, setForm] = useState({
+    name: "",
+    parent_id: "",
+    priority: String(initialWeekNumber),
+    type_id: "",
+    has_submission: false,
+    point: "0",
+    content: "",
+    video_url: "",
+    open_on: "",
+    close_on: "",
+    end_on: "",
+  });
+
+  const sortedLessonTypes = useMemo(() => sortLessonTypes(lessonTypes), [lessonTypes]);
+  const selectedKind = useMemo(
+    () => getLessonKindFromType(sortedLessonTypes, form.type_id),
+    [sortedLessonTypes, form.type_id]
+  );
+
+  useEffect(() => {
+    let active = true;
+
+    getLessonTypes()
+      .then((items) => {
+        if (!active) return;
+        setLessonTypes(items);
+        setForm((prev) => ({
+          ...prev,
+          type_id: prev.type_id || getFallbackLessonTypeId(items),
+        }));
+      })
+      .catch(() => {
+        if (!active) return;
+        setForm((prev) => ({
+          ...prev,
+          type_id: prev.type_id || "1",
+        }));
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (!canCreateLesson(role)) {
+    return <p>Хандах эрхгүй.</p>;
   }
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
-    setError(null);
-
-    if (!currentCourseId || !weekId) {
-      setError("Долоо хоног сонгогдоогүй байна.");
-      setLoading(false);
-      return;
-    }
+    setError("");
 
     try {
-      const storageKey = getWeeksStorageKey(currentCourseId);
-      const stored = localStorage.getItem(storageKey);
-      const currentWeeks = stored ? JSON.parse(stored) : mockLessons;
-      const fileData = type === "file" ? await readFileAsDataUrl(file) : "";
-      const newLesson = {
-        id: Date.now(),
-        name,
-        type,
-        videoUrl,
-        content,
-        file: fileData,
-        dueDate,
-        week_id: Number(weekId),
-        submitted: false,
-      };
+      await createLesson(currentCourseId, {
+        name: form.name,
+        parent_id: form.parent_id || "",
+        priority: form.priority || "1",
+        type_id: form.type_id || getFallbackLessonTypeId(sortedLessonTypes),
+        content: selectedKind === "video" && form.video_url ? form.video_url : form.content,
+        has_submission: form.has_submission ? "1" : "0",
+        point: form.point || "0",
+        open_on: form.open_on ? toApiIsoString(form.open_on) : "",
+        close_on: form.close_on ? toApiIsoString(form.close_on) : "",
+        end_on: form.end_on ? toApiIsoString(form.end_on) : "",
+      });
 
-      const updatedWeeks = currentWeeks.map((week) =>
-        Number(week.id) === Number(weekId)
-          ? {
-              ...week,
-              lessons: [...week.lessons, newLesson],
-            }
-          : week
-      );
-
-      localStorage.setItem(storageKey, JSON.stringify(updatedWeeks));
       navigate(`/team1/courses/${currentCourseId}`);
     } catch (saveError) {
-      setError(saveError.message || "Алдаа гарлаа. Дахин оролдоно уу.");
+      setError(getErrorMessage(saveError, "Хэсэг үүсгэж чадсангүй."));
       setLoading(false);
     }
   };
@@ -95,10 +100,9 @@ export default function LessonCreatePage() {
     <div className="mx-auto max-w-2xl px-6 py-8">
       <div className="mb-6 flex items-center gap-3">
         <button
+          type="button"
           onClick={() =>
-            currentCourseId
-              ? navigate(`/team1/courses/${currentCourseId}`)
-              : navigate(-1)
+            currentCourseId ? navigate(`/team1/courses/${currentCourseId}`) : navigate(-1)
           }
           className="text-sm text-indigo-500 hover:underline"
         >
@@ -117,106 +121,145 @@ export default function LessonCreatePage() {
         onSubmit={handleSubmit}
         className="space-y-5 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm"
       >
-        <div>
-          <label className="mb-1 block text-sm font-semibold text-gray-700">
-            Сэдвийн нэр
-          </label>
-          <input
-            type="text"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            required
-            className="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-indigo-400"
-          />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-semibold text-gray-700">
-            Төрөл
-          </label>
-          <select
-            value={type}
-            onChange={(event) => setType(event.target.value)}
-            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-indigo-400"
-          >
-            <option value="video">🎥 Видео</option>
-            <option value="text">📝 Текст</option>
-            <option value="file">📄 Файл</option>
-            <option value="assignment">📌 Даалгавар</option>
-          </select>
-        </div>
-
-        {type === "video" && (
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">
-              YouTube URL
-            </label>
+        <div className="grid gap-5 md:grid-cols-2">
+          <div className="space-y-2 md:col-span-2">
+            <label className="text-sm font-semibold text-slate-700">Хэсгийн нэр</label>
             <input
-              type="url"
-              value={videoUrl}
-              onChange={(event) => setVideoUrl(event.target.value)}
-              placeholder="https://www.youtube.com/watch?v=..."
-              className="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-indigo-400"
+              type="text"
+              value={form.name}
+              onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+              required
+              placeholder="Хэсгийн нэр"
+              className="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none"
             />
           </div>
-        )}
 
-        {type === "text" && (
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">
-              Агуулга
-            </label>
-            <textarea
-              value={content}
-              onChange={(event) => setContent(event.target.value)}
-              rows={5}
-              placeholder="Агуулга бичих..."
-              className="w-full resize-none rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-indigo-400"
-            />
-          </div>
-        )}
-
-        {type === "file" && (
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">
-              Файл
-            </label>
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-slate-700">Курсийн дугаар</label>
             <input
-              type="file"
-              onChange={(event) => setFile(event.target.files?.[0] || null)}
-              className="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-indigo-400"
+              type="text"
+              value={currentCourseId}
+              readOnly
+              className="w-full rounded-xl border border-gray-300 bg-slate-50 px-4 py-2 text-sm text-slate-500 outline-none"
             />
           </div>
-        )}
 
-        {type === "assignment" && (
-          <>
-            <div>
-              <label className="mb-1 block text-sm font-semibold text-gray-700">
-                Даалгаврын тайлбар
-              </label>
-              <textarea
-                value={content}
-                onChange={(event) => setContent(event.target.value)}
-                rows={5}
-                placeholder="Даалгаврын тайлбар"
-                className="w-full resize-none rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-indigo-400"
-              />
-            </div>
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-slate-700">Эх хэсгийн дугаар</label>
+            <input
+              type="text"
+              value={form.parent_id}
+              onChange={(event) => setForm((prev) => ({ ...prev, parent_id: event.target.value }))}
+              className="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none"
+            />
+          </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-semibold text-gray-700">
-                Дуусгах огноо
-              </label>
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-slate-700">Хичээлийн хэсгийн төрөл</label>
+            <select
+              value={form.type_id}
+              onChange={(event) => setForm((prev) => ({ ...prev, type_id: event.target.value }))}
+              className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm outline-none"
+            >
+              {sortedLessonTypes.map((lessonType) => (
+                <option key={lessonType.id} value={String(lessonType.id)}>
+                  {lessonType.name}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-slate-400">
+              Төрлийн дугаар: {form.type_id || getFallbackLessonTypeId(sortedLessonTypes)}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-slate-700">Эрэмбэ</label>
+            <input
+              type="text"
+              value={form.priority}
+              onChange={(event) => setForm((prev) => ({ ...prev, priority: event.target.value }))}
+              className="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-slate-700">Оноо</label>
+            <input
+              type="text"
+              value={form.point}
+              onChange={(event) => setForm((prev) => ({ ...prev, point: event.target.value }))}
+              className="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none"
+            />
+          </div>
+
+          <div className="space-y-2 md:col-span-2">
+            <label className="flex items-center gap-3 text-sm font-semibold text-slate-700">
               <input
-                type="date"
-                value={dueDate}
-                onChange={(event) => setDueDate(event.target.value)}
-                className="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-indigo-400"
+                type="checkbox"
+                checked={form.has_submission}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, has_submission: event.target.checked }))
+                }
+                className="h-4 w-4 rounded border-gray-300"
+              />
+              Гүйцэтгэл хүлээж авах
+            </label>
+          </div>
+
+          <div className="space-y-2 md:col-span-2">
+            <label className="text-sm font-semibold text-slate-700">Агуулга</label>
+            <textarea
+              value={form.content}
+              onChange={(event) => setForm((prev) => ({ ...prev, content: event.target.value }))}
+              rows={5}
+              placeholder={selectedKind === "assignment" ? "Даалгаврын тайлбар" : "Агуулга"}
+              className="w-full resize-none rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none"
+            />
+          </div>
+
+          {selectedKind === "video" ? (
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-sm font-semibold text-slate-700">Видео холбоос</label>
+              <input
+                type="url"
+                value={form.video_url}
+                onChange={(event) => setForm((prev) => ({ ...prev, video_url: event.target.value }))}
+                placeholder="https://www.youtube.com/watch?v=..."
+                className="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none"
               />
             </div>
-          </>
-        )}
+          ) : null}
+
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-slate-700">Нээх огноо</label>
+            <input
+              type="date"
+              value={form.open_on}
+              onChange={(event) => setForm((prev) => ({ ...prev, open_on: event.target.value }))}
+              className="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-slate-700">Хаах огноо</label>
+            <input
+              type="date"
+              value={form.close_on}
+              onChange={(event) => setForm((prev) => ({ ...prev, close_on: event.target.value }))}
+              className="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none"
+            />
+          </div>
+
+          <div className="space-y-2 md:col-span-2">
+            <label className="text-sm font-semibold text-slate-700">Дуусах огноо</label>
+            <input
+              type="date"
+              value={form.end_on}
+              onChange={(event) => setForm((prev) => ({ ...prev, end_on: event.target.value }))}
+              className="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none"
+            />
+          </div>
+        </div>
 
         <button
           type="submit"

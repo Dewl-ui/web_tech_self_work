@@ -1,75 +1,65 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SchoolCard from "../../components/school/SchoolCard";
+import useTeam1Role from "../../hooks/useTeam1Role";
 import { deleteSchool, getSchools } from "../../services/schoolService";
-import { getRole } from "../../utils/school";
-
-function extractSchools(res) {
-  if (Array.isArray(res?.data?.items)) {
-    return res.data.items;
-  }
-
-  if (Array.isArray(res?.data?.data)) {
-    return res.data.data;
-  }
-
-  if (Array.isArray(res?.data)) {
-    return res.data;
-  }
-
-  return [];
-}
+import {
+  canCreateSchool,
+  getErrorMessage,
+  isStudent,
+  isTeacher,
+  setCurrentSchool,
+} from "../../utils/school";
 
 function normalizeSchool(school, index) {
+  const rawId = school?.id || school?.school_id || index + 1;
+  const rawName = school?.name || school?.school_name || "Сургууль";
+
   return {
-    id: school?.id || school?.school_id || index + 1,
-    name: school?.name || school?.school_name || "Сургууль",
-    picture:
-      school?.picture ||
-      school?.image ||
-      "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1200&q=80",
+    id: rawId,
+    key: `${rawId}-${rawName}-${index}`,
+    name: rawName,
+    picture: school?.picture || school?.image || "",
     priority: school?.priority ?? index + 1,
   };
 }
 
 export default function SchoolsPage() {
   const navigate = useNavigate();
+  const role = useTeam1Role();
   const [schools, setSchools] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const role = getRole();
-  const canManage = role === "admin" || role === "teacher";
+  const [requestMessage, setRequestMessage] = useState("");
 
   useEffect(() => {
+    let isMounted = true;
+
     getSchools()
-      .then((res) => {
-        const data = extractSchools(res).map(normalizeSchool);
-        setSchools(data);
+      .then((items) => {
+        if (isMounted) {
+          setSchools(items.map(normalizeSchool));
+        }
       })
       .catch((loadError) => {
-        console.error(loadError);
-        setError(loadError.message || "Сургуулиудыг ачаалж чадсангүй");
+        if (isMounted) {
+          setError(getErrorMessage(loadError, "Сургуулиудыг ачаалж чадсангүй."));
+        }
       })
       .finally(() => {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       });
-  }, []);
 
-  const handleDelete = (id) => {
-    deleteSchool(id)
-      .then(() => {
-        setSchools((prev) => prev.filter((school) => school.id !== id));
-      })
-      .catch((deleteError) => {
-        console.error(deleteError);
-        setError(deleteError.message || "Сургуулийг устгаж чадсангүй");
-      });
-  };
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const filteredSchools = useMemo(() => {
     const query = search.trim().toLowerCase();
-
     if (!query) {
       return schools;
     }
@@ -79,27 +69,62 @@ export default function SchoolsPage() {
     );
   }, [schools, search]);
 
+  const handleOpenSchool = (school) => {
+    setCurrentSchool(school);
+    navigate(`/team1/schools/${school.id}`, {
+      state: { school },
+    });
+  };
+
+  const handleDeleteSchool = async (schoolId) => {
+    try {
+      setError("");
+      await deleteSchool(schoolId);
+      setSchools((prev) =>
+        prev.filter((school) => Number(school.id) !== Number(schoolId))
+      );
+    } catch (deleteError) {
+      setError(getErrorMessage(deleteError, "Сургуулийг устгаж чадсангүй."));
+    }
+  };
+
+  const handleSchoolAction = async () => {
+    if (canCreateSchool(role)) {
+      navigate("/team1/schools/create");
+      return;
+    }
+
+    if (!isStudent(role) && !isTeacher(role)) {
+      return;
+    }
+
+    navigate("/team1/schools/create");
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
         <div className="space-y-2">
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-600">
-            Schools
+            Сургуулиуд
           </p>
           <h1 className="text-3xl font-bold tracking-tight text-slate-900">
             Сургуулиуд
           </h1>
         </div>
 
-        {canManage ? (
-          <button
-            onClick={() => navigate("/team1/schools/create")}
-            className="rounded bg-blue-500 px-4 py-2 text-white"
-          >
-            + Сургууль нэмэх
-          </button>
-        ) : null}
+        <button
+          type="button"
+          onClick={handleSchoolAction}
+          className="rounded bg-blue-500 px-4 py-2 text-white"
+        >
+          {canCreateSchool(role) ? "+ Сургууль нэмэх" : "Сургууль нэмэх хүсэлт"}
+        </button>
       </div>
+
+      {requestMessage ? (
+        <div className="rounded-xl bg-sky-50 px-4 py-3 text-sky-600">{requestMessage}</div>
+      ) : null}
 
       <div className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
         <input
@@ -121,14 +146,14 @@ export default function SchoolsPage() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filteredSchools.map((school) => (
             <div
-              key={school.id}
-              onClick={() => navigate(`/team1/schools/${school.id}`)}
+              key={school.key}
+              onClick={() => handleOpenSchool(school)}
               className="cursor-pointer"
             >
               <SchoolCard
                 school={school}
-                onDelete={handleDelete}
-                canDelete={canManage}
+                canDelete={canCreateSchool(role)}
+                onDelete={handleDeleteSchool}
               />
             </div>
           ))}

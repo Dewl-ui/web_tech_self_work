@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { toApiIsoString } from "../../utils/school";
 
 const INITIAL_VALUES = {
   name: "",
   picture: "",
   priority: "1",
+  approved_by: "",
+  approved_at: "",
 };
 
 function normalizeInitialValues(initialValues) {
@@ -11,6 +14,10 @@ function normalizeInitialValues(initialValues) {
     name: initialValues?.name || "",
     picture: initialValues?.picture || initialValues?.image || "",
     priority: String(initialValues?.priority ?? 1),
+    approved_by: String(initialValues?.approved_by ?? ""),
+    approved_at: initialValues?.approved_at
+      ? String(initialValues.approved_at).slice(0, 10)
+      : "",
   };
 }
 
@@ -39,6 +46,8 @@ export default function SchoolForm({
     onSubmit?.({
       ...formData,
       priority: Number(formData.priority || 1),
+      approved_by: formData.approved_by ? Number(formData.approved_by) : null,
+      approved_at: formData.approved_at ? toApiIsoString(formData.approved_at) : null,
     });
   }
 
@@ -91,6 +100,38 @@ export default function SchoolForm({
           onChange={handleChange}
           className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
         />
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="space-y-2">
+          <label htmlFor="school-approved-by" className="text-sm font-semibold text-slate-700">
+            Баталгаажуулсан хэрэглэгчийн дугаар
+          </label>
+          <input
+            id="school-approved-by"
+            name="approved_by"
+            type="number"
+            min="1"
+            value={formData.approved_by}
+            onChange={handleChange}
+            placeholder="Жишээ: 1"
+            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="school-approved-at" className="text-sm font-semibold text-slate-700">
+            Баталгаажуулсан огноо
+          </label>
+          <input
+            id="school-approved-at"
+            name="approved_at"
+            type="date"
+            value={formData.approved_at}
+            onChange={handleChange}
+            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          />
+        </div>
       </div>
 
       <div className="flex items-center justify-end">

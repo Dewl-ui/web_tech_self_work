@@ -1,33 +1,25 @@
-import api from "./api";
-
-function pickItem(payload) {
-  if (!payload || Array.isArray(payload)) {
-    return payload;
-  }
-
-  return payload.data || payload.school || payload.result || payload;
-}
+import { extractItem, extractItems, schoolAPI } from "./api";
 
 export async function getSchools() {
-  const data = await api.get("/v1/schools");
-  return { data };
+  const payload = await schoolAPI.getAll();
+  return extractItems(payload);
 }
 
 export async function getSchool(id) {
-  const response = await api.get(`/v1/schools/${id}`);
-  return pickItem(response);
+  const payload = await schoolAPI.getOne(id);
+  return extractItem(payload);
 }
 
 export async function createSchool(data) {
-  const response = await api.post("/v1/schools", data);
-  return pickItem(response);
+  const payload = await schoolAPI.create(data);
+  return extractItem(payload);
 }
 
 export async function updateSchool(id, data) {
-  const response = await api.put(`/v1/schools/${id}`, data);
-  return pickItem(response);
+  const payload = await schoolAPI.update(id, data);
+  return extractItem(payload);
 }
 
 export async function deleteSchool(id) {
-  return api.delete(`/v1/schools/${id}`);
+  return schoolAPI.delete(id);
 }
