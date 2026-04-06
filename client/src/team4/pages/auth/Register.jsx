@@ -29,8 +29,36 @@ export default function Register() {
   async function handleSubmit(e) {
     e.preventDefault();
 
+    if (!form.last_name.trim()) {
+      toast.error("Овогоо оруулна уу.");
+      return;
+    }
+    if (!form.first_name.trim()) {
+      toast.error("Нэрээ оруулна уу.");
+      return;
+    }
+    if (!form.email.trim()) {
+      toast.error("И-мэйл хаягаа оруулна уу.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      toast.error("Зөв и-мэйл хаяг оруулна уу.");
+      return;
+    }
+    if (!form.username.trim()) {
+      toast.error("Хэрэглэгчийн нэрээ оруулна уу.");
+      return;
+    }
+    if (!form.password) {
+      toast.error("Нууц үгээ оруулна уу.");
+      return;
+    }
     if (form.password.length < 8) {
       toast.error("Нууц үг хамгийн багадаа 8 тэмдэгттэй байх ёстой.");
+      return;
+    }
+    if (!form.confirm_password) {
+      toast.error("Нууц үг давтан оруулна уу.");
       return;
     }
     if (form.password !== form.confirm_password) {
@@ -77,7 +105,7 @@ export default function Register() {
                 placeholder="Бөхбат"
                 value={form.last_name}
                 onChange={set("last_name")}
-                required
+
                 className="flex h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm
                   placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900"
               />
@@ -89,7 +117,7 @@ export default function Register() {
                 placeholder="Амартувшин"
                 value={form.first_name}
                 onChange={set("first_name")}
-                required
+
                 className="flex h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm
                   placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900"
               />
@@ -100,11 +128,10 @@ export default function Register() {
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-zinc-700">И-мэйл</label>
             <input
-              type="email"
+              type="text"
               placeholder="B231910004@must.edu.mn"
               value={form.email}
               onChange={set("email")}
-              required
               className="flex h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm
                 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900"
             />
@@ -118,7 +145,6 @@ export default function Register() {
               placeholder="username"
               value={form.username}
               onChange={set("username")}
-              required
               className="flex h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm
                 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900"
             />
@@ -132,7 +158,6 @@ export default function Register() {
               placeholder="••••••••"
               value={form.password}
               onChange={set("password")}
-              required
               className="flex h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm
                 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900"
             />
@@ -147,7 +172,6 @@ export default function Register() {
               placeholder="••••••••"
               value={form.confirm_password}
               onChange={set("confirm_password")}
-              required
               className="flex h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm
                 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900"
             />

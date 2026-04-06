@@ -19,13 +19,27 @@ export default function Login() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+
+    if (!email.trim()) {
+      toast.error("И-мэйл хаягаа оруулна уу.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      toast.error("Зөв и-мэйл хаяг оруулна уу.");
+      return;
+    }
+    if (!password) {
+      toast.error("Нууц үгээ оруулна уу.");
+      return;
+    }
+
     setLoading(true);
     try {
       await login(email, password);
       toast.success("Амжилттай нэвтэрлээ!");
       navigate("/team4/schools/current", { replace: true });
     } catch (err) {
-      toast.error(err.message || "Нэвтрэлт амжилтгүй.");
+      toast.error(err.message || "И-мэйл эсвэл нууц үг буруу байна.");
     } finally {
       setLoading(false);
     }
@@ -46,11 +60,10 @@ export default function Login() {
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-zinc-700">И-мэйл</label>
             <input
-              type="email"
+              type="text"
               placeholder="a@must.edu.mn"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
               className="flex h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm
                 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900"
             />
@@ -72,7 +85,6 @@ export default function Login() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
               className="flex h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm
                 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900"
             />

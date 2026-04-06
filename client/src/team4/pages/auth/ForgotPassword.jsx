@@ -17,6 +17,16 @@ export default function ForgotPassword() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+
+    if (!email.trim()) {
+      toast.error("И-мэйл хаягаа оруулна уу.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      toast.error("Зөв и-мэйл хаяг оруулна уу.");
+      return;
+    }
+
     setLoading(true);
     try {
       await apiPost("/otp/email", { email });
@@ -45,11 +55,10 @@ export default function ForgotPassword() {
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-zinc-700">И-мэйл</label>
             <input
-              type="email"
+              type="text"
               placeholder="a@must.edu.mn"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
               className="flex h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm
                 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900"
             />
