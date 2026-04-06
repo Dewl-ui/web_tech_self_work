@@ -16,7 +16,7 @@ function RightPanel() {
 
 export function AuthLayout({ children }) {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen -mx-4 -my-6 sm:-m-6 md:-my-10 md:-mx-8">
       {/* Left panel — form area */}
       <div className="flex w-full min-w-0 flex-col lg:w-1/2 lg:min-h-screen">
         {/* Logo */}

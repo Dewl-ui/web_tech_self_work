@@ -18,7 +18,7 @@ export default function Layout() {
   const roleLabel = parseField(school, "role")?.name ?? null;
 
   return (
-    <div className="flex min-h-screen bg-zinc-50">
+    <div className="flex min-h-screen bg-zinc-50 -mx-4 -my-6 sm:-m-6 md:-my-10 md:-mx-8">
 
       {/* ── Desktop sidebar ── */}
       <aside className="hidden md:flex md:w-56 md:flex-col md:shrink-0 border-r border-zinc-200">
