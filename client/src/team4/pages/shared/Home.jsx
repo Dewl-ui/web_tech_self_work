@@ -15,9 +15,9 @@ import TeacherHomeSummary from "../teacher/TeacherHomeSummary";
 import StudentHome from "../student/StudentHome";
 
 const ROLE_TITLES = {
-  admin:   "Системийн дашбоард",
-  teacher: "Багшийн дашбоард",
-  student: "Оюутны дашбоард",
+  admin:   "Системийн Dashboard",
+  teacher: "Багшийн Dashboard",
+  student: "Оюутны Dashboard",
 };
 
 export default function Home() {
@@ -27,7 +27,7 @@ export default function Home() {
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-zinc-900">
-          {ROLE_TITLES[role] ?? "Дашбоард"}
+          {ROLE_TITLES[role] ?? "Dashboard"}
         </h1>
         {school?.name && (
           <p className="mt-0.5 text-sm text-zinc-500">{school.name}</p>
