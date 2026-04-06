@@ -9,6 +9,7 @@
 // ============================================================
 import { Route } from "react-router-dom";
 import { ProtectedRoute } from "../../utils/AuthContext";
+import { ROLES } from "../../utils/constants";
 
 import CourseUserEdit from "./CourseUserEdit";
 import CourseUserList from "./CourseUserList";
@@ -19,19 +20,19 @@ import TeacherDashboard from "./TeacherDashboard";
 const teacherRoutes = [
   // Teacher dashboard — /team4/teacher
   <Route key="teacher-dashboard" path="teacher"
-    element={<ProtectedRoute role="teacher"><TeacherDashboard /></ProtectedRoute>} />,
+    element={<ProtectedRoute role={ROLES.TEACHER}><TeacherDashboard /></ProtectedRoute>} />,
 
   // Course user management — /team4/courses/:course_id/users*
   <Route key="course-users" path="courses/:course_id/users"
-    element={<ProtectedRoute role={["admin", "teacher"]}><CourseUserList /></ProtectedRoute>} />,
+    element={<ProtectedRoute role={[ROLES.ADMIN, ROLES.TEACHER]}><CourseUserList /></ProtectedRoute>} />,
   <Route key="course-users-edit" path="courses/:course_id/users/edit"
-    element={<ProtectedRoute role={["admin", "teacher"]}><CourseUserEdit /></ProtectedRoute>} />,
+    element={<ProtectedRoute role={[ROLES.ADMIN, ROLES.TEACHER]}><CourseUserEdit /></ProtectedRoute>} />,
 
   // Group management — /team4/courses/:course_id/groups*
   <Route key="groups" path="courses/:course_id/groups"
-    element={<ProtectedRoute role={["admin", "teacher"]}><GroupManagement /></ProtectedRoute>} />,
+    element={<ProtectedRoute role={[ROLES.ADMIN, ROLES.TEACHER]}><GroupManagement /></ProtectedRoute>} />,
   <Route key="group-users" path="courses/:course_id/groups/:group_id/users"
-    element={<ProtectedRoute role={["admin", "teacher"]}><GroupUserList /></ProtectedRoute>} />,
+    element={<ProtectedRoute role={[ROLES.ADMIN, ROLES.TEACHER]}><GroupUserList /></ProtectedRoute>} />,
 
   // Add more teacher <Route> entries below this line
 ];

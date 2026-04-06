@@ -8,6 +8,7 @@
 //   Student → pages/student/StudentProfile.jsx (Member C)
 // ============================================================
 import { useAuth } from "../../utils/AuthContext";
+import { ROLES } from "../../utils/constants";
 import AdminProfile   from "../admin/AdminProfile";
 import TeacherProfile from "../teacher/TeacherProfile";
 import StudentProfile from "../student/StudentProfile";
@@ -15,9 +16,9 @@ import StudentProfile from "../student/StudentProfile";
 export default function Profile() {
   const { role } = useAuth();
 
-  if (role === "admin")   return <AdminProfile />;
-  if (role === "teacher") return <TeacherProfile />;
-  if (role === "student") return <StudentProfile />;
+  if (role === ROLES.ADMIN)   return <AdminProfile />;
+  if (role === ROLES.TEACHER) return <TeacherProfile />;
+  if (role === ROLES.STUDENT) return <StudentProfile />;
 
   return (
     <div className="mx-auto max-w-xl space-y-2">

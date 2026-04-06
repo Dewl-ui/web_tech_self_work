@@ -1,8 +1,9 @@
+import { STORAGE_KEYS } from "../../../utils/constants";
+
 const BASE_URL = "https://todu.mn/bs/lms/v1";
 
-
 function getToken() {
-  return localStorage.getItem("team4_token");
+  return localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
 }
 
 export function parseField(obj, key) {

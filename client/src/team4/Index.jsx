@@ -1,16 +1,3 @@
-/**
- * Team4 entry point — assembled once, then frozen.
- *
- * Ownership:
- *   pages/shared/   — infra / lead member (home, profile, schools)
- *   pages/admin/    — Member A            (admin pages)
- *   pages/teacher/  — Member B            (teacher pages)
- *   pages/student/  — Member C            (student pages)
- *   pages/auth/     — Member 1            (public auth pages)
- *
- * To add pages: edit ONLY your own routes.jsx inside your role folder.
- * Never edit this file or another member's routes file.
- */
 import { Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./utils/AuthContext";
 import Layout from "./Layout";

@@ -14,10 +14,12 @@
 //     → { items: [{user_id, group_id, group:{id,name}, user:{id,first_name,last_name,username,email,picture}}], count, hasMore }
 // ============================================================
 
+import { STORAGE_KEYS } from "../../../../utils/constants";
+
 const BASE_URL = "https://todu.mn/bs/lms/v1";
 
 function getToken() {
-  return localStorage.getItem("team4_token");
+  return localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
 }
 
 async function request(method, path, body) {

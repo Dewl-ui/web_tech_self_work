@@ -20,12 +20,6 @@ Content-Type: application/json
 GET {{baseUrl}}/users/me
 Authorization: Bearer {{accessToken}}
 
-# HTTP/1.1 200 
-# ETag: "ao6DTp/VBufTCzA0C7e1OOvJRWTgJeZnx52sP8uk6Bf/qqoClNsDGf+idKBN/8nJizOWC7fkKdr0GGnalRuGvw=="
-# Content-Type: application/json
-# Transfer-Encoding: chunked
-# Date: Sun, 05 Apr 2026 09:27:49 GMT
-# Connection: close
 
 # {
 #   "id": 539,

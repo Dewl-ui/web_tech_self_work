@@ -1,10 +1,14 @@
 import { NavLink } from "react-router-dom";
 import {
   FiHome, FiUsers, FiShield, FiBookOpen,
-  FiUser, FiLock, FiX,
+  FiUser, FiX,
   FiCalendar,
 } from "react-icons/fi";
 import { useAuth } from "../../utils/AuthContext";
+import { parseField } from "../../utils/api";
+import { ROLES } from "../../utils/constants";
+
+const { ADMIN, TEACHER, STUDENT } = ROLES;
 
 const navItems = [
   {
@@ -12,77 +16,73 @@ const navItems = [
     label: "Нүүр хуудас",
     icon: FiHome,
     end: true,
-    roles: ["admin", "teacher", "student"],
+    roles: [ADMIN, TEACHER, STUDENT],
   },
   // ── Role dashboards (Member A / B / C add their pages in pages/{role}/) ──
   {
     to: "/team4/admin",
     label: "Админ самбар",
     icon: FiShield,
-    roles: ["admin"],
+    roles: [ADMIN],
   },
   {
     to: "/team4/teacher",
     label: "Багшийн самбар",
     icon: FiBookOpen,
-    roles: ["teacher"],
+    roles: [TEACHER],
   },
   {
     to: "/team4/student",
-    label: "Сургалтууд",  
+    label: "Сургалтууд",
     icon: FiBookOpen,
     end: true,
-    roles: ["student"],
+    roles: [STUDENT],
   },
   {
     to: "/team4/student/groups",
     label: "Баг",
     icon: FiUsers,
-    roles: ["student"],
+    roles: [STUDENT],
   },
   {
     to: "/team4/student/calendar",
     label: "Хуанли",
     icon: FiCalendar,
-    roles: ["student"],
+    roles: [STUDENT],
   },
   // ── Shared admin tools ──
   {
     to: "/team4/users",
     label: "Хэрэглэгчид",
     icon: FiUsers,
-    roles: ["admin"],
+    roles: [ADMIN],
   },
   {
     to: "/team4/roles",
     label: "Эрхийн удирдлага",
     icon: FiShield,
-    roles: ["admin"],
+    roles: [ADMIN],
   },
   {
     to: "/team4/schools/current",
     label: "Сургууль сонгох",
     icon: FiBookOpen,
-    roles: ["admin", "teacher"],
+    roles: [ADMIN, TEACHER],
   },
   // ── Personal ──
   {
     to: "/team4/profile",
     label: "Профайл",
     icon: FiUser,
-    roles: ["admin", "teacher", "student"],
+    roles: [ADMIN, TEACHER, STUDENT],
   },
 ];
 
-const ROLE_LABELS = {
-  admin:   "Админ",
-  teacher: "Багш",
-  student: "Оюутан",
-  user:    "Хэрэглэгч",
-};
-
 export default function SideMenu({ onClose }) {
-  const { user, role } = useAuth();
+  const { user, role, school } = useAuth();
+
+  // Display label comes straight from the API via the stored school object.
+  const roleLabel = parseField(school, "role")?.name ?? null;
 
   const visible = navItems.filter(
     (item) => !role || item.roles.includes(role)
@@ -133,9 +133,9 @@ export default function SideMenu({ onClose }) {
           <p className="text-sm font-medium text-zinc-800 truncate">
             {`${user.first_name ?? ""} ${user.last_name ?? ""}`.trim() || user.email}
           </p>
-          {role && (
+          {roleLabel && (
             <p className="text-xs text-zinc-400 mt-0.5">
-              {ROLE_LABELS[role] ?? role}
+              {roleLabel}
             </p>
           )}
         </div>

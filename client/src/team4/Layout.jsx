@@ -2,12 +2,11 @@ import { useState } from "react";
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import { FiMenu } from "react-icons/fi";
 import { useAuth } from "./utils/AuthContext";
+import { parseField } from "./utils/api";
 import SideMenu from "./components/sidebar/SideMenu";
 
-const ROLE_LABELS = { admin: "Админ", teacher: "Багш", student: "Оюутан" };
-
 export default function Layout() {
-  const { user, school, role, logout } = useAuth();
+  const { user, school, logout } = useAuth();
   const navigate = useNavigate();
   const [sideOpen, setSideOpen] = useState(false);
 
@@ -16,7 +15,7 @@ export default function Layout() {
     navigate("/team4/login", { replace: true });
   }
 
-  const roleLabel = ROLE_LABELS[role] ?? role;
+  const roleLabel = parseField(school, "role")?.name ?? null;
 
   return (
     <div className="flex min-h-screen bg-zinc-50">

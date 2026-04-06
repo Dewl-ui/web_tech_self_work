@@ -1,23 +1,16 @@
-import { createContext, useContext, useState } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import { createContext, useContext, useEffect, useState } from "react";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { login as apiLogin, logout as apiLogout, parseField } from "./api";
+import { STORAGE_KEYS, ROLES, SESSION_EXPIRED_EVENT } from "./constants";
 
 const AuthContext = createContext(null);
 
-// Maps API role IDs to stable English keys used for access control
-const ROLE_ID_MAP = {
-  0:  "user",
-  10: "admin",
-  20: "teacher",
-  30: "student",
-};
-
-// ── Provider ──────────────────────────────────────────────────────────────────
-
 export function AuthProvider({ children }) {
+  const navigate = useNavigate();
+
   const [user, setUser] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem("team4_user"));
+      return JSON.parse(localStorage.getItem(STORAGE_KEYS.USER));
     } catch {
       return null;
     }
@@ -25,20 +18,36 @@ export function AuthProvider({ children }) {
 
   const [school, setSchool] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem("team4_school"));
+      return JSON.parse(localStorage.getItem(STORAGE_KEYS.SCHOOL));
     } catch {
       return null;
     }
   });
 
-  const [role, setRole] = useState(
-    () => localStorage.getItem("team4_role") || null
-  );
+  // Role is stored as a number (10 / 20 / 30). localStorage always returns
+  // strings, so parse it back to a number on load.
+  const [role, setRole] = useState(() => {
+    const stored = localStorage.getItem(STORAGE_KEYS.ROLE);
+    return stored ? Number(stored) : null;
+  });
+
+  // When the token refresh in api.js fails, it fires SESSION_EXPIRED_EVENT.
+  // Catch it here and redirect to login so individual components don't need to.
+  useEffect(() => {
+    function handleExpired() {
+      setUser(null);
+      setSchool(null);
+      setRole(null);
+      navigate("/team4/login", { replace: true });
+    }
+
+    window.addEventListener(SESSION_EXPIRED_EVENT, handleExpired);
+    return () => window.removeEventListener(SESSION_EXPIRED_EVENT, handleExpired);
+  }, [navigate]);
 
   async function login(email, password) {
-    // Clear any previous user's school / role before logging in a new user
-    localStorage.removeItem("team4_school");
-    localStorage.removeItem("team4_role");
+    localStorage.removeItem(STORAGE_KEYS.SCHOOL);
+    localStorage.removeItem(STORAGE_KEYS.ROLE);
     setSchool(null);
     setRole(null);
 
@@ -54,28 +63,18 @@ export function AuthProvider({ children }) {
     setRole(null);
   }
 
-  /**
-   * Called from SchoolSelect after the user picks a school.
-   * Maps the per-school role ID to a stable English key used throughout the app.
-   *
-   * Role IDs from the API:
-   *   0  → "user"    (Хэрэглэгч — general/unprivileged)
-   *   10 → "admin"   (Админ)
-   *   20 → "teacher" (Сургагч)
-   *   30 → "student" (Суралцагч)
-   */
   function selectSchool(schoolObj) {
     const parsedRole = parseField(schoolObj, "role");
-    const roleName = ROLE_ID_MAP[parsedRole?.id] ?? "user";
-    localStorage.setItem("team4_school", JSON.stringify(schoolObj));
-    localStorage.setItem("team4_role", roleName);
+    const roleId = parsedRole?.id ?? null;           // e.g. 10, 20, or 30
+    localStorage.setItem(STORAGE_KEYS.SCHOOL, JSON.stringify(schoolObj));
+    if (roleId != null) localStorage.setItem(STORAGE_KEYS.ROLE, roleId);
     setSchool(schoolObj);
-    setRole(roleName);
+    setRole(roleId);
   }
 
-  const isAdmin = role === "admin";
-  const isTeacher = role === "teacher";
-  const isStudent = role === "student";
+  const isAdmin   = role === ROLES.ADMIN;
+  const isTeacher = role === ROLES.TEACHER;
+  const isStudent = role === ROLES.STUDENT;
 
   return (
     <AuthContext.Provider
@@ -86,45 +85,25 @@ export function AuthProvider({ children }) {
   );
 }
 
-// ── Hook ──────────────────────────────────────────────────────────────────────
-
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within <AuthProvider>");
   return ctx;
 }
 
-// ── ProtectedRoute ────────────────────────────────────────────────────────────
-
-/**
- * Wraps a page and enforces auth + school selection + optional role check.
- *
- * Props:
- *   role            – string | string[]  allowed roles. Omit to allow any logged-in user.
- *   skipSchoolCheck – set on the schools/current route itself to avoid infinite redirect.
- *
- * Examples:
- *   <ProtectedRoute>…</ProtectedRoute>
- *   <ProtectedRoute role="admin">…</ProtectedRoute>
- *   <ProtectedRoute role={["admin","teacher"]}>…</ProtectedRoute>
- *   <ProtectedRoute skipSchoolCheck>…</ProtectedRoute>
- */
 export function ProtectedRoute({ children, role: requiredRole, skipSchoolCheck = false }) {
   const { user, role, school } = useAuth();
   const location = useLocation();
 
-  // 1. Must be logged in
   if (!user) {
     return <Navigate to="/team4/login" state={{ from: location }} replace />;
   }
 
-  // 2. Must have selected a school (unless the route IS the school-select page)
   if (!skipSchoolCheck && !school) {
     return <Navigate to="/team4/schools/current" replace />;
   }
 
-  // 3. Role gate
-  if (requiredRole) {
+  if (requiredRole != null) {
     const allowed = Array.isArray(requiredRole)
       ? requiredRole.includes(role)
       : role === requiredRole;

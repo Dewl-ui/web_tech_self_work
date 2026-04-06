@@ -1,14 +1,15 @@
+import { STORAGE_KEYS, SESSION_EXPIRED_EVENT } from "./constants";
+
 const BASE_URL = "https://todu.mn/bs/lms/v1";
 
-// ── Storage helpers ──────────────────────────────────────────────────────────
 
 export function getToken() {
-  return localStorage.getItem("team4_token");
+  return localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
 }
 
 export function getStoredUser() {
   try {
-    return JSON.parse(localStorage.getItem("team4_user"));
+    return JSON.parse(localStorage.getItem(STORAGE_KEYS.USER));
   } catch {
     return null;
   }
@@ -18,18 +19,10 @@ export function getStoredUserId() {
   return getStoredUser()?.id ?? null;
 }
 
-function decodeJwt(token) {
-  try {
-    const payload = token.split(".")[1];
-    const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
-    return JSON.parse(decoded);
-  } catch {
-    return null;
-  }
+function clearSession() {
+  Object.values(STORAGE_KEYS).forEach((key) => localStorage.removeItem(key));
+  window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
 }
-
-// ── {} prefix field parser ───────────────────────────────────────────────────
-
 
 export function parseField(obj, key) {
   const raw = obj?.[`{}${key}`] ?? obj?.[key];
@@ -41,12 +34,38 @@ export function parseField(obj, key) {
   }
 }
 
-// ── Core fetch wrapper ───────────────────────────────────────────────────────
+let _refreshing = null; 
 
-async function request(method, path, body) {
+async function refreshToken() {
+  const rt = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+  if (!rt) return false;
+
+  try {
+    const res = await fetch(`${BASE_URL}/token/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: rt }),
+    });
+
+    if (!res.ok) return false;
+
+    const data = await res.json();
+    if (!data.access_token) return false;
+
+    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, data.access_token);
+    if (data.refresh_token) {
+      localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, data.refresh_token);
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+
+async function request(method, path, body, isRetry = false) {
   const token = getToken();
   const headers = {};
-
   if (token) headers["Authorization"] = `Bearer ${token}`;
   if (body !== undefined) headers["Content-Type"] = "application/json";
 
@@ -55,6 +74,19 @@ async function request(method, path, body) {
     headers,
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
+
+  // Token expired — attempt one silent refresh then retry
+  if (res.status === 401 && !isRetry) {
+    if (!_refreshing) _refreshing = refreshToken();
+    const ok = await _refreshing;
+    _refreshing = null;
+
+    if (ok) return request(method, path, body, true);
+
+    // Refresh also failed — end the session
+    clearSession();
+    throw new Error("Сесс дууссан. Дахин нэвтэрнэ үү.");
+  }
 
   if (res.status === 204) return null;
 
@@ -73,88 +105,48 @@ async function request(method, path, body) {
   return data;
 }
 
-// ── Public API helpers ───────────────────────────────────────────────────────
+// ── Public API helpers ─────────────────────────────────────────────────────────
 
-export const apiGet = (path) => request("GET", path);
-export const apiPost = (path, body) => request("POST", path, body);
-export const apiPut = (path, body) => request("PUT", path, body);
-export const apiDelete = (path, body) => request("DELETE", path, body);
+export const apiGet    = (path)        => request("GET",    path);
+export const apiPost   = (path, body)  => request("POST",   path, body);
+export const apiPut    = (path, body)  => request("PUT",    path, body);
+export const apiDelete = (path, body)  => request("DELETE", path, body);
 
-/**
- * Merges current_user (logged-in user id) into a request body automatically.
- * Use for POST/PUT/DELETE endpoints that require { current_user }.
- */
 export function withCurrentUser(body = {}) {
   return { ...body, current_user: getStoredUserId() };
 }
 
-// ── Auth convenience ─────────────────────────────────────────────────────────
 
-export async function login(email, password) {
-  const data = await apiPost("/token/email", {
-    email,
-    password,
-    push_token: "",
-  });
-
-  if (!data) throw new Error("Хоосон хариу ирлээ");
-
+async function _processAuth(data, email) {
   const token = data.token ?? data.access_token ?? data.access ?? null;
   if (!token) throw new Error("Token олдсонгүй");
-  localStorage.setItem("team4_token", token);
 
+  localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, token);
   if (data.refresh_token) {
-    localStorage.setItem("team4_refresh_token", data.refresh_token);
+    localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, data.refresh_token);
   }
 
-  // Resolve user ID from response or JWT payload
-  let userId = data.id ?? data.user_id ?? data.userId ?? null;
-  if (!userId) {
-    const jwt = decodeJwt(token);
-    userId = jwt?.sub ?? jwt?.id ?? jwt?.user_id ?? null;
-  }
-
-  const qParam = userId ? `?current_user=${userId}` : "";
-  let me = null;
+  let me;
   try {
-    me = await apiGet(`/users/me${qParam}`);
+    me = await apiGet("/users/me");
   } catch {
-    me = { id: userId, email };
+    me = { email };
   }
 
-  localStorage.setItem("team4_user", JSON.stringify(me));
+  localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(me));
   return me;
+}
+
+export async function login(email, password) {
+  const data = await apiPost("/token/email", { email, password, push_token: "" });
+  if (!data) throw new Error("Хоосон хариу ирлээ");
+  return _processAuth(data, email);
 }
 
 export async function otpLogin(email, code) {
   const data = await apiPost("/otp/email/login", { email, code, push_token: "" });
-
   if (!data) throw new Error("Хоосон хариу ирлээ");
-
-  const token = data.token ?? data.access_token ?? data.access ?? null;
-  if (!token) throw new Error("Token олдсонгүй");
-  localStorage.setItem("team4_token", token);
-
-  if (data.refresh_token) {
-    localStorage.setItem("team4_refresh_token", data.refresh_token);
-  }
-
-  let userId = data.id ?? data.user_id ?? data.userId ?? null;
-  if (!userId) {
-    const jwt = decodeJwt(token);
-    userId = jwt?.sub ?? jwt?.id ?? jwt?.user_id ?? null;
-  }
-
-  const qParam = userId ? `?current_user=${userId}` : "";
-  let me = null;
-  try {
-    me = await apiGet(`/users/me${qParam}`);
-  } catch {
-    me = { id: userId, email };
-  }
-
-  localStorage.setItem("team4_user", JSON.stringify(me));
-  return me;
+  return _processAuth(data, email);
 }
 
 export async function logout() {
@@ -162,11 +154,7 @@ export async function logout() {
   try {
     await apiDelete("/token", { current_user: userId });
   } catch {
-    // ignore — just clear local state
+    // ignore — clear local state regardless
   }
-  localStorage.removeItem("team4_token");
-  localStorage.removeItem("team4_refresh_token");
-  localStorage.removeItem("team4_user");
-  localStorage.removeItem("team4_school");
-  localStorage.removeItem("team4_role");
+  Object.values(STORAGE_KEYS).forEach((key) => localStorage.removeItem(key));
 }

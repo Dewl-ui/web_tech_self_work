@@ -6,6 +6,8 @@
 @baseUrl = https://todu.mn/bs/lms/v1
 @roleId = 10
 
+@accessToken = YCJOeDHVGkNSymwXCEdjpA
+
 ### 1. List all roles
 # GET /roles
 # Headers: Authorization: Bearer <access_token>
