@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../utils/AuthContext";
 import { apiPost, otpLogin } from "../../utils/api";
+import { useToast } from "../../components/ui/Toast";
 import { AuthLayout } from "./AuthLayout";
 
 // ── 6-digit OTP input ─────────────────────────────────────────────────────────
@@ -69,30 +70,28 @@ export default function ResetPassword() {
   const location = useLocation();
   const { user } = useAuth();
 
+  const toast = useToast();
   const emailFromState = location.state?.email ?? "";
   const [email, setEmail] = useState(emailFromState);
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
-  const [error, setError] = useState("");
-  const [resent, setResent] = useState(false);
 
   if (user) return <Navigate to="/team4/" replace />;
 
   async function handleSubmit(e) {
     e.preventDefault();
     if (code.length < 6) {
-      setError("6 оронтой кодыг бүрэн оруулна уу.");
+      toast.error("6 оронтой кодыг бүрэн оруулна уу.");
       return;
     }
-    setError("");
     setLoading(true);
     try {
       await otpLogin(email, code);
-      // Hard navigate so AuthProvider re-reads localStorage on mount
+      toast.success("Баталгаажуулалт амжилттай!");
       window.location.href = "/team4/schools/current";
     } catch (err) {
-      setError(err.message || "Баталгаажуулалт амжилтгүй.");
+      toast.error(err.message || "Баталгаажуулалт амжилтгүй.");
     } finally {
       setLoading(false);
     }
@@ -100,13 +99,12 @@ export default function ResetPassword() {
 
   async function handleResend() {
     if (!email) return;
-    setResent(false);
     setResending(true);
     try {
       await apiPost("/otp/email", { email });
-      setResent(true);
+      toast.success("Шинэ код илгээгдлээ.");
     } catch (err) {
-      setError(err.message || "Дахин илгээж чадсангүй.");
+      toast.error(err.message || "Дахин илгээж чадсангүй.");
     } finally {
       setResending(false);
     }
@@ -123,18 +121,6 @@ export default function ResetPassword() {
             <p className="text-sm font-medium text-zinc-700">{emailFromState}</p>
           )}
         </div>
-
-        {/* Error */}
-        {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
-          </div>
-        )}
-        {resent && (
-          <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-            Шинэ код илгээгдлээ.
-          </div>
-        )}
 
         {/* If no email passed via state, show email field */}
         {!emailFromState && (

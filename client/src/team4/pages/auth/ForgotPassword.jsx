@@ -2,27 +2,28 @@ import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../../utils/AuthContext";
 import { apiPost } from "../../utils/api";
+import { useToast } from "../../components/ui/Toast";
 import { AuthLayout } from "./AuthLayout";
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const toast = useToast();
 
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   if (user) return <Navigate to="/team4/" replace />;
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError("");
     setLoading(true);
     try {
       await apiPost("/otp/email", { email });
+      toast.success("Баталгаажуулах код илгээгдлээ.");
       navigate("/team4/reset-password", { state: { email } });
     } catch (err) {
-      setError(err.message || "Код илгээж чадсангүй.");
+      toast.error(err.message || "Код илгээж чадсангүй.");
     } finally {
       setLoading(false);
     }
@@ -38,13 +39,6 @@ export default function ForgotPassword() {
             Баталгаажуулах кодыг имэйлээр илгээнэ.
           </p>
         </div>
-
-        {/* Error */}
-        {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
-          </div>
-        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">

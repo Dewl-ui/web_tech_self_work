@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { FiUser, FiSave, FiBook } from "react-icons/fi";
 import { getStudentProfile, updateStudentProfile, getStudentCourses, parseField } from "./api/studentCourseApi";
+import { useToast } from "../../components/ui/Toast";
 
 function Field({ label, value, onChange, type = "text", readOnly = false }) {
   return (
@@ -23,12 +24,12 @@ function Field({ label, value, onChange, type = "text", readOnly = false }) {
 }
 
 export default function StudentProfile() {
+  const toast = useToast();
   const [profile, setProfile] = useState(null);
   const [courses, setCourses] = useState([]);
   const [form, setForm]       = useState({ first_name: "", last_name: "", phone: "" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving]   = useState(false);
-  const [saved, setSaved]     = useState(false);
   const [error, setError]     = useState("");
 
   useEffect(() => {
@@ -45,20 +46,23 @@ export default function StudentProfile() {
         }
       })
       .then((res) => setCourses(res?.items ?? []))
-      .catch((err) => setError(err.message || "Профайл ачааллахад алдаа гарлаа."))
+      .catch((err) => {
+        const msg = err.message || "Профайл ачааллахад алдаа гарлаа.";
+        setError(msg);
+        toast.error(msg);
+      })
       .finally(() => setLoading(false));
   }, []);
 
   async function handleSave(e) {
     e.preventDefault();
     setError("");
-    setSaved(false);
     setSaving(true);
     try {
       await updateStudentProfile(form);
-      setSaved(true);
+      toast.success("Амжилттай хадгалагдлаа.");
     } catch (err) {
-      setError(err.message || "Хадгалахад алдаа гарлаа.");
+      toast.error(err.message || "Хадгалахад алдаа гарлаа.");
     } finally {
       setSaving(false);
     }
@@ -106,11 +110,6 @@ export default function StudentProfile() {
         {error && (
           <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {error}
-          </div>
-        )}
-        {saved && (
-          <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-            Амжилттай хадгалагдлаа.
           </div>
         )}
 

@@ -4,6 +4,7 @@ import { FiEye, FiEdit2, FiSearch, FiPlus, FiTrash2 } from "react-icons/fi";
 
 import { useAuth } from "../../utils/AuthContext";
 import { apiGet, apiDelete } from "../../utils/api";
+import { useToast } from "../../components/ui/Toast";
 
 import { Input } from "../../components/ui/Input";
 import { Select } from "../../components/ui/Select";
@@ -52,6 +53,7 @@ function getStatusBadgeVariant(isActive) {
 
 export default function UserList() {
   const { school, isAdmin, isTeacher } = useAuth();
+  const toast = useToast();
 
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -68,6 +70,7 @@ export default function UserList() {
     if (schoolId == null) {
       setLoading(false);
       setError("Сургууль сонгогдоогүй байна.");
+      toast.warning("Сургууль сонгогдоогүй байна.");
       return;
     }
 
@@ -105,7 +108,9 @@ export default function UserList() {
         setUsers(enrichedUsers);
       } catch (err) {
         console.error(err);
-        setError(err.message || "Хэрэглэгчдийн мэдээлэл авахад алдаа гарлаа.");
+        const msg = err.message || "Хэрэглэгчдийн мэдээлэл авахад алдаа гарлаа.";
+        setError(msg);
+        toast.error(msg);
       } finally {
         setLoading(false);
       }
@@ -118,7 +123,7 @@ export default function UserList() {
     const schoolId = getSchoolId(school);
 
     if (schoolId == null) {
-      alert("Сургуулийн мэдээлэл олдсонгүй.");
+      toast.error("Сургуулийн мэдээлэл олдсонгүй.");
       return;
     }
 
@@ -129,9 +134,10 @@ export default function UserList() {
       setDeletingId(userId);
       await apiDelete(`/schools/${schoolId}/users/${userId}`);
       setUsers((prev) => prev.filter((u) => u.id !== userId));
+      toast.success("Хэрэглэгч амжилттай устгагдлаа.");
     } catch (err) {
       console.error(err);
-      alert(err.message || "Хэрэглэгч устгахад алдаа гарлаа.");
+      toast.error(err.message || "Хэрэглэгч устгахад алдаа гарлаа.");
     } finally {
       setDeletingId(null);
     }

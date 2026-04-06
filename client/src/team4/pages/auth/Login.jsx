@@ -2,30 +2,30 @@ import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { useAuth } from "../../utils/AuthContext";
+import { useToast } from "../../components/ui/Toast";
 import { AuthLayout } from "./AuthLayout";
 
 export default function Login() {
   const navigate = useNavigate();
   const { user, login } = useAuth();
+  const toast = useToast();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   // Already logged in → go home
   if (user) return <Navigate to="/team4/" replace />;
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError("");
     setLoading(true);
     try {
       await login(email, password);
-      // School is always cleared on login — user must re-select their school
+      toast.success("Амжилттай нэвтэрлээ!");
       navigate("/team4/schools/current", { replace: true });
     } catch (err) {
-      setError(err.message || "Нэвтрэлт амжилтгүй.");
+      toast.error(err.message || "Нэвтрэлт амжилтгүй.");
     } finally {
       setLoading(false);
     }
@@ -39,13 +39,6 @@ export default function Login() {
           <h1 className="text-2xl font-bold text-zinc-900">Нэвтрэх</h1>
           <p className="text-sm text-zinc-500">И-мэйл болон нууц үгээ оруулна уу.</p>
         </div>
-
-        {/* Error */}
-        {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
-          </div>
-        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -109,7 +102,7 @@ export default function Login() {
         {/* Google button */}
         <button
           type="button"
-          onClick={() => alert("Google-аар нэвтрэх одоогоор идэвхгүй.")}
+          onClick={() => toast.warning("Google-аар нэвтрэх одоогоор идэвхгүй.")}
           className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-zinc-200
             bg-white text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
         >

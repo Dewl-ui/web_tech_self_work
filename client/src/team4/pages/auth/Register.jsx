@@ -3,11 +3,13 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { useAuth } from "../../utils/AuthContext";
 import { apiPost } from "../../utils/api";
+import { useToast } from "../../components/ui/Toast";
 import { AuthLayout } from "./AuthLayout";
 
 export default function Register() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const toast = useToast();
 
   const [form, setForm] = useState({
     last_name: "",
@@ -19,7 +21,6 @@ export default function Register() {
     confirm_password: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   if (user) return <Navigate to="/team4/" replace />;
 
@@ -27,14 +28,13 @@ export default function Register() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError("");
 
     if (form.password.length < 8) {
-      setError("Нууц үг хамгийн багадаа 8 тэмдэгттэй байх ёстой.");
+      toast.error("Нууц үг хамгийн багадаа 8 тэмдэгттэй байх ёстой.");
       return;
     }
     if (form.password !== form.confirm_password) {
-      setError("Нууц үг таарахгүй байна.");
+      toast.error("Нууц үг таарахгүй байна.");
       return;
     }
 
@@ -48,9 +48,10 @@ export default function Register() {
         phone: form.phone,
         password: form.password,
       });
+      toast.success("Бүртгэл амжилттай! Нэвтэрнэ үү.");
       navigate("/team4/login?registered=1");
     } catch (err) {
-      setError(err.message || "Бүртгүүлэлт амжилтгүй.");
+      toast.error(err.message || "Бүртгүүлэлт амжилтгүй.");
     } finally {
       setLoading(false);
     }
@@ -64,13 +65,6 @@ export default function Register() {
           <h1 className="text-2xl font-bold text-zinc-900">Бүртгүүлэх</h1>
           <p className="text-sm text-zinc-500">Мэдээллээ зөв бөглөнө үү.</p>
         </div>
-
-        {/* Error */}
-        {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
-          </div>
-        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -183,7 +177,7 @@ export default function Register() {
         {/* Google button */}
         <button
           type="button"
-          onClick={() => alert("Google-аар бүртгүүлэх одоогоор идэвхгүй.")}
+          onClick={() => toast.warning("Google-аар бүртгүүлэх одоогоор идэвхгүй.")}
           className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-zinc-200
             bg-white text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
         >

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FiLogOut, FiChevronRight, FiAlertCircle } from "react-icons/fi";
 import { useAuth } from "../../utils/AuthContext";
 import { apiGet, parseField } from "../../utils/api";
+import { useToast } from "../../components/ui/Toast";
 import { ROLES } from "../../utils/constants";
 
 // Tailwind colour classes keyed by role ID (10, 20, 30)
@@ -15,6 +16,7 @@ const ROLE_COLORS = {
 export default function SchoolSelect() {
   const navigate = useNavigate();
   const { user, selectSchool, logout } = useAuth();
+  const toast = useToast();
 
   const [schools, setSchools] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,12 +26,17 @@ export default function SchoolSelect() {
     if (!user?.id) return;
     apiGet(`/users/${user.id}/schools`)
       .then((data) => setSchools(data?.items ?? []))
-      .catch((err) => setError(err.message || "Сургуулийн мэдээлэл авахад алдаа гарлаа"))
+      .catch((err) => {
+        const msg = err.message || "Сургуулийн мэдээлэл авахад алдаа гарлаа";
+        setError(msg);
+        toast.error(msg);
+      })
       .finally(() => setLoading(false));
   }, [user?.id]);
 
   function handleSelect(school) {
     selectSchool(school);
+    toast.success(`${school.name ?? "Сургууль"} сонгогдлоо.`);
     navigate("/team4/", { replace: true });
   }
 

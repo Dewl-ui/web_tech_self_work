@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { FiBook } from "react-icons/fi";
 import { useAuth } from "../../utils/AuthContext";
 import { getStudentCourses } from "./api/studentCourseApi";
+import { useToast } from "../../components/ui/Toast";
 import CourseCard from "./components/CourseCard";
 
 /** Skeleton placeholder card while loading */
@@ -22,6 +23,7 @@ function SkeletonCard() {
 
 export default function StudentCourses() {
   const { user, school } = useAuth();
+  const toast = useToast();
   const [enrollments, setEnrollments] = useState([]);
   const [loading, setLoading]         = useState(true);
   const [error, setError]             = useState("");
@@ -30,7 +32,11 @@ export default function StudentCourses() {
     if (!user?.id) return;
     getStudentCourses(user.id)
       .then((data) => setEnrollments(data?.items ?? []))
-      .catch((err) => setError(err.message || "Хичээлийн мэдээлэл авахад алдаа гарлаа."))
+      .catch((err) => {
+        const msg = err.message || "Хичээлийн мэдээлэл авахад алдаа гарлаа.";
+        setError(msg);
+        toast.error(msg);
+      })
       .finally(() => setLoading(false));
   }, [user?.id]);
 

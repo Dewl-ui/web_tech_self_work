@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { FiArrowLeft, FiCalendar, FiBook, FiTag, FiInfo } from "react-icons/fi";
 import { getCourseDetail } from "./api/studentCourseApi";
+import { useToast } from "../../components/ui/Toast";
 
 function fmt(dateStr) {
   if (!dateStr) return "—";
@@ -36,6 +37,7 @@ function DetailRow({ icon: Icon, label, value }) {
 
 export default function StudentCourseDetail() {
   const { courseId } = useParams();
+  const toast = useToast();
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState("");
@@ -44,7 +46,11 @@ export default function StudentCourseDetail() {
     if (!courseId) return;
     getCourseDetail(courseId)
       .then((data) => setCourse(data))
-      .catch((err) => setError(err.message || "Хичээлийн мэдээлэл авахад алдаа гарлаа."))
+      .catch((err) => {
+        const msg = err.message || "Хичээлийн мэдээлэл авахад алдаа гарлаа.";
+        setError(msg);
+        toast.error(msg);
+      })
       .finally(() => setLoading(false));
   }, [courseId]);
 

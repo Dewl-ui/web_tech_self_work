@@ -16,6 +16,7 @@ import {
 
 import { useAuth } from "../../utils/AuthContext";
 import { apiGet, parseField } from "../../utils/api";
+import { useToast } from "../../components/ui/Toast";
 import { StatCard } from "../../components/ui/StatCard";
 import {
   Card,
@@ -43,6 +44,7 @@ function getRoleIdFromSchoolMembership(userSchools, currentSchoolId) {
 
 export default function AdminDashboard() {
   const { school, isAdmin } = useAuth();
+  const toast = useToast();
 
   const [users, setUsers] = useState([]);
   const [courseCount, setCourseCount] = useState(0);
@@ -62,6 +64,7 @@ export default function AdminDashboard() {
     if (schoolId === null) {
       setLoading(false);
       setError("Сургуулийн id олдсонгүй.");
+      toast.warning("Сургуулийн id олдсонгүй.");
       return;
     }
 
@@ -99,7 +102,9 @@ export default function AdminDashboard() {
         setRoleCounts({ admins, teachers, students });
       } catch (err) {
         console.error(err);
-        setError(err.message || "Сургуулийн мэдээлэл авахад алдаа гарлаа.");
+        const msg = err.message || "Сургуулийн мэдээлэл авахад алдаа гарлаа.";
+        setError(msg);
+        toast.error(msg);
       } finally {
         setLoading(false);
       }

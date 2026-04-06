@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { FiUser, FiMail, FiPhone, FiSave, FiShield } from "react-icons/fi";
 import { apiGet, apiPut } from "../../utils/api";
+import { useToast } from "../../components/ui/Toast";
 
 function Field({ label, value, onChange, type = "text", readOnly = false }) {
   return (
@@ -23,11 +24,11 @@ function Field({ label, value, onChange, type = "text", readOnly = false }) {
 }
 
 export default function AdminProfile() {
+  const toast = useToast();
   const [profile, setProfile] = useState(null);
   const [form, setForm]       = useState({ first_name: "", last_name: "", phone: "" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving]   = useState(false);
-  const [saved, setSaved]     = useState(false);
   const [error, setError]     = useState("");
 
   useEffect(() => {
@@ -40,20 +41,23 @@ export default function AdminProfile() {
           phone:      data.phone      ?? "",
         });
       })
-      .catch((err) => setError(err.message || "Профайл ачааллахад алдаа гарлаа."))
+      .catch((err) => {
+        const msg = err.message || "Профайл ачааллахад алдаа гарлаа.";
+        setError(msg);
+        toast.error(msg);
+      })
       .finally(() => setLoading(false));
   }, []);
 
   async function handleSave(e) {
     e.preventDefault();
     setError("");
-    setSaved(false);
     setSaving(true);
     try {
       await apiPut("/users/me", form);
-      setSaved(true);
+      toast.success("Амжилттай хадгалагдлаа.");
     } catch (err) {
-      setError(err.message || "Хадгалахад алдаа гарлаа.");
+      toast.error(err.message || "Хадгалахад алдаа гарлаа.");
     } finally {
       setSaving(false);
     }
@@ -101,11 +105,6 @@ export default function AdminProfile() {
         {error && (
           <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {error}
-          </div>
-        )}
-        {saved && (
-          <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-            Амжилттай хадгалагдлаа.
           </div>
         )}
 

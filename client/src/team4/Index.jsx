@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./utils/AuthContext";
+import { ToastProvider } from "./components/ui/Toast";
 import Layout from "./Layout";
 
 import authRoutes    from "./pages/auth/routes";    // public — no layout
@@ -11,18 +12,26 @@ import studentRoutes from "./pages/student/routes"; // Member C
 export default function Team4() {
   return (
     <AuthProvider>
-      <Routes>
-        {/* Public auth routes — no layout wrapper */}
-        {authRoutes}
+      <ToastProvider>
+        <style>{`
+          @keyframes slideIn {
+            from { opacity: 0; transform: translateX(100%); }
+            to   { opacity: 1; transform: translateX(0); }
+          }
+        `}</style>
+        <Routes>
+          {/* Public auth routes — no layout wrapper */}
+          {authRoutes}
 
-        {/* Protected routes — wrapped in sidebar + header layout */}
-        <Route element={<Layout />}>
-          {sharedRoutes}
-          {adminRoutes}
-          {teacherRoutes}
-          {studentRoutes}
-        </Route>
-      </Routes>
+          {/* Protected routes — wrapped in sidebar + header layout */}
+          <Route element={<Layout />}>
+            {sharedRoutes}
+            {adminRoutes}
+            {teacherRoutes}
+            {studentRoutes}
+          </Route>
+        </Routes>
+      </ToastProvider>
     </AuthProvider>
   );
 }

@@ -140,12 +140,18 @@ async function _processAuth(data, email) {
 export async function login(email, password) {
   const data = await apiPost("/token/email", { email, password, push_token: "" });
   if (!data) throw new Error("Хоосон хариу ирлээ");
+  if (data.error || data.message) {
+    throw new Error(data.message || data.error || "Нэвтрэлт амжилтгүй.");
+  }
   return _processAuth(data, email);
 }
 
 export async function otpLogin(email, code) {
   const data = await apiPost("/otp/email/login", { email, code, push_token: "" });
   if (!data) throw new Error("Хоосон хариу ирлээ");
+  if (data.error || data.message) {
+    throw new Error(data.message || data.error || "Баталгаажуулалт амжилтгүй.");
+  }
   return _processAuth(data, email);
 }
 
