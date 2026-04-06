@@ -5,6 +5,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FiUsers, FiShield, FiChevronRight } from "react-icons/fi";
+import { FaSchool } from "react-icons/fa";
 import { apiGet } from "../../utils/api";
 
 function StatCard({ title, value, icon, loading }) {
@@ -64,7 +65,7 @@ export default function AdminHomeSummary({ userId }) {
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard title="Нийт хэрэглэгч" value={stats.users}   icon={<FiUsers  className="h-5 w-5" />} loading={loading} />
         <StatCard title="Эрхийн тоо"      value={stats.roles}   icon={<FiShield className="h-5 w-5" />} loading={loading} />
-        <StatCard title="Сургуулийн тоо"  value={stats.schools} icon={<span className="text-lg">🏫</span>} loading={loading} />
+        <StatCard title="Сургуулийн тоо"  value={stats.schools} icon={<FaSchool className="h-5 w-5" />} loading={loading} />
       </div>
 
       <div className="rounded-xl border border-zinc-200 bg-white p-5">

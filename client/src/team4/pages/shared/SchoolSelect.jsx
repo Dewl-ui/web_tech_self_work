@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiLogOut, FiChevronRight, FiAlertCircle } from "react-icons/fi";
+import { FaSchool } from "react-icons/fa";
 import { useAuth } from "../../utils/AuthContext";
 import { apiGet, parseField } from "../../utils/api";
 import { useToast } from "../../components/ui/Toast";
@@ -79,7 +80,7 @@ export default function SchoolSelect() {
         {/* Empty */}
         {!loading && !error && schools.length === 0 && (
           <div className="rounded-xl border border-zinc-200 bg-white p-8 text-center">
-            <div className="mb-3 text-4xl">🏫</div>
+            <div className="mb-3 text-4xl"><FaSchool /></div>
             <p className="font-medium text-zinc-800">Сургуультай холбогдоогүй байна</p>
             <p className="mt-1 text-sm text-zinc-500">
               Та ямар нэг сургуулийн гишүүн биш байна.
@@ -105,7 +106,7 @@ export default function SchoolSelect() {
                 >
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-100 text-xl">
-                      🏫
+                      <FaSchool />
                     </div>
                     <div>
                       <p className="font-semibold text-zinc-900">{school.name ?? `Сургууль #${school.id}`}</p>
