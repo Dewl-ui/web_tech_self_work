@@ -10,8 +10,8 @@ function sanitizeCoursePayload(data = {}) {
     description: data.description,
     start_on: data.start_on,
     end_on: data.end_on,
-    priority: data.priority,
-    access_type_id: data.access_type_id,
+    priority: data.priority ?? 1, // ← заавал 1 байна
+    access_type_id: data.access_type_id ?? 0,
     price: data.price,
     credits: data.credits,
   };
@@ -66,8 +66,8 @@ export async function moveCourseToCategory(schoolId, course, categoryId) {
     description: course.description,
     start_on: course.start_on,
     end_on: course.end_on,
-    priority: course.priority,
-    access_type_id: course.access_type_id,
+    priority: course.priority ?? 1,
+    access_type_id: course.access_type_id ?? 0,
     price: course.price,
     credits: course.credits,
   });
