@@ -25,7 +25,7 @@ export function DropdownMenuContent({ open, className = "", children, ...props }
   if (!open) return null;
   return (
     <div
-      className={`absolute right-0 z-50 mt-1 min-w-[8rem] overflow-hidden rounded-md border border-zinc-200 bg-white shadow-md ${className}`}
+      className={`absolute right-0 z-50 mt-6 min-w-[8rem] overflow-hidden rounded-md border border-zinc-200 bg-white shadow-md ${className}`}
       {...props}
     >
       {children}
