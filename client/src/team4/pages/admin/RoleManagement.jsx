@@ -1,6 +1,20 @@
 import { useEffect, useState } from "react";
-import { FiPlus, FiEdit2, FiTrash2, FiShield, FiSave, FiX } from "react-icons/fi";
-import { apiGet, apiPost, apiPut, apiDelete, withCurrentUser } from "../../utils/api";
+import {
+  FiPlus,
+  FiEdit2,
+  FiTrash2,
+  FiShield,
+  FiSave,
+  FiX,
+} from "react-icons/fi";
+import {
+  apiGet,
+  apiPost,
+  apiPut,
+  apiDelete,
+  getStoredUserId,
+  withCurrentUser,
+} from "../../utils/api";
 import { useToast } from "../../components/ui/Toast";
 import { Input } from "../../components/ui/Input";
 import { Label } from "../../components/ui/Label";
@@ -8,10 +22,19 @@ import { Button } from "../../components/ui/Button";
 import { Badge } from "../../components/ui/Badge";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import {
-  Card, CardHeader, CardTitle, CardDescription, CardContent,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
 } from "../../components/ui/Card";
 import {
-  Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
 } from "../../components/ui/Table";
 
 export default function RoleManagement() {
@@ -44,7 +67,9 @@ export default function RoleManagement() {
     }
   }
 
-  useEffect(() => { loadRoles(); }, []);
+  useEffect(() => {
+    loadRoles();
+  }, []);
 
   function openCreate() {
     setEditing(null);
@@ -74,16 +99,22 @@ export default function RoleManagement() {
     setSaving(true);
     try {
       if (editing) {
-        await apiPut(`/roles/${editing.id}`, withCurrentUser({
-          name: form.name,
-          priority: form.priority,
-        }));
+        await apiPut(
+          `/roles/${editing.id}`,
+          withCurrentUser({
+            name: form.name,
+            priority: form.priority,
+          }),
+        );
         toast.success("Эрх амжилттай засагдлаа.");
       } else {
-        await apiPost("/roles", withCurrentUser({
-          name: form.name,
-          priority: form.priority,
-        }));
+        await apiPost(
+          "/roles",
+          withCurrentUser({
+            name: form.name,
+            priority: form.priority,
+          }),
+        );
         toast.success("Эрх амжилттай нэмэгдлээ.");
       }
       closeForm();
@@ -96,14 +127,20 @@ export default function RoleManagement() {
   }
 
   async function confirmDeleteRole() {
-    if (!confirmRole) return;
+    if (!confirmRole?.id) return;
+
     setDeleting(true);
     try {
-      await apiDelete(`/roles/${confirmRole.id}`, withCurrentUser());
+      await apiDelete(`/roles/${confirmRole.id}`, {
+        ROLE_ID: String(confirmRole.id),
+        current_user: String(getStoredUserId() ?? ""),
+      });
+
       toast.success("Эрх амжилттай устгагдлаа.");
       setConfirmRole(null);
       loadRoles();
     } catch (err) {
+      console.error("Delete role error:", err);
       toast.error(err.message || "Устгахад алдаа гарлаа.");
     } finally {
       setDeleting(false);
@@ -118,8 +155,12 @@ export default function RoleManagement() {
             <FiShield className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900">Эрхийн удирдлага</h1>
-            <p className="text-sm text-zinc-500">Хэрэглэгчийн эрхүүдийг удирдах</p>
+            <h1 className="text-2xl font-bold text-zinc-900">
+              Эрхийн удирдлага
+            </h1>
+            <p className="text-sm text-zinc-500">
+              Хэрэглэгчийн эрхүүдийг удирдах
+            </p>
           </div>
         </div>
         <Button onClick={openCreate}>
@@ -140,7 +181,9 @@ export default function RoleManagement() {
                   <Label>Нэр *</Label>
                   <Input
                     value={form.name}
-                    onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, name: e.target.value }))
+                    }
                     placeholder="Жишээ: Админ"
                     required
                   />
@@ -150,14 +193,18 @@ export default function RoleManagement() {
                   <Input
                     type="number"
                     value={form.priority}
-                    onChange={(e) => setForm((f) => ({ ...f, priority: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, priority: e.target.value }))
+                    }
                     placeholder="10"
                   />
                 </div>
               </div>
               <div className="flex gap-2">
                 <Button type="submit" disabled={saving}>
-                  {saving && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />}
+                  {saving && (
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  )}
                   <FiSave className="h-4 w-4" /> Хадгалах
                 </Button>
                 <Button type="button" variant="outline" onClick={closeForm}>
@@ -179,7 +226,10 @@ export default function RoleManagement() {
           {loading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-12 animate-pulse rounded-lg bg-zinc-100" />
+                <div
+                  key={i}
+                  className="h-12 animate-pulse rounded-lg bg-zinc-100"
+                />
               ))}
             </div>
           ) : error ? (
@@ -210,11 +260,16 @@ export default function RoleManagement() {
                     <TableCell>{role.priority ?? "—"}</TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="sm" onClick={() => openEdit(role)}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openEdit(role)}
+                        >
                           <FiEdit2 className="h-4 w-4" /> Засах
                         </Button>
                         <Button
-                          variant="ghost" size="sm"
+                          variant="ghost"
+                          size="sm"
                           onClick={() => setConfirmRole(role)}
                           className="text-red-600 hover:text-red-700"
                         >
