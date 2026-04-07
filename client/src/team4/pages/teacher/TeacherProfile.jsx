@@ -43,7 +43,7 @@ export default function TeacherProfile() {
           phone:      data.phone      ?? "",
         });
         if (data?.id) {
-          return apiGet(`/users/${data.id}/courses`);
+          return apiGet(`/users/${data.id}/courses/teaching`);
         }
       })
       .then((res) => setCourses(res?.items ?? []))
