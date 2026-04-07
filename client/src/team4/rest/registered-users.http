@@ -1,0 +1,164 @@
+# =============================================================================
+# REGISTERED USERS — role verification for all 5 test accounts
+# Base URL: https://todu.mn/bs/lms/v1
+# Requires: VS Code REST Client extension
+#
+# Role IDs returned by the API (GET /roles):
+#   0  → Хэрэглэгч  (user)
+#   10 → Админ      (admin)
+#   20 → Сургагч    (teacher)
+#   30 → Суралцагч  (student)
+#
+
+
+# Account	role.id	App key	Guard
+# admin@must.edu.mn	10	"admin"	isAdmin = true
+# User@must.edu.mn	0	"user"	—
+# schooladmin@must.edu.mn	10	"admin"	isAdmin = true
+# schoolteacher@must.edu.mn	20	"teacher"	isTeacher = true
+# schoolstudent@must.edu.mn	30	"student"	isStudent = true
+
+# =============================================================================
+
+@baseUrl = https://todu.mn/bs/lms/v1
+@token   = iP-47AecuxD-Th3xdbLpxw
+
+# =============================================================================
+# 0. REFERENCE — all available roles
+# =============================================================================
+
+### GET /roles — full roles list (run with any valid token)
+GET {{baseUrl}}/roles
+Authorization: Bearer {{token}}
+
+###
+
+# =============================================================================
+# 1. СИСТЕМИЙН АДМИН — admin@must.edu.mn  (role id 10 → "admin")
+# =============================================================================
+
+### [1a] Login as system admin
+# @name loginAdmin
+POST {{baseUrl}}/token/email
+Content-Type: application/json
+
+{
+  "email": "admin@must.edu.mn",
+  "password": "123",
+  "push_token": ""
+}
+
+###
+
+### [1b] Get admin profile  → check id, email, schools[].role
+# Paste token from [1a] into @token first
+GET {{baseUrl}}/users/me
+Authorization: Bearer {{token}}
+
+###
+
+### [1c] Get admin's schools with per-school role
+# Replace 535 with the id returned in [1b]
+GET {{baseUrl}}/users/535/schools
+Authorization: Bearer {{token}}
+
+###
+
+# =============================================================================
+# 2. СИСТЕМИЙН ХЭРЭГЛЭГЧ — User@must.edu.mn  (role id 0 → "user")
+# =============================================================================
+
+### [2a] Login as system user
+POST {{baseUrl}}/token/email
+Content-Type: application/json
+
+{
+  "email": "User@must.edu.mn",
+  "password": "123",
+  "push_token": ""
+}
+
+###
+
+### [2b] Get user profile  → check schools[].role
+GET {{baseUrl}}/users/me
+Authorization: Bearer {{token}}
+
+###
+
+# =============================================================================
+# 3. СУРГУУЛИЙН АДМИН — schooladmin@must.edu.mn  (role id 10 → "admin")
+# =============================================================================
+
+### [3a] Login as school admin
+POST {{baseUrl}}/token/email
+Content-Type: application/json
+
+{
+  "email": "schooladmin@must.edu.mn",
+  "password": "123",
+  "push_token": ""
+}
+
+###
+
+### [3b] Get school-admin profile  → schools[].role.id should be 10
+GET {{baseUrl}}/users/me
+Authorization: Bearer {{token}}
+
+###
+
+# =============================================================================
+# 4. СУРГУУЛИЙН БАГШ — schoolteacher@must.edu.mn  (role id 20 → "teacher")
+# =============================================================================
+
+### [4a] Login as teacher
+POST {{baseUrl}}/token/email
+Content-Type: application/json
+
+{
+  "email": "schoolteacher@must.edu.mn",
+  "password": "123",
+  "push_token": ""
+}
+
+###
+
+### [4b] Get teacher profile  → schools[].role.id should be 20
+GET {{baseUrl}}/users/me
+Authorization: Bearer {{token}}
+
+###
+
+# =============================================================================
+# 5. СУРГУУЛИЙН ОЮУТАН — schoolstudent@must.edu.mn  (role id 30 → "student")
+# =============================================================================
+
+### [5a] Login as student
+POST {{baseUrl}}/token/email
+Content-Type: application/json
+
+{
+  "email": "schoolstudent@must.edu.mn",
+  "password": "123",
+  "push_token": ""
+}
+
+###
+
+### [5b] Get student profile  → schools[].role.id should be 30
+GET {{baseUrl}}/users/me
+Authorization: Bearer {{token}}
+
+###
+
+# =============================================================================
+# EXPECTED ROLE MAPPING  (matches ROLE_ID_MAP in AuthContext.jsx)
+# ─────────────────────────────────────────────────────────────────
+# Account                      role.id   app key    isAdmin  isTeacher  isStudent
+# admin@must.edu.mn               10     "admin"      ✓
+# User@must.edu.mn                 0     "user"
+# schooladmin@must.edu.mn         10     "admin"      ✓
+# schoolteacher@must.edu.mn       20     "teacher"              ✓
+# schoolstudent@must.edu.mn       30     "student"                          ✓
+# =============================================================================

@@ -1,0 +1,54 @@
+# =============================================================================
+# ROLES — /roles, /roles/{role_id}
+# Base URL: https://todu.mn/bs/lms/v1
+# Member 3 — RoleManagement (admin only)
+# =============================================================================
+
+@baseUrl = https://todu.mn/bs/lms/v1
+
+# Paste token from auth.http login response (must be admin):
+@token = PASTE_TOKEN_HERE
+@currentUser = 1
+@roleId = 1
+
+# -----------------------------------------------------------------------------
+### Get all roles
+GET {{baseUrl}}/roles?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Get a specific role by ID
+GET {{baseUrl}}/roles/{{roleId}}?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Create a new role
+POST {{baseUrl}}/roles
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "teacher",
+  "current_user": {{currentUser}}
+}
+
+# -----------------------------------------------------------------------------
+### Update a role
+PUT {{baseUrl}}/roles/{{roleId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "updated_role_name",
+  "current_user": {{currentUser}}
+}
+
+# -----------------------------------------------------------------------------
+### Delete a role
+DELETE {{baseUrl}}/roles/{{roleId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "current_user": {{currentUser}}
+}
