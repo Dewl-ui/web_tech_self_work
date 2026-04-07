@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { FiEdit2, FiSearch, FiUsers } from "react-icons/fi";
+import { FiEdit2, FiSearch, FiUsers, FiBarChart2, FiLayers } from "react-icons/fi";
 import { apiGet, parseField } from "../../utils/api";
 import { useToast } from "../../components/ui";
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui";
@@ -75,6 +75,18 @@ export default function CourseUserList() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+            <Link to={`/team4/courses/${course_id}/attendance`}>
+    <Button variant="outline">
+      <FiBarChart2 className="h-4 w-4" />
+      Ирцийн статистик
+    </Button>
+  </Link>
+  <Link to={`/team4/courses/${course_id}/groups`}>
+            <Button variant="outline">
+              <FiLayers className="h-4 w-4" />
+              Бүлэг удирдах
+            </Button>
+          </Link>
           <Link to={`/team4/courses/${course_id}/users/edit`}>
             <Button>
               <FiEdit2 className="h-4 w-4" />

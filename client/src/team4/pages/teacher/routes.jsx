@@ -32,6 +32,10 @@ const teacherRoutes = [
   <Route key="course-users-edit" path="courses/:course_id/users/edit"
     element={<ProtectedRoute role={[ROLES.ADMIN, ROLES.TEACHER]}><CourseUserEdit /></ProtectedRoute>} />,
 
+      // Course attendance — /team4/courses/:course_id/attendance
+  <Route key="course-attendance" path="courses/:course_id/attendance"
+    element={<ProtectedRoute role={[ROLES.ADMIN, ROLES.TEACHER]}><AttendancePage /></ProtectedRoute>} />,
+
   // Group management — /team4/courses/:course_id/groups*
   <Route key="groups" path="courses/:course_id/groups"
     element={<ProtectedRoute role={[ROLES.ADMIN, ROLES.TEACHER]}><GroupManagement /></ProtectedRoute>} />,
