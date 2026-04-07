@@ -1,19 +1,3 @@
-// ============================================================
-// Student Group API — Member C OWNS this file
-// Self-contained: no imports from team4/utils/api.
-// Endpoints verified against group.check.http (Apr 2026).
-//
-// API shape reference:
-//   GET /courses/:courseId/groups
-//     → { items: [{id, course_id, name, priority, created_on, updated_on}], count, hasMore }
-//
-//   GET /groups/:groupId
-//     → { id, course_id, name, priority, created_on, updated_on, links }
-//
-//   GET /courses/:courseId/users
-//     → { items: [{user_id, group_id, group:{id,name}, user:{id,first_name,last_name,username,email,picture}}], count, hasMore }
-// ============================================================
-
 import { STORAGE_KEYS } from "../../../../utils/constants";
 
 const BASE_URL = "https://todu.mn/bs/lms/v1";

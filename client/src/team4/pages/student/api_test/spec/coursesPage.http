@@ -4,7 +4,7 @@
 
 @courseId = 204
 
-@accessToken = i8zSSGzb7UhwvExNCT4jIw
+@accessToken = s1Pj_QQGVvGfEbxgZIoeBQ
 
 ### 1. user login
 POST {{baseUrl}}/token/email
@@ -61,6 +61,8 @@ Authorization: Bearer {{accessToken}}
 GET {{baseUrl}}/users/{{userId}}/courses
 Authorization: Bearer {{accessToken}}
 
+
+GET {{baseUrl}}
 
 # 'HTTP/1.1 200 
 # ETag: "8pOJJfXydAdd7hO9XJpMix2NunDvVlG5g2RUPr+ZU0umD5w2l1A6VbZFbxWpkP+lRwmJsUUN0KGyr2O2sXFZ6g=="

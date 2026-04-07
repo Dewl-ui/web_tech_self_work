@@ -6,7 +6,6 @@ import { getStudentCourses } from "./api/studentCourseApi";
 import { useToast } from "../../components/ui/Toast";
 import CourseCard from "./components/CourseCard";
 
-/** Skeleton placeholder card while loading */
 function SkeletonCard() {
   return (
     <div className="flex flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm animate-pulse">
