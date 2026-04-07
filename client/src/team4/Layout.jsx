@@ -86,7 +86,7 @@ export default function Layout() {
       <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">
 
         {/* Floating top navbar */}
-        <header className="shrink-0 px-4 pt-4 sm:px-6 sm:pt-6">
+        <header className="shrink-0 px-4 pt-4 sm:px-6 sm:pt-4">
           <div className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white px-4 py-2.5 shadow-sm">
 
             {/* Left side */}
@@ -101,7 +101,7 @@ export default function Layout() {
                 </button>
               )}
 
-              <Separator orientation="vertical" className="hidden sm:block !h-7" />
+              {/* <Separator orientation="vertical" className="hidden sm:block !h-7" /> */}
 
               {school?.name ? (
                 <Link
