@@ -1,212 +1,337 @@
-import { useEffect, useState, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import {
-  FiUserPlus, FiUserMinus, FiSearch, FiArrowLeft,
-  FiCheckCircle, FiLoader, FiUsers
-} from "react-icons/fi";
-import { apiGet, apiPost, apiDelete, withCurrentUser } from "../../utils/api";
+import { useEffect, useMemo, useState } from "react";
+import { FiChevronLeft, FiSearch, FiUserMinus, FiUserPlus, FiUsers } from "react-icons/fi";
+import { Link, useParams } from "react-router-dom";
+import { Button, EmptyState, Input, Select, Skeleton, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, useToast } from "../../components/ui";
 import { useAuth } from "../../utils/AuthContext";
-import { useToast } from "../../components/ui/Toast";
-import { Input } from "../../components/ui/Input";
-import { Button } from "../../components/ui/Button";
-import { Badge } from "../../components/ui/Badge";
-import {
-  Card, CardHeader, CardTitle, CardDescription, CardContent,
-} from "../../components/ui/Card";
-import {
-  Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
-} from "../../components/ui/Table";
+import { apiDelete, apiGet, apiPost, parseField, withCurrentUser } from "../../utils/api";
+import { ROLES } from "../../utils/constants";
 
-function getSchoolId(school) {
-  return school?.id ?? school?.school_id ?? school?.SCHOOL_ID ?? school?.ID ?? null;
+function getFullName(user) {
+  return [user?.last_name, user?.first_name].filter(Boolean).join(" ").trim();
+}
+
+function userMatchesSearch(user, query) {
+  if (!query.trim()) return true;
+  const q = query.trim().toLowerCase();
+  return [
+    getFullName(user),
+    user?.username,
+    user?.email,
+    user?.phone,
+  ].some((value) => String(value ?? "").toLowerCase().includes(q));
+}
+
+function StudentTableSkeleton() {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <div key={index} className="grid grid-cols-4 gap-3">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export default function CourseUserEdit() {
   const { course_id } = useParams();
-  const navigate = useNavigate();
   const { school } = useAuth();
   const toast = useToast();
 
-  // Course users (already enrolled)
-  const [courseUsers, setCourseUsers] = useState([]);
-  // School users (available to add)
-  const [schoolUsers, setSchoolUsers] = useState([]);
+  const [courseName, setCourseName] = useState("");
+  const [availableStudents, setAvailableStudents] = useState([]);
+  const [enrolledUsers, setEnrolledUsers] = useState([]);
+  const [groups, setGroups] = useState([]);
+  const [selectedGroupId, setSelectedGroupId] = useState("");
+  const [searchAvailable, setSearchAvailable] = useState("");
+  const [searchEnrolled, setSearchEnrolled] = useState("");
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [actionId, setActionId] = useState(null); // user being added/removed
+  const [submittingUserId, setSubmittingUserId] = useState(null);
 
   useEffect(() => {
-    async function load() {
-      const schoolId = getSchoolId(school);
+    if (!course_id || !school?.id) return;
+
+    async function loadData() {
       try {
         setLoading(true);
-        const [courseRes, schoolRes] = await Promise.all([
+
+        const [courseRes, courseUsersRes, schoolUsersRes, groupsRes] = await Promise.all([
+          apiGet(`/courses/${course_id}`).catch(() => ({})),
           apiGet(`/courses/${course_id}/users`).catch(() => ({ items: [] })),
-          schoolId ? apiGet(`/schools/${schoolId}/users`).catch(() => ({ items: [] })) : { items: [] },
+          apiGet(`/schools/${school.id}/users`).catch(() => ({ items: [] })),
+          apiGet(`/courses/${course_id}/groups`).catch(() => ({ items: [] })),
         ]);
-        setCourseUsers(courseRes?.items ?? (Array.isArray(courseRes) ? courseRes : []));
-        setSchoolUsers(schoolRes?.items ?? (Array.isArray(schoolRes) ? schoolRes : []));
-      } catch (err) {
-        toast.error(err.message || "Мэдээлэл ачааллахад алдаа гарлаа.");
+
+        setCourseName(courseRes?.name ?? `Хичээл #${course_id}`);
+        setGroups(groupsRes?.items ?? []);
+
+        const enrolledItems = courseUsersRes?.items ?? [];
+        const normalizedEnrolled = enrolledItems.map((item) => {
+          const user = parseField(item, "user") ?? item.user ?? {};
+          const group = parseField(item, "group") ?? item.group ?? null;
+          return {
+            enrollmentId: item.id,
+            userId: item.user_id ?? user.id ?? item.id,
+            user,
+            group,
+          };
+        });
+        setEnrolledUsers(normalizedEnrolled);
+
+        const schoolUsers = schoolUsersRes?.items ?? [];
+        const membershipResults = await Promise.allSettled(
+          schoolUsers.map((user) => apiGet(`/users/${user.id}/schools`))
+        );
+
+        const studentUsers = schoolUsers.filter((user, index) => {
+          const detail = membershipResults[index];
+          if (detail.status !== "fulfilled") return false;
+
+          const memberships = detail.value?.items ?? [];
+          const matched = memberships.find((item) => String(item?.id ?? item?.school_id ?? "") === String(school.id));
+          const role = parseField(matched, "role");
+          const roleId = Number(role?.id ?? matched?.role_id ?? 0);
+          return roleId === ROLES.STUDENT;
+        });
+
+        const enrolledUserIds = new Set(normalizedEnrolled.map((item) => String(item.userId)));
+        setAvailableStudents(studentUsers.filter((user) => !enrolledUserIds.has(String(user.id))));
+      } catch (error) {
+        toast.error(error.message || "Хичээлийн хэрэглэгчийн мэдээлэл авахад алдаа гарлаа.");
       } finally {
         setLoading(false);
       }
     }
-    load();
-  }, [course_id, school]);
 
-  const enrolledIds = useMemo(
-    () => new Set(courseUsers.map((u) => String(u.id ?? u.user_id))),
-    [courseUsers]
+    loadData();
+  }, [course_id, school?.id, toast]);
+
+  async function handleAddStudent(student) {
+    try {
+      setSubmittingUserId(student.id);
+      await apiPost(
+        `/courses/${course_id}/users`,
+        withCurrentUser({
+          user_id: String(student.id),
+          group_id: selectedGroupId || "",
+        })
+      );
+
+      const selectedGroup = groups.find((group) => String(group.id) === String(selectedGroupId)) ?? null;
+      setAvailableStudents((prev) => prev.filter((item) => String(item.id) !== String(student.id)));
+      setEnrolledUsers((prev) => [...prev, {
+        enrollmentId: `tmp-${student.id}`,
+        userId: student.id,
+        user: student,
+        group: selectedGroup,
+      }]);
+      toast.success("Оюутан хичээлд амжилттай нэмэгдлээ.");
+    } catch (error) {
+      toast.error(error.message || "Оюутан нэмэхэд алдаа гарлаа.");
+    } finally {
+      setSubmittingUserId(null);
+    }
+  }
+
+  async function handleRemoveStudent(item) {
+    try {
+      setSubmittingUserId(item.userId);
+      await apiDelete(
+        `/courses/${course_id}/users/${item.userId}`,
+        withCurrentUser({
+          COURSE_ID: String(course_id),
+          USER_ID: String(item.userId),
+        })
+      );
+
+      setEnrolledUsers((prev) => prev.filter((entry) => String(entry.userId) !== String(item.userId)));
+      setAvailableStudents((prev) => [...prev, item.user].sort((a, b) => String(getFullName(a) || a.username).localeCompare(String(getFullName(b) || b.username))));
+      toast.success("Оюутан хичээлээс хасагдлаа.");
+    } catch (error) {
+      toast.error(error.message || "Оюутан хасахад алдаа гарлаа.");
+    } finally {
+      setSubmittingUserId(null);
+    }
+  }
+
+  const filteredAvailable = useMemo(
+    () => availableStudents.filter((user) => userMatchesSearch(user, searchAvailable)),
+    [availableStudents, searchAvailable]
   );
 
-  // School users not yet enrolled
-  const available = useMemo(() => {
-    let list = schoolUsers.filter((u) => !enrolledIds.has(String(u.id)));
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      list = list.filter((u) => {
-        const name = `${u.first_name || ""} ${u.last_name || ""}`.toLowerCase();
-        return name.includes(q) || String(u.email || "").toLowerCase().includes(q);
-      });
-    }
-    return list;
-  }, [schoolUsers, enrolledIds, search]);
-
-  async function addUser(userId) {
-    setActionId(userId);
-    try {
-      await apiPost(`/courses/${course_id}/users`, withCurrentUser({ user_id: String(userId) }));
-      // Move from available to enrolled
-      const added = schoolUsers.find((u) => String(u.id) === String(userId));
-      if (added) setCourseUsers((prev) => [...prev, added]);
-      toast.success("Хэрэглэгч нэмэгдлээ.");
-    } catch (err) {
-      toast.error(err.message || "Нэмэхэд алдаа гарлаа.");
-    } finally {
-      setActionId(null);
-    }
-  }
-
-  async function removeUser(userId) {
-    setActionId(userId);
-    try {
-      await apiDelete(`/courses/${course_id}/users/${userId}`, withCurrentUser());
-      setCourseUsers((prev) => prev.filter((u) => String(u.id ?? u.user_id) !== String(userId)));
-      toast.success("Хэрэглэгч хасагдлаа.");
-    } catch (err) {
-      toast.error(err.message || "Хасахад алдаа гарлаа.");
-    } finally {
-      setActionId(null);
-    }
-  }
+  const filteredEnrolled = useMemo(
+    () => enrolledUsers.filter((item) => userMatchesSearch(item.user, searchEnrolled)),
+    [enrolledUsers, searchEnrolled]
+  );
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="sm" onClick={() => navigate(`/team4/courses/${course_id}/users`)}>
-          <FiArrowLeft className="h-4 w-4" />
-        </Button>
+    <div className="mx-auto max-w-7xl space-y-6">
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900">Хэрэглэгч нэмэх / хасах</h1>
-          <p className="text-sm text-zinc-500">Хичээл ID: {course_id}</p>
+          <div className="flex items-center gap-2 text-sm text-zinc-500">
+            <Link to={`/team4/courses/${course_id}/users`} className="inline-flex items-center gap-1 hover:text-zinc-900">
+              <FiChevronLeft className="h-4 w-4" />
+              Буцах
+            </Link>
+          </div>
+          <h1 className="mt-2 text-2xl font-bold text-zinc-900">Хичээлийн хэрэглэгч удирдах</h1>
+          <p className="mt-1 text-sm text-zinc-500">
+            {courseName || `Хичээл #${course_id}`} хичээлд оюутан нэмэх, хасах
+          </p>
         </div>
       </div>
 
-      {loading ? (
-        <div className="space-y-4">
-          {[1, 2].map((i) => <div key={i} className="h-48 animate-pulse rounded-xl bg-zinc-100" />)}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
+          <p className="text-sm font-medium text-zinc-500">Боломжит оюутан</p>
+          <p className="mt-1 text-3xl font-bold text-zinc-900">{loading ? "…" : availableStudents.length}</p>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {/* Enrolled users */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FiCheckCircle className="h-4 w-4 text-green-600" />
-                Бүртгэлтэй ({courseUsers.length})
-              </CardTitle>
-              <CardDescription>Хичээлд бүртгэлтэй хэрэглэгчид</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {courseUsers.length === 0 ? (
-                <p className="py-6 text-center text-sm text-zinc-400">Хэрэглэгч байхгүй.</p>
-              ) : (
-                <div className="max-h-96 space-y-2 overflow-y-auto">
-                  {courseUsers.map((u) => {
-                    const uid = u.id ?? u.user_id;
-                    return (
-                      <div key={uid} className="flex items-center justify-between rounded-lg border border-zinc-100 px-3 py-2">
-                        <div>
-                          <p className="text-sm font-medium text-zinc-900">
-                            {[u.last_name, u.first_name].filter(Boolean).join(" ") || "—"}
-                          </p>
-                          <p className="text-xs text-zinc-400">{u.email || u.username || ""}</p>
-                        </div>
+        <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
+          <p className="text-sm font-medium text-zinc-500">Хичээлд орсон</p>
+          <p className="mt-1 text-3xl font-bold text-zinc-900">{loading ? "…" : enrolledUsers.length}</p>
+        </div>
+        <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
+          <p className="text-sm font-medium text-zinc-500">Бүлэг</p>
+          <Select value={selectedGroupId} onChange={(event) => setSelectedGroupId(event.target.value)} className="mt-3">
+            <option value="">Бүлэг сонгохгүй</option>
+            {groups.map((group) => (
+              <option key={group.id} value={group.id}>
+                {group.name}
+              </option>
+            ))}
+          </Select>
+        </div>
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-2">
+        <div className="rounded-2xl border border-zinc-200 bg-white shadow-sm">
+          <div className="border-b border-zinc-100 px-5 py-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="font-semibold text-zinc-800">Нэмэх боломжтой оюутнууд</h2>
+                <p className="mt-1 text-sm text-zinc-500">Сонгосон сургуульд харьяалагддаг, энэ хичээлд ороогүй оюутнууд.</p>
+              </div>
+            </div>
+            <div className="relative mt-4">
+              <FiSearch className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+              <Input
+                value={searchAvailable}
+                onChange={(event) => setSearchAvailable(event.target.value)}
+                placeholder="Нэр, имэйл, username..."
+                className="pl-9"
+              />
+            </div>
+          </div>
+
+          <div className="p-4">
+            {loading ? (
+              <StudentTableSkeleton />
+            ) : filteredAvailable.length === 0 ? (
+              <EmptyState
+                icon={<FiUsers className="h-6 w-6" />}
+                title="Нэмэх оюутан алга"
+                description="Сонгосон шүүлтээр харуулах боломжтой оюутан олдсонгүй."
+              />
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Нэр</TableHead>
+                    <TableHead>Имэйл</TableHead>
+                    <TableHead>Username</TableHead>
+                    <TableHead className="text-right">Үйлдэл</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredAvailable.map((student) => (
+                    <TableRow key={student.id}>
+                      <TableCell className="font-medium text-zinc-900">
+                        {getFullName(student) || student.username || `Хэрэглэгч #${student.id}`}
+                      </TableCell>
+                      <TableCell>{student.email || "—"}</TableCell>
+                      <TableCell>{student.username || "—"}</TableCell>
+                      <TableCell className="text-right">
                         <Button
-                          variant="ghost" size="sm"
-                          onClick={() => removeUser(uid)}
-                          disabled={actionId === uid}
-                          className="text-red-600 hover:text-red-700"
+                          size="sm"
+                          loading={submittingUserId === student.id}
+                          onClick={() => handleAddStudent(student)}
                         >
-                          {actionId === uid ? <FiLoader className="h-4 w-4 animate-spin" /> : <FiUserMinus className="h-4 w-4" />}
+                          <FiUserPlus className="h-4 w-4" />
+                          Нэмэх
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-zinc-200 bg-white shadow-sm">
+          <div className="border-b border-zinc-100 px-5 py-4">
+            <h2 className="font-semibold text-zinc-800">Хичээлд бүртгэлтэй оюутнууд</h2>
+            <p className="mt-1 text-sm text-zinc-500">Одоогоор энэ хичээлд орсон хэрэглэгчид.</p>
+            <div className="relative mt-4">
+              <FiSearch className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+              <Input
+                value={searchEnrolled}
+                onChange={(event) => setSearchEnrolled(event.target.value)}
+                placeholder="Нэр, имэйл, username..."
+                className="pl-9"
+              />
+            </div>
+          </div>
+
+          <div className="p-4">
+            {loading ? (
+              <StudentTableSkeleton />
+            ) : filteredEnrolled.length === 0 ? (
+              <EmptyState
+                icon={<FiUsers className="h-6 w-6" />}
+                title="Хэрэглэгч алга"
+                description="Энэ хичээлд одоогоор оюутан бүртгэгдээгүй байна."
+              />
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Нэр</TableHead>
+                    <TableHead>Имэйл</TableHead>
+                    <TableHead>Бүлэг</TableHead>
+                    <TableHead className="text-right">Үйлдэл</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredEnrolled.map((item) => (
+                    <TableRow key={item.enrollmentId}>
+                      <TableCell className="font-medium text-zinc-900">
+                        {getFullName(item.user) || item.user?.username || `Хэрэглэгч #${item.userId}`}
+                      </TableCell>
+                      <TableCell>{item.user?.email || "—"}</TableCell>
+                      <TableCell>{item.group?.name || "Бүлэггүй"}</TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          loading={submittingUserId === item.userId}
+                          onClick={() => handleRemoveStudent(item)}
+                        >
+                          <FiUserMinus className="h-4 w-4" />
                           Хасах
                         </Button>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Available users */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FiUsers className="h-4 w-4 text-blue-600" />
-                Нэмэх боломжтой ({available.length})
-              </CardTitle>
-              <CardDescription>Сургуулийн хэрэглэгчид</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="relative">
-                <FiSearch className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-                <Input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Нэр, имэйл хайх..."
-                  className="pl-9"
-                />
-              </div>
-              {available.length === 0 ? (
-                <p className="py-6 text-center text-sm text-zinc-400">Нэмэх хэрэглэгч олдсонгүй.</p>
-              ) : (
-                <div className="max-h-80 space-y-2 overflow-y-auto">
-                  {available.map((u) => (
-                    <div key={u.id} className="flex items-center justify-between rounded-lg border border-zinc-100 px-3 py-2">
-                      <div>
-                        <p className="text-sm font-medium text-zinc-900">
-                          {[u.last_name, u.first_name].filter(Boolean).join(" ") || "—"}
-                        </p>
-                        <p className="text-xs text-zinc-400">{u.email || u.username || ""}</p>
-                      </div>
-                      <Button
-                        variant="outline" size="sm"
-                        onClick={() => addUser(u.id)}
-                        disabled={actionId === u.id}
-                      >
-                        {actionId === u.id ? <FiLoader className="h-4 w-4 animate-spin" /> : <FiUserPlus className="h-4 w-4" />}
-                        Нэмэх
-                      </Button>
-                    </div>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                </TableBody>
+              </Table>
+            )}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
