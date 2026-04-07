@@ -1,15 +1,37 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FiEdit2 } from "react-icons/fi";
 
+const slides = [
+  "/team4/auth_images/school2.jpg",
+  "/team4/auth_images/school3.jpg",
+  "/team4/auth_images/school4.jpg",
+  "/team4/auth_images/school5.jpg",
+  "/team4/auth_images/school1.jpg",
+];
+
 function RightPanel() {
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % slides.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <div className="relative hidden min-h-0 min-w-0 overflow-hidden lg:block lg:min-h-screen lg:w-1/2">
-      <img
-        src="/team4/auth_images/auth.jpg"
-        alt=""
-        className="absolute inset-0 h-full w-full object-cover select-none"
-        draggable="false"
-      />
+      {slides.map((src, i) => (
+        <img
+          key={src}
+          src={src}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover select-none transition-opacity duration-1000 ease-in-out"
+          style={{ opacity: i === current ? 1 : 0 }}
+          draggable="false"
+        />
+      ))}
     </div>
   );
 }

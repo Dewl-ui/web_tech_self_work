@@ -84,8 +84,8 @@ export default function SideMenu({ onClose }) {
   // Display label comes straight from the API via the stored school object.
   const roleLabel = parseField(school, "role")?.name ?? null;
 
-  const visible = navItems.filter(
-    (item) => !role || item.roles.includes(role)
+  const visible = navItems.filter((item) =>
+    role ? item.roles.includes(role) : item.to === "/team4/schools/current" || item.to === "/team4/profile"
   );
 
   return (
