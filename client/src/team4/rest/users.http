@@ -7,9 +7,9 @@
 @baseUrl = https://todu.mn/bs/lms/v1
 
 # Paste token from auth.http login response:
-@token = PASTE_TOKEN_HERE
+@token = gZVUNx-ZR-ah3aWQ2bIHIg
 @currentUser = 1
-@userId = 2
+@userId = 535
 
 # -----------------------------------------------------------------------------
 ### Get all users (admin only)
@@ -80,8 +80,13 @@ GET {{baseUrl}}/users/{{userId}}/schools?current_user={{currentUser}}
 Authorization: Bearer {{token}}
 
 # -----------------------------------------------------------------------------
+### Get courses a specific user is teaching
+GET {{baseUrl}}/users/{{userId}}/courses/teaching?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
 ### Get courses a specific user is enrolled in
-GET {{baseUrl}}/users/{{userId}}/courses?current_user={{currentUser}}
+GET {{baseUrl}}/users/{{userId}}/courses/enrolled?current_user={{currentUser}}
 Authorization: Bearer {{token}}
 
 # -----------------------------------------------------------------------------
