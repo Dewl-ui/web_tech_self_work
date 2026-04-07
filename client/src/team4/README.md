@@ -103,7 +103,8 @@ GET /users/{id}/schools → { items: [{ id, name, "{}role": "{\"name\":\"teacher
 | PUT    | `/users/me/password`  | `{ "current_user", "password", "new_password" }`                                            | Нууц үг солих                              |
 | POST   | `/users/me/picture`   | `{ "current_user", "body": "base64" }`                                                      | Зураг оруулах                              |
 | GET    | `/users/{id}/schools` | —                                                                                           | Хэрэглэгчийн сургуулиуд ({}role талбартай) |
-| GET    | `/users/{id}/courses` | —                                                                                           | Хэрэглэгчийн хичээлүүд ({}course, {}group) |
+| GET    | `/users/{id}/courses/teaching` | —                                                                                  | Багшийн заадаг хичээлүүд |
+| GET    | `/users/{id}/courses/enrolled` | —                                                                                  | Оюутны үздэг хичээлүүд ({}course, {}group) |
 
 #### 🛡️ Roles
 
@@ -167,7 +168,7 @@ GET /users/{id}/schools → { items: [{ id, name, "{}role": "{\"name\":\"teacher
 
 | Зам                      | Хуудас                      | API                                        | Тайлбар                         |
 | ------------------------ | --------------------------- | ------------------------------------------ | ------------------------------- |
-| `/team4/`                | Эхлэх хуудас                | `GET /users/me`, `GET /users/{id}/courses` | Role-аас хамааран өөр dashboard |
+| `/team4/`                | Эхлэх хуудас                | `GET /users/me`, role-с хамаарсан courses endpoint | Role-аас хамааран өөр dashboard |
 | `/team4/login`           | Нэвтрэх                     | `POST /token/email`                        | Email + password                |
 | `/team4/forgot-password` | Нууц үг сэргээх код авах    | `POST /otp/email`                          | Email оруулах                   |
 | `/team4/reset-password`  | Код ашиглан нууц үг оруулах | `POST /otp/email/login`                    | Code + email                    |
@@ -239,13 +240,13 @@ GET /users/{id}/schools → { items: [{ id, name, "{}role": "{\"name\":\"teacher
 
 **Багш харна:**
 
-- StatCard: Миний хичээлүүд (GET /users/{id}/courses → items.length)
+- StatCard: Миний хичээлүүд (GET /users/{id}/courses/teaching → items.length)
 - Хурдан холбоосууд: Оюутан бүртгэх, Профайл
 - Хичээлүүдийн жагсаалт (course_id-тай линкүүд → /courses/{id}/users)
 
 **Оюутан харна:**
 
-- StatCard: Миний хичээлүүд (GET /users/{id}/courses → items.length)
+- StatCard: Миний хичээлүүд (GET /users/{id}/courses/enrolled → items.length)
 - Хурдан холбоосууд: Профайл, Нууц үг солих
 - ❌ Системийн мэдээлэл ХАРУУЛАХГҮЙ
 
