@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import useTeam1Role from "./hooks/useTeam1Role";
 import useTeam1User from "./hooks/useTeam1User";
-import { getRoleLabel } from "./utils/school";
+import { getRoleLabel, isSystemAdmin } from "./utils/school";
 
 export default function SideMenu() {
   const location = useLocation();
@@ -16,6 +16,9 @@ export default function SideMenu() {
     { label: "Сургууль", path: "/team1/schools" },
     { label: "Сургалт", path: "/team1/courses" },
     { label: "Ангилал", path: "/team1/categories" },
+    ...(isSystemAdmin(user?.role || role)
+      ? [{ label: "Хүсэлтүүд", path: "/team1/admin/requests" }]
+      : []),
   ];
 
   const handleLogout = () => {

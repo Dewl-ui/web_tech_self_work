@@ -73,14 +73,11 @@ export async function getCourseUsers(courseId) {
   return extractItems(payload).map((item, index) => normalizeCourseUser(item, index));
 }
 
-export async function addCourseUser(courseId, userId, groupId = null) {
+export async function addCourseUser(courseId, userId, groupId = "0") {
   const body = {
+    group_id: String(groupId ?? "0"),
     user_id: String(userId),
   };
-
-  if (groupId !== null && groupId !== undefined && groupId !== "") {
-    body.group_id = String(groupId);
-  }
 
   const response = await authFetch(`/courses/${courseId}/users`, {
     method: "POST",
@@ -93,6 +90,10 @@ export async function addCourseUser(courseId, userId, groupId = null) {
 export async function removeCourseUser(courseId, userId) {
   const response = await authFetch(`/courses/${courseId}/users/${userId}`, {
     method: "DELETE",
+    body: JSON.stringify({
+      COURSE_ID: String(courseId),
+      USER_ID: String(userId),
+    }),
   });
 
   if (response.status === 204) {

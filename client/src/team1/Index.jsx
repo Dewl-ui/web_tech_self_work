@@ -22,7 +22,7 @@ import SchoolReportPage from "./pages/schools/SchoolReportPage";
 export default function Team1() {
   return (
     <Routes>
-      <Route path="/" element={<Layout />}>
+      <Route path="/*" element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="courses" element={<CoursesPage />} />
         <Route path="courses/create" element={<CourseCreatePage />} />

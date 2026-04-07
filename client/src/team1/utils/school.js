@@ -74,6 +74,22 @@ function normalizeRoleName(value, options = {}) {
     return "";
   }
 
+  if (raw === "сургагч") {
+    return "teacher";
+  }
+
+  if (raw === "суралцагч") {
+    return "student";
+  }
+
+  if (raw === "сургуулийн админ") {
+    return "schooladmin";
+  }
+
+  if (!schoolScoped && raw === "админ") {
+    return "systemadmin";
+  }
+
   if (schoolScoped) {
     if (
       [
@@ -290,6 +306,13 @@ export const getErrorMessage = (error, fallback) => {
     return "Илгээж буй өгөгдөл серверийн шаардлагад тохирохгүй байна.";
   }
 
+  if (
+    String(error?.message || "").includes("Failed to fetch") ||
+    String(error?.message || "").includes("Load failed")
+  ) {
+    return "Ð¡ÐµÑ€Ð²ÐµÑ€Ñ‚ÑÐ¹ Ñ…Ð¾Ð»Ð±Ð¾Ð³Ð´Ð¾Ð¶ Ñ‡Ð°Ð´ÑÐ°Ð½Ð³Ò¯Ð¹. Ð¥Ò¯ÑÑÐ»Ñ‚ Ð¸Ð»Ð³ÑÑÑ… ÑÐµÑ€Ð²Ð¸Ñ Ð¾Ð´Ð¾Ð¾Ð³Ð¾Ð¾Ñ€ Ñ…Ð°Ð½Ð´Ð°Ñ… Ð±Ð¾Ð»Ð¾Ð¼Ð¶Ð³Ò¯Ð¹ Ð±Ð°Ð¹Ð½Ð°.";
+  }
+
   return error?.message || fallback;
 };
 
@@ -440,6 +463,13 @@ export async function syncRoleFromAuthenticatedUser() {
       return getRole();
     }
 
+    const inferredRole = inferRoleFromIdentity(me);
+    if (inferredRole === "systemadmin") {
+      setCurrentUserProfile(buildUserProfile(me, inferredRole));
+      setRole(inferredRole);
+      return inferredRole;
+    }
+
     const currentSchool = getCurrentSchool();
     const schoolEntries =
       me?.schools?.items || me?.schools || me?.items || [];
@@ -460,7 +490,6 @@ export async function syncRoleFromAuthenticatedUser() {
       }
     }
 
-    const inferredRole = inferRoleFromIdentity(me);
     if (inferredRole) {
       setCurrentUserProfile(buildUserProfile(me, inferredRole));
       setRole(inferredRole);

@@ -142,7 +142,7 @@ export default function CourseDetailPage() {
         type: "teacher",
         course_id: Number(course_id),
       });
-      setRequestMessage("Багшийн хүсэлт илгээгдлээ.");
+      setRequestMessage("Багш болох хүсэлтийг системийн админ руу илгээлээ.");
     } catch (requestError) {
       setRequestMessage(getErrorMessage(requestError, "Хүсэлт илгээж чадсангүй."));
     }
@@ -210,6 +210,27 @@ export default function CourseDetailPage() {
     });
   };
 
+  const handleLessonAction = async (weekId) => {
+    if (canCreateLesson(role)) {
+      navigate(`/team1/courses/${course.id}/lessons/create`, {
+        state: { courseId: course.id, weekNumber: weekId },
+      });
+      return;
+    }
+
+    try {
+      setError("");
+      setRequestMessage("");
+      await createRequest({
+        type: "teacher",
+        course_id: Number(course_id),
+      });
+      setRequestMessage("Багш болох хүсэлтийг системийн админ руу илгээлээ.");
+    } catch (requestError) {
+      setRequestMessage(getErrorMessage(requestError, "Хүсэлт илгээж чадсангүй."));
+    }
+  };
+
   if (loading) {
     return <div className="rounded-2xl bg-white p-6 shadow-sm">Ачаалж байна...</div>;
   }
@@ -248,7 +269,7 @@ export default function CourseDetailPage() {
                 onClick={handleTeacherRequest}
                 className="rounded-xl border border-indigo-200 bg-white px-5 py-2 text-sm font-semibold text-indigo-600"
               >
-                Багш хүсэх
+                Багш эрх хүсэх
               </button>
             ) : null}
           </div>
@@ -377,19 +398,13 @@ export default function CourseDetailPage() {
                   {week.title}
                 </button>
 
-                {canCreateLesson(role) ? (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      navigate(`/team1/courses/${course.id}/lessons/create`, {
-                        state: { courseId: course.id, weekNumber: week.id },
-                      })
-                    }
-                    className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white"
-                  >
-                    + Хичээл нэмэх
-                  </button>
-                ) : null}
+                <button
+                  type="button"
+                  onClick={() => handleLessonAction(week.id)}
+                  className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white"
+                >
+                  {canCreateLesson(role) ? "+ Хичээл нэмэх" : "Багш эрх хүсэх"}
+                </button>
               </div>
 
               {openWeeks.includes(week.id) ? (

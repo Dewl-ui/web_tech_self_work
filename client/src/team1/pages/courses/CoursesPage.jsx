@@ -14,9 +14,9 @@ import {
 } from "../../utils/courseMetrics";
 import {
   canCreateCourse,
-  getErrorMessage,
-  getCurrentUserProfile,
   getCompletedLessonIds,
+  getCurrentUserProfile,
+  getErrorMessage,
   isSchoolAdmin,
   isStudent,
   setCurrentCourse,
@@ -76,8 +76,8 @@ export default function CoursesPage() {
       try {
         const items = await getCoursesBySchool(selectedSchool.id);
         const normalizedCourses = normalizeCourses(items);
-
         const currentUser = getCurrentUserProfile();
+
         const metrics = await Promise.all(
           normalizedCourses.map(async (course) => {
             try {
@@ -85,6 +85,7 @@ export default function CoursesPage() {
                 getCourseUsers(course.id),
                 getLessonsByCourse(course.id),
               ]);
+
               const progressBaseCount =
                 getSubmissionLessonCount(lessons) || lessons.length;
               const localCompletedCount = getCompletedLessonIds(course.id).length;
@@ -92,9 +93,7 @@ export default function CoursesPage() {
                 currentUser?.id || currentUser?.email || currentUser?.username || ""
               );
               const localOverrides = currentUserId
-                ? {
-                    [currentUserId]: localCompletedCount,
-                  }
+                ? { [currentUserId]: localCompletedCount }
                 : {};
               const currentUserItem = (users || []).find((user) => {
                 const userKey = String(
@@ -112,7 +111,12 @@ export default function CoursesPage() {
                 id: course.id,
                 progress: isStudent(role)
                   ? studentProgress
-                  : getAverageProgress(users, progressBaseCount, course.progress, localOverrides),
+                  : getAverageProgress(
+                      users,
+                      progressBaseCount,
+                      course.progress,
+                      localOverrides
+                    ),
                 studentCount: users.length,
               };
             } catch {
@@ -207,6 +211,27 @@ export default function CoursesPage() {
     }
   };
 
+  const handleCourseAction = async () => {
+    if (canCreateCourse(role)) {
+      navigate("/team1/courses/create", {
+        state: { school: selectedSchool },
+      });
+      return;
+    }
+
+    try {
+      setError("");
+      setRequestMessage("");
+      await createRequest({
+        type: "teacher",
+        school_id: Number(selectedSchool.id),
+      });
+      setRequestMessage("Багш болох хүсэлтийг системийн админ руу илгээлээ.");
+    } catch (requestError) {
+      setRequestMessage(getErrorMessage(requestError, "Хүсэлт илгээж чадсангүй."));
+    }
+  };
+
   const getGradientBackground = (course, index) => {
     if (course.color && String(course.color).startsWith("#")) {
       return `linear-gradient(135deg, ${course.color}, ${COLORS[(index + 1) % COLORS.length]})`;
@@ -239,19 +264,13 @@ export default function CoursesPage() {
           </p>
         </div>
 
-        {canCreateCourse(role) ? (
-          <button
-            type="button"
-            onClick={() =>
-              navigate("/team1/courses/create", {
-                state: { school: selectedSchool },
-              })
-            }
-            className="rounded-xl bg-blue-500 px-4 py-2 font-semibold text-white"
-          >
-            + Хичээл нэмэх
-          </button>
-        ) : null}
+        <button
+          type="button"
+          onClick={handleCourseAction}
+          className="rounded-xl bg-blue-500 px-4 py-2 font-semibold text-white"
+        >
+          {canCreateCourse(role) ? "+ Хичээл нэмэх" : "Багш эрх хүсэх"}
+        </button>
       </div>
 
       {requestMessage ? (

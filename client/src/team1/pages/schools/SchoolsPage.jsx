@@ -6,6 +6,8 @@ import { deleteSchool, getSchools } from "../../services/schoolService";
 import {
   canCreateSchool,
   getErrorMessage,
+  isStudent,
+  isTeacher,
   setCurrentSchool,
 } from "../../utils/school";
 
@@ -29,6 +31,7 @@ export default function SchoolsPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [requestMessage, setRequestMessage] = useState("");
 
   useEffect(() => {
     let isMounted = true;
@@ -41,9 +44,7 @@ export default function SchoolsPage() {
       })
       .catch((loadError) => {
         if (isMounted) {
-          setError(
-            getErrorMessage(loadError, "Сургуулиудыг ачаалж чадсангүй.")
-          );
+          setError(getErrorMessage(loadError, "Сургуулиудыг ачаалж чадсангүй."));
         }
       })
       .finally(() => {
@@ -83,10 +84,21 @@ export default function SchoolsPage() {
         prev.filter((school) => Number(school.id) !== Number(schoolId))
       );
     } catch (deleteError) {
-      setError(
-        getErrorMessage(deleteError, "Сургуулийг устгаж чадсангүй.")
-      );
+      setError(getErrorMessage(deleteError, "Сургуулийг устгаж чадсангүй."));
     }
+  };
+
+  const handleSchoolAction = async () => {
+    if (canCreateSchool(role)) {
+      navigate("/team1/schools/create");
+      return;
+    }
+
+    if (!isStudent(role) && !isTeacher(role)) {
+      return;
+    }
+
+    navigate("/team1/schools/create");
   };
 
   return (
@@ -101,15 +113,18 @@ export default function SchoolsPage() {
           </h1>
         </div>
 
-        {canCreateSchool(role) ? (
-          <button
-            onClick={() => navigate("/team1/schools/create")}
-            className="rounded bg-blue-500 px-4 py-2 text-white"
-          >
-            + Сургууль нэмэх
-          </button>
-        ) : null}
+        <button
+          type="button"
+          onClick={handleSchoolAction}
+          className="rounded bg-blue-500 px-4 py-2 text-white"
+        >
+          {canCreateSchool(role) ? "+ Сургууль нэмэх" : "Сургууль нэмэх хүсэлт"}
+        </button>
       </div>
+
+      {requestMessage ? (
+        <div className="rounded-xl bg-sky-50 px-4 py-3 text-sky-600">{requestMessage}</div>
+      ) : null}
 
       <div className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
         <input

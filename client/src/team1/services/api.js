@@ -163,7 +163,7 @@ const api = {
   get: (path) => request("GET", path),
   post: (path, data) => request("POST", path, data),
   put: (path, data) => request("PUT", path, data),
-  delete: (path) => request("DELETE", path),
+  delete: (path, data) => request("DELETE", path, data),
 };
 
 export function extractItems(payload) {
@@ -241,11 +241,23 @@ export const lessonTypeAPI = {
   getAll: () => api.get("/lesson-types"),
 };
 
+export const roleAPI = {
+  getAll: () => api.get("/roles"),
+};
+
 export const requestAPI = {
-  getAll: () => api.get("/requests"),
-  create: (data) => api.post("/requests", data),
-  approve: (requestId) => api.put(`/requests/${requestId}/approve`, {}),
-  reject: (requestId) => api.put(`/requests/${requestId}/reject`, {}),
+  getSchoolRequests: () => api.get("/school-requests"),
+  createSchoolRequest: (data) => api.post("/school-requests", data),
+  getBySchool: (schoolId) => api.get(`/schools/${schoolId}/requests`),
+  createBySchool: (schoolId, data) => api.post(`/schools/${schoolId}/requests`, data),
+  approveSchoolRequest: (requestId) =>
+    api.post(`/school-requests/${requestId}/approve`, {}),
+  rejectSchoolRequest: (requestId, data) =>
+    api.post(`/school-requests/${requestId}/reject`, data || {}),
+  approveBySchool: (schoolId, requestId, data) =>
+    api.post(`/schools/${schoolId}/requests/${requestId}`, data || {}),
+  rejectBySchool: (schoolId, requestId, data) =>
+    api.delete(`/schools/${schoolId}/requests/${requestId}`, data || {}),
 };
 
 export default api;

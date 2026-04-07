@@ -3,13 +3,11 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import SchoolHeader from "../../components/school/SchoolHeader";
 import SchoolStats from "../../components/school/SchoolStats";
 import useTeam1Role from "../../hooks/useTeam1Role";
-import { createRequest } from "../../services/requestService";
 import { deleteSchool, getSchool } from "../../services/schoolService";
 import {
   canCreateSchool,
   getCurrentSchool,
   getErrorMessage,
-  isStudent,
   setCurrentSchool,
 } from "../../utils/school";
 
@@ -59,21 +57,26 @@ export default function SchoolDetailPage() {
 
     getSchool(school_id)
       .then((result) => {
-        if (isMounted) {
-          const normalized = normalizeSchool(result || {}, school_id);
-          setSchool(normalized);
-          setCurrentSchool(normalized);
+        if (!isMounted) {
+          return;
         }
+
+        const normalized = normalizeSchool(result || {}, school_id);
+        setSchool(normalized);
+        setCurrentSchool(normalized);
       })
       .catch((loadError) => {
-        if (isMounted) {
-          if (loadError?.response?.status === 401 && fallbackSchool) {
-            setSchool(fallbackSchool);
-            setError("");
-          } else {
-            setError(getErrorMessage(loadError, "Сургуулийн мэдээлэл олдсонгүй."));
-          }
+        if (!isMounted) {
+          return;
         }
+
+        if (loadError?.response?.status === 401 && fallbackSchool) {
+          setSchool(fallbackSchool);
+          setError("");
+          return;
+        }
+
+        setError(getErrorMessage(loadError, "Сургуулийн мэдээлэл олдсонгүй."));
       })
       .finally(() => {
         if (isMounted) {
@@ -99,17 +102,13 @@ export default function SchoolDetailPage() {
     ];
   }, [school]);
 
-  const handleSchoolAdminRequest = async () => {
-    try {
-      setRequestMessage("");
-      await createRequest({
-        type: "school_admin",
-        school_id: Number(school_id),
-      });
-      setRequestMessage("Хүсэлт амжилттай илгээгдлээ.");
-    } catch (requestError) {
-      setRequestMessage(getErrorMessage(requestError, "Хүсэлт илгээж чадсангүй."));
+  const handleSchoolAction = async () => {
+    if (canCreateSchool(role)) {
+      navigate("/team1/schools/create");
+      return;
     }
+
+    navigate("/team1/schools/create");
   };
 
   const handleDeleteSchool = async () => {
@@ -119,22 +118,32 @@ export default function SchoolDetailPage() {
       setCurrentSchool(null);
       navigate("/team1/schools");
     } catch (deleteError) {
-      setError(
-        getErrorMessage(deleteError, "Сургуулийг устгаж чадсангүй.")
-      );
+      setError(getErrorMessage(deleteError, "Сургуулийг устгаж чадсангүй."));
     }
   };
 
   if (loading) {
-    return <div className="rounded-[2rem] bg-white px-6 py-16 text-center text-slate-500 shadow-sm">Сургуулийн мэдээлэл ачаалж байна...</div>;
+    return (
+      <div className="rounded-[2rem] bg-white px-6 py-16 text-center text-slate-500 shadow-sm">
+        Сургуулийн мэдээлэл ачаалж байна...
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="rounded-[2rem] border border-rose-200 bg-rose-50 px-6 py-5 text-sm font-medium text-rose-600 shadow-sm">{error}</div>;
+    return (
+      <div className="rounded-[2rem] border border-rose-200 bg-rose-50 px-6 py-5 text-sm font-medium text-rose-600 shadow-sm">
+        {error}
+      </div>
+    );
   }
 
   if (!school) {
-    return <div className="rounded-[2rem] bg-white px-6 py-16 text-center text-slate-500 shadow-sm">Сургууль олдсонгүй.</div>;
+    return (
+      <div className="rounded-[2rem] bg-white px-6 py-16 text-center text-slate-500 shadow-sm">
+        Сургууль олдсонгүй.
+      </div>
+    );
   }
 
   return (
@@ -156,19 +165,13 @@ export default function SchoolDetailPage() {
           Энэ сургуулийн хичээлүүд
         </button>
 
-        {isStudent(role) ? (
-          <button
-            type="button"
-            onClick={handleSchoolAdminRequest}
-            className="rounded-xl border border-indigo-200 bg-white px-4 py-2 text-sm font-semibold text-indigo-600"
-          >
-            Сургуулийн админ хүсэх
-          </button>
-        ) : null}
-
-        {requestMessage ? (
-          <span className="self-center text-sm text-slate-500">{requestMessage}</span>
-        ) : null}
+        <button
+          type="button"
+          onClick={handleSchoolAction}
+          className="rounded-xl border border-indigo-200 bg-white px-4 py-2 text-sm font-semibold text-indigo-600"
+        >
+          {canCreateSchool(role) ? "+ Сургууль нэмэх" : "Сургууль нэмэх хүсэлт"}
+        </button>
       </div>
 
       <SchoolStats stats={stats} />
