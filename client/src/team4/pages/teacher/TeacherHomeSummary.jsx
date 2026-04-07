@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FiBook, FiChevronRight } from "react-icons/fi";
 import { apiGet, parseField } from "../../utils/api";
+import { useAuth } from "../../utils/AuthContext";
 
 function StatCard({ title, value, icon, loading }) {
   return (
@@ -41,16 +42,27 @@ function QuickLink({ to, label }) {
 }
 
 export default function TeacherHomeSummary({ userId }) {
+  const { school } = useAuth();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!userId) return;
     apiGet(`/users/${userId}/courses/teaching`)
-      .then((data) => setCourses(data?.items ?? []))
+      .then((data) => {
+        const schoolId = school?.id;
+        const items = data?.items ?? [];
+        const filtered = schoolId == null
+          ? items
+          : items.filter((item) => {
+              const course = parseField(item, "course") ?? item;
+              return String(course?.school_id ?? item?.school_id ?? "") === String(schoolId);
+            });
+        setCourses(filtered);
+      })
       .catch(() => setCourses([]))
       .finally(() => setLoading(false));
-  }, [userId]);
+  }, [userId, school?.id]);
 
   return (
     <div className="space-y-6">
