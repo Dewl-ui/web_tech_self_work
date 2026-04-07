@@ -1,33 +1,39 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { FiSearch, FiEdit2, FiUsers } from "react-icons/fi";
+import { Link, useParams } from "react-router-dom";
+import { FiEdit2, FiSearch, FiUsers } from "react-icons/fi";
 import { apiGet, parseField } from "../../utils/api";
-import { useToast } from "../../components/ui/Toast";
-import { Input } from "../../components/ui/Input";
-import { Badge } from "../../components/ui/Badge";
-import { Button } from "../../components/ui/Button";
-import {
-  Card, CardHeader, CardTitle, CardDescription, CardContent,
-} from "../../components/ui/Card";
-import {
-  Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
-} from "../../components/ui/Table";
+import { useToast } from "../../components/ui";
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui";
+
+function getUserFullName(user) {
+  return [user?.last_name, user?.first_name].filter(Boolean).join(" ").trim();
+}
 
 export default function CourseUserList() {
   const { course_id } = useParams();
   const toast = useToast();
 
+  const [courseName, setCourseName] = useState("");
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
 
   useEffect(() => {
+    if (!course_id) return;
+
     async function load() {
       try {
         setLoading(true);
-        const data = await apiGet(`/courses/${course_id}/users`);
-        setUsers(data?.items ?? (Array.isArray(data) ? data : []));
+        setError("");
+
+        const [courseRes, courseUsersRes] = await Promise.all([
+          apiGet(`/courses/${course_id}`).catch(() => ({})),
+          apiGet(`/courses/${course_id}/users`),
+        ]);
+
+        setCourseName(courseRes?.name ?? `Хичээл #${course_id}`);
+        setUsers(courseUsersRes?.items ?? []);
       } catch (err) {
         const msg = err.message || "Хэрэглэгчдийг ачааллахад алдаа гарлаа.";
         setError(msg);
@@ -36,42 +42,51 @@ export default function CourseUserList() {
         setLoading(false);
       }
     }
+
     load();
-  }, [course_id]);
+  }, [course_id, toast]);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return users;
     const q = search.toLowerCase();
-    return users.filter((u) => {
-      const name = `${u.first_name || ""} ${u.last_name || ""}`.toLowerCase();
+
+    return users.filter((item) => {
+      const user = parseField(item, "user") ?? item.user ?? item;
+      const fullName = getUserFullName(user).toLowerCase();
+
       return (
-        name.includes(q) ||
-        String(u.email || "").toLowerCase().includes(q) ||
-        String(u.username || "").toLowerCase().includes(q)
+        fullName.includes(q) ||
+        String(user?.email ?? "").toLowerCase().includes(q) ||
+        String(user?.username ?? "").toLowerCase().includes(q)
       );
     });
   }, [users, search]);
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="mx-auto max-w-6xl space-y-6">
+      <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-700">
             <FiUsers className="h-5 w-5" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-zinc-900">Хичээлийн хэрэглэгчид</h1>
-            <p className="text-sm text-zinc-500">Хичээл ID: {course_id}</p>
+            <p className="text-sm text-zinc-500">{courseName || `Хичээл #${course_id}`}</p>
           </div>
         </div>
-        <Link to={`/team4/courses/${course_id}/users/edit`}>
-          <Button>
-            <FiEdit2 className="h-4 w-4" /> Хэрэглэгч удирдах
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link to={`/team4/courses/${course_id}/users/edit`}>
+            <Button>
+              <FiEdit2 className="h-4 w-4" />
+              Хэрэглэгч удирдах
+            </Button>
+          </Link>
+          <Link to="/team4/teacher">
+            <Button variant="outline">Буцах</Button>
+          </Link>
+        </div>
       </div>
 
-      {/* Search */}
       <Card>
         <CardContent className="px-4 pb-4 pt-5">
           <div className="relative w-full max-w-sm">
@@ -86,7 +101,6 @@ export default function CourseUserList() {
         </CardContent>
       </Card>
 
-      {/* List */}
       <Card>
         <CardHeader>
           <CardTitle>Жагсаалт</CardTitle>
@@ -111,7 +125,6 @@ export default function CourseUserList() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
                   <TableHead>Нэр</TableHead>
                   <TableHead>Имэйл</TableHead>
                   <TableHead>Username</TableHead>
@@ -119,21 +132,17 @@ export default function CourseUserList() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map((u) => {
-                  const group = parseField(u, "group");
+                {filtered.map((item) => {
+                  const user = parseField(item, "user") ?? item.user ?? item;
+                  const group = parseField(item, "group") ?? item.group ?? null;
+                  const fullName = getUserFullName(user) || user?.username || `Хэрэглэгч #${item.user_id ?? item.id}`;
+
                   return (
-                    <TableRow key={u.id ?? u.user_id}>
-                      <TableCell>{u.id ?? u.user_id}</TableCell>
-                      <TableCell className="font-medium text-zinc-900">
-                        {[u.last_name, u.first_name].filter(Boolean).join(" ") || "—"}
-                      </TableCell>
-                      <TableCell>{u.email || "—"}</TableCell>
-                      <TableCell>{u.username || "—"}</TableCell>
-                      <TableCell>
-                        {group?.name ? (
-                          <Badge variant="secondary">{group.name}</Badge>
-                        ) : "—"}
-                      </TableCell>
+                    <TableRow key={item.id ?? `${item.course_id}-${item.user_id}`}>
+                      <TableCell className="font-medium text-zinc-900">{fullName}</TableCell>
+                      <TableCell>{user?.email || "—"}</TableCell>
+                      <TableCell>{user?.username || "—"}</TableCell>
+                      <TableCell>{group?.name || "Бүлэггүй"}</TableCell>
                     </TableRow>
                   );
                 })}
