@@ -4,13 +4,16 @@
 ### ============================================================
 
 @baseUrl = https://todu.mn/bs/lms/v1
-@token = 9nMygePbUeYhO9kt7ibQ7w
-@userId = 732
-@schoolId = 1
+@token = JqqDLIYF4Hpo9LM1ErR6CA
+@userId = 535
+@schoolId = 2
 @courseId = 1
 @groupId = 1
-@roleId = 41
+@roleId = 20
 
+# Багшийн мэдээлэл
+@teacherId = 41
+@teacherUsername = schoolteacher
 
 ### ============================================================
 ### 1. НЭВТРЭХ / ГАРАХ (Authentication)
@@ -22,7 +25,7 @@ POST {{baseUrl}}/token/email
 Content-Type: application/json
 
 {
-  "email": "schoolstudent@must.edu.mn" ,
+  "email": "admin@must.edu.mn" ,
   "password": "123",
   "push_token": ""
 }
@@ -138,8 +141,7 @@ Content-Type: application/json
 ###
 
 ### 3.3 Хэрэглэгчийн мэдээлэл харах  [GET /users/:user_id]
-# GET {{baseUrl}}/users/{{userId}}
-GET {{baseUrl}}/users/121
+GET {{baseUrl}}/users/535
 Authorization: Bearer {{token}}
 
 ###
@@ -172,16 +174,14 @@ Content-Type: application/json
 
 ###
 
-  ### 3.6 Хэрэглэгчийн бүртгэлтэй сургуулиуд  [GET /users/:user_id/schools]
-  # GET {{baseUrl}}/users/{{userId}}/schools
-  GET {{baseUrl}}/users/539/schools
-  Authorization: Bearer {{token}}
+### 3.6 Хэрэглэгчийн бүртгэлтэй сургуулиуд  [GET /users/:user_id/schools]
+GET {{baseUrl}}/users/535/schools
+Authorization: Bearer {{token}}
 
 ###
 
 ### 3.7 Хэрэглэгчийн хичээлүүд  [GET /users/:user_id/courses]
-# GET {{baseUrl}}/users/{{userId}}/courses
-GET {{baseUrl}}/users/539/courses
+GET {{baseUrl}}/users/41/courses
 Authorization: Bearer {{token}}
 
 ###
@@ -304,7 +304,7 @@ Content-Type: application/json
 ### ============================================================
 
 ### 6.1 Сургуулийн хэрэглэгчдийн жагсаалт  [GET /schools/:school_id/users]
-GET {{baseUrl}}/schools/{{userId}}/users
+GET {{baseUrl}}/schools/{{schoolId}}/users
 Authorization: Bearer {{token}}
 
 ###
@@ -348,7 +348,6 @@ Authorization: Bearer {{token}}
 ###
 
 ### 6.6 Гишүүнчлэлийн хүсэлт зөвшөөрөх  [POST /schools/:school_id/requests/:request_id]
-# @name approveSchoolRequest
 POST {{baseUrl}}/schools/{{schoolId}}/requests/1
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -372,6 +371,71 @@ Content-Type: application/json
 
 ### 6.8 Сургуулийн багш нарын жагсаалт  [GET /schools/:school_id/teachers]
 GET {{baseUrl}}/schools/{{schoolId}}/teachers
+Authorization: Bearer {{token}}
+
+###
+
+### ============================================================
+### 6.9 ⭐ СУРГУУЛЬД БАГШ НЭМЭХ  [POST /schools/:school_id/users]
+### Тайлбар: role_id=20 → багш, username-ийг @teacherUsername-аас авна
+### ============================================================
+
+### [A] Багшийн username олох (нэвтрэх эрхийг шалгах)
+GET {{baseUrl}}/users/{{teacherId}}
+Authorization: Bearer {{token}}
+
+###
+
+### [B] Багшийг сургуульд нэмэх — role_id: 20 (teacher)
+POST {{baseUrl}}/schools/{{schoolId}}/users
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "username": "{{teacherUsername}}",
+  "role_id": "20",
+  "current_user": "{{userId}}"
+}
+
+###
+
+### [C] Нэмэгдсэн эсэхийг шалгах — сургуулийн багш нарын жагсаалт
+GET {{baseUrl}}/schools/{{{schoolId}}}/teachers
+Authorization: Bearer {{token}}
+
+###
+
+### ============================================================
+### 6.10 ⭐ СУРГУУЛИЙН ХИЧЭЭЛД БАГШ НЭМЭХ  [POST /courses/:course_id/users]
+### Тайлбар: хичээлд оюутан болон багш аль алиныг нэмж болно
+### ============================================================
+
+### [D] Сургуулийн хичээлүүд харах — course_id олох
+GET {{baseUrl}}/schools/{{schoolId}}/courses
+Authorization: Bearer {{token}}
+
+###
+
+### [E] Хичээлийн одоогийн хэрэглэгчид харах
+GET {{baseUrl}}/courses/{{courseId}}/users
+Authorization: Bearer {{token}}
+
+###
+
+### [F] Хичээлд багш нэмэх — POST /courses/:course_id/users
+POST {{baseUrl}}/courses/{{courseId}}/users
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "user_id": "{{teacherId}}",
+  "current_user": "{{userId}}"
+}
+
+###
+
+### [G] Нэмэгдсэн эсэхийг шалгах — багшийн хичээлүүд
+GET {{baseUrl}}/users/{{teacherId}}/courses
 Authorization: Bearer {{token}}
 
 ###
@@ -474,3 +538,64 @@ DELETE {{baseUrl}}/groups/{{groupId}}
 Authorization: Bearer {{token}}
 
 ###
+
+
+
+@baseUrl = https://todu.mn/bs/lms/v1
+@token = JqqDLIYF4Hpo9LM1ErR6CA
+@adminId = 535
+@schoolId = 2
+@teacherId = 41
+
+### Алхам 1: Сургуулийн хичээлүүд шалгах (хоосон эсэх)
+GET {{baseUrl}}/schools/{{schoolId}}/courses
+Authorization: Bearer {{token}}
+
+###
+
+### Алхам 2: Шинэ хичээл үүсгэх — POST /schools/:school_id/courses
+POST {{baseUrl}}/schools/{{schoolId}}/courses
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Веб систем ба технологи",
+  "description": "F.ITM301",
+  "priority": "1",
+  "category_id": 200,
+  "start_on": "2026-04-06T00:00:00Z",
+  "current_user": "{{adminId}}"
+}
+
+###
+
+### Алхам 3: Үүссэн хичээлийн ID шалгах
+GET {{baseUrl}}/schools/{{schoolId}}/courses
+Authorization: Bearer {{token}}
+
+###
+
+### Алхам 4: Тэр хичээлд багш нэмэх
+### ⬇ courseId-г алхам 3-ийн хариунаас авна
+@courseId = 221
+
+POST {{baseUrl}}/courses/{{courseId}}/users
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "user_id": "{{teacherId}}",
+  "current_user": "{{adminId}}"
+}
+
+###
+
+### Алхам 5: Багш нэмэгдсэн эсэх шалгах
+GET {{baseUrl}}/courses/{{courseId}}/users
+Authorization: Bearer {{token}}
+
+###
+
+### Алхам 6: Багшийн хичээлүүд шалгах
+GET {{baseUrl}}/users/{{teacherId}}/courses
+Authorization: Bearer {{token}}

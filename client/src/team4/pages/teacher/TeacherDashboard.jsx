@@ -3,10 +3,8 @@ import { useAuth } from "../../utils/AuthContext";
 import { apiGet, parseField } from "../../utils/api";
 
 const DAY_SHORT = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
-const DAY_MN    = ["Ням", "Дав", "Мяг", "Лха", "Пүр", "Баа", "Бям"];
 const MONTH_MN  = ["1-р сар","2-р сар","3-р сар","4-р сар","5-р сар","6-р сар",
                    "7-р сар","8-р сар","9-р сар","10-р сар","11-р сар","12-р сар"];
-const HOURS     = Array.from({ length: 8 }, (_, i) => i + 1);
 
 const SEMESTER_START = new Date("2026-01-26");
 const MAX_WEEKS = 18;
@@ -47,8 +45,44 @@ const EVENT_COLORS = [
   { bg: "bg-amber-100",  text: "text-amber-700",  border: "border-amber-200",  dot: "bg-amber-500"  },
 ];
 
+function apiWeekdayToJsDay(weekday) {
+  if (weekday == null) return null;
+  return Number(weekday) === 7 ? 0 : Number(weekday);
+}
+
+function getEventTime(tt) {
+  const period = parseField(tt, "period") ?? tt.period ?? null;
+  const periodNo = Number(period?.no ?? tt.period_no ?? tt.no ?? 0);
+  const startTime = period?.start_time ?? tt.start_time ?? null;
+  const [hourPart = "0", minutePart = "0"] = String(startTime ?? "0:0").split(":");
+
+  return {
+    slot: periodNo || Number(tt.period_id ?? 0),
+    hour24: Number(hourPart),
+    minute: Number(minutePart),
+    timeLabel: startTime ? String(startTime).slice(0, 5) : null,
+  };
+}
+
 // ── Shared Hour Grid (day or week) ────────────────────────────────────────────
-function HourGrid({ dates, timetable, today }) {
+function HourGrid({ dates, timetable, today, periods }) {
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const slots = (periods?.length
+    ? periods.map((period) => ({
+        slot: Number(period.no ?? period.priority ?? period.id),
+        label: period.name ?? `${period.no}-р пар`,
+        timeLabel: [period.start_time, period.end_time].filter(Boolean).join(" - "),
+      }))
+    : Array.from(
+        new Map(
+          timetable
+            .filter((event) => event.slot != null)
+            .sort((a, b) => a.slot - b.slot)
+            .map((event) => [event.slot, event])
+        ).values()
+      )
+    );
+
   return (
     <div className="overflow-x-auto">
       <div style={{ minWidth: dates.length === 1 ? 320 : 680 }}>
@@ -79,56 +113,104 @@ function HourGrid({ dates, timetable, today }) {
         </div>
 
         {/* Hour rows */}
-        {HOURS.map(hour => (
+        {slots.map((slot) => (
           <div
-            key={hour}
+            key={slot.slot}
             className="grid border-b border-zinc-50 min-h-[54px]"
             style={{ gridTemplateColumns: `44px repeat(${dates.length}, 1fr) 44px` }}
           >
-            <div className="flex items-start pt-2 justify-center">
-              <span className="text-[10px] text-zinc-300 font-medium">{hour}</span>
+            <div className="flex flex-col items-center justify-center gap-0.5 px-1 text-center">
+              <span className="text-[10px] font-medium text-zinc-400">{slot.slot}</span>
+              {slot.timeLabel && (
+                <span className="text-[8px] text-zinc-300">{slot.timeLabel}</span>
+              )}
             </div>
             {dates.map((date, di) => {
               const isToday = date.toDateString() === today.toDateString();
               const isWknd  = date.getDay() === 0 || date.getDay() === 6;
-              const evs = timetable.filter(e => e.day === date.getDay() && e.hour === hour);
+              const evs = timetable.filter((event) => event.day === date.getDay() && event.slot === slot.slot);
               return (
                 <div
                   key={di}
-                  className={`border-l border-zinc-50 px-0.5 py-0.5 ${isWknd ? "bg-zinc-50/50" : ""} ${isToday ? "bg-blue-50/30" : ""}`}
+                  className={`min-w-0 overflow-hidden border-l border-zinc-50 px-0.5 py-0.5 ${isWknd ? "bg-zinc-50/50" : ""} ${isToday ? "bg-blue-50/30" : ""}`}
                 >
                   {evs.map((ev, ei) => {
                     const col = EVENT_COLORS[ev.colorIdx];
-                    const h12 = ev.hour > 12 ? ev.hour - 12 : ev.hour;
-                    const ampm = ev.hour >= 12 ? "PM" : "AM";
-                    const timeStr = `${String(h12).padStart(2,"0")}:${String(ev.minute ?? 0).padStart(2,"0")} ${ampm}`;
+                    const h12 = ev.hour24 > 12 ? ev.hour24 - 12 : ev.hour24 || 12;
+                    const ampm = ev.hour24 >= 12 ? "PM" : "AM";
+                    const timeStr = ev.timeLabel ?? `${String(h12).padStart(2,"0")}:${String(ev.minute ?? 0).padStart(2,"0")} ${ampm}`;
                     return (
-                      <div key={ei} className={`rounded-md border px-1.5 py-1 mb-0.5 cursor-pointer hover:brightness-95 transition-all ${col.bg} ${col.border}`}>
-                        <p className={`text-[9px] font-semibold flex items-center gap-1 ${col.text}`}>
-                          <span className={`inline-block h-1.5 w-1.5 rounded-full ${col.dot}`} />
-                          {timeStr}
+                      <button
+                        type="button"
+                        key={ei}
+                        onClick={() => setSelectedEvent({ ...ev, timeStr })}
+                        className={`mb-0.5 block h-[44px] w-full min-w-0 overflow-hidden rounded-md border px-1.5 py-1 text-left transition-all hover:brightness-95 ${col.bg} ${col.border}`}
+                      >
+                        <div className={`flex min-w-0 items-center justify-between gap-2 text-[9px] font-semibold ${col.text}`}>
+                          <p className="flex min-w-0 items-center gap-1 truncate whitespace-nowrap">
+                            <span className={`inline-block h-1.5 w-1.5 rounded-full ${col.dot}`} />
+                            {timeStr}
+                          </p>
+                          <span className="shrink-0 truncate whitespace-nowrap">{ev.type}</span>
+                        </div>
+                        <p className={`truncate whitespace-nowrap text-[10px] font-medium ${col.text}`}>
+                          {ev.name}
                         </p>
-                        <p className={`text-[10px] font-medium truncate ${col.text}`}>
-                          {ev.name} – {ev.type}
-                        </p>
-                      </div>
+                      </button>
                     );
                   })}
                 </div>
               );
             })}
-            <div className="border-l border-zinc-50 flex items-center justify-center">
-              <span className="text-[9px] text-zinc-200">{hour}</span>
+            <div className="border-l border-zinc-50 flex flex-col items-center justify-center gap-0.5 px-1 text-center">
+              <span className="text-[9px] text-zinc-200">{slot.slot}</span>
+              {slot.label && (
+                <span className="text-[8px] text-zinc-200">{slot.label}</span>
+              )}
             </div>
           </div>
         ))}
       </div>
+      {selectedEvent && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
+          onClick={() => setSelectedEvent(null)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl border border-zinc-200 bg-white p-4 shadow-xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="mb-3 flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-medium text-zinc-400">{selectedEvent.timeStr}</p>
+                <h3 className="text-sm font-semibold text-zinc-900">{selectedEvent.name}</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedEvent(null)}
+                className="text-sm text-zinc-400 transition-colors hover:text-zinc-700"
+              >
+                Хаах
+              </button>
+            </div>
+            <div className="space-y-2 text-sm text-zinc-600">
+              <p><span className="font-medium text-zinc-800">Төрөл:</span> {selectedEvent.type}</p>
+              <p><span className="font-medium text-zinc-800">Пар:</span> {selectedEvent.slot}</p>
+              {selectedEvent.timeLabel && (
+                <p><span className="font-medium text-zinc-800">Цаг:</span> {selectedEvent.timeLabel}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 // ── Month view ────────────────────────────────────────────────────────────────
 function MonthGrid({ year, month, timetable, today }) {
+  const [expandedDateKey, setExpandedDateKey] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const days = getMonthDays(year, month);
   const weeks = [];
   for (let i = 0; i < days.length; i += 7) weeks.push(days.slice(i, i + 7));
@@ -151,32 +233,84 @@ function MonthGrid({ year, month, timetable, today }) {
               if (!date) return <div key={di} className="min-h-[72px] border-l border-zinc-50 bg-zinc-50/30" />;
               const isToday = date.toDateString() === today.toDateString();
               const isWknd  = date.getDay() === 0 || date.getDay() === 6;
-              const evs = timetable.filter(e => e.day === date.getDay());
+              const evs = timetable.filter((event) => event.day === date.getDay());
+              const dateKey = date.toISOString().slice(0, 10);
+              const isExpanded = expandedDateKey === dateKey;
+              const visibleEvents = isExpanded ? evs : evs.slice(0, 2);
               return (
-                <div
+                <button
+                  type="button"
                   key={di}
-                  className={`min-h-[72px] border-l border-zinc-50 p-1 ${isWknd ? "bg-zinc-50/50" : ""} ${isToday ? "bg-blue-50/40" : ""}`}
+                  onClick={() => setExpandedDateKey(isExpanded ? null : dateKey)}
+                  className={`min-h-[72px] border-l border-zinc-50 p-1 text-left transition-colors ${isWknd ? "bg-zinc-50/50" : ""} ${isToday ? "bg-blue-50/40" : ""} hover:bg-zinc-50`}
                 >
-                  <p className={`text-xs font-bold mb-1 ${isToday ? "text-blue-600" : isWknd ? "text-zinc-400" : "text-zinc-700"}`}>
-                    {date.getDate()}
-                  </p>
-                  {evs.slice(0, 2).map((ev, ei) => {
-                    const col = EVENT_COLORS[ev.colorIdx];
-                    return (
-                      <div key={ei} className={`rounded text-[9px] px-1 py-0.5 mb-0.5 truncate font-medium ${col.bg} ${col.text}`}>
-                        {ev.name}
-                      </div>
-                    );
-                  })}
-                  {evs.length > 2 && (
-                    <p className="text-[9px] text-zinc-400">+{evs.length - 2}</p>
+                  <div className="mb-1 flex items-center justify-between gap-2">
+                    <p className={`text-xs font-bold ${isToday ? "text-blue-600" : isWknd ? "text-zinc-400" : "text-zinc-700"}`}>
+                      {date.getDate()}
+                    </p>
+                    {evs.length > 2 && (
+                      <span className="text-[9px] text-zinc-400">{isExpanded ? "Хураах" : `+${evs.length - 2}`}</span>
+                    )}
+                  </div>
+                  <div className={isExpanded ? "max-h-28 overflow-y-auto pr-1" : ""}>
+                    {visibleEvents.map((ev, ei) => {
+                      const col = EVENT_COLORS[ev.colorIdx];
+                      return (
+                        <button
+                          type="button"
+                          key={ei}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setSelectedEvent(ev);
+                          }}
+                          className={`mb-0.5 block w-full truncate rounded px-1 py-0.5 text-left text-[9px] font-medium ${col.bg} ${col.text}`}
+                        >
+                          {ev.timeLabel ? `${ev.timeLabel} ` : ""}{ev.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {evs.length === 0 && (
+                    <p className="text-[9px] text-zinc-300">Хичээлгүй</p>
                   )}
-                </div>
+                </button>
               );
             })}
           </div>
         ))}
       </div>
+      {selectedEvent && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
+          onClick={() => setSelectedEvent(null)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl border border-zinc-200 bg-white p-4 shadow-xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="mb-3 flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-medium text-zinc-400">{selectedEvent.timeLabel ?? "Цаггүй"}</p>
+                <h3 className="text-sm font-semibold text-zinc-900">{selectedEvent.name}</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedEvent(null)}
+                className="text-sm text-zinc-400 transition-colors hover:text-zinc-700"
+              >
+                Хаах
+              </button>
+            </div>
+            <div className="space-y-2 text-sm text-zinc-600">
+              <p><span className="font-medium text-zinc-800">Төрөл:</span> {selectedEvent.type}</p>
+              <p><span className="font-medium text-zinc-800">Пар:</span> {selectedEvent.slot}</p>
+              {selectedEvent.timeLabel && (
+                <p><span className="font-medium text-zinc-800">Цаг:</span> {selectedEvent.timeLabel}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -186,10 +320,14 @@ export default function TeacherDashboard() {
   const { user, school } = useAuth();
   const [semWeek, setSemWeek]   = useState(getCurrentSemesterWeek);
   const [timetable, setTimetable] = useState([]);
+  const [periods, setPeriods]   = useState([]);
   const [view, setView]         = useState("өдөр");   // өдөр | 7 хоног | сар
   const [loading, setLoading]   = useState(true);
+  const [dayOffset, setDayOffset] = useState(0);
 
   const today    = new Date();
+  const dayDate  = new Date(today);
+  dayDate.setDate(today.getDate() + dayOffset);
   const weekDates = getWeekDates(semWeek);
 
   // For month navigation
@@ -199,19 +337,25 @@ export default function TeacherDashboard() {
   const monthMonth = monthDate.getMonth();
 
   // canGo* depends on view
-  const canGoPrev = view === "сар"
+  const canGoPrev = view === "өдөр"
     ? true
-    : semWeek > 1;
-  const canGoNext = view === "сар"
+    : view === "сар"
+      ? true
+      : semWeek > 1;
+  const canGoNext = view === "өдөр"
     ? true
-    : semWeek < MAX_WEEKS;
+    : view === "сар"
+      ? true
+      : semWeek < MAX_WEEKS;
 
   function handlePrev() {
-    if (view === "сар") setMonthOffset(o => o - 1);
+    if (view === "өдөр") setDayOffset((offset) => offset - 1);
+    else if (view === "сар") setMonthOffset(o => o - 1);
     else if (canGoPrev) setSemWeek(w => w - 1);
   }
   function handleNext() {
-    if (view === "сар") setMonthOffset(o => o + 1);
+    if (view === "өдөр") setDayOffset((offset) => offset + 1);
+    else if (view === "сар") setMonthOffset(o => o + 1);
     else if (canGoNext) setSemWeek(w => w + 1);
   }
 
@@ -222,7 +366,7 @@ export default function TeacherDashboard() {
     }
     const opts = { month: "short", day: "numeric" };
     if (view === "өдөр") {
-      return today.toLocaleDateString("en", { month: "long", day: "numeric", year: "numeric" });
+      return dayDate.toLocaleDateString("en", { month: "long", day: "numeric", year: "numeric" });
     }
     const start = weekDates[0];
     const end   = weekDates[6];
@@ -231,14 +375,24 @@ export default function TeacherDashboard() {
 
   // Load timetable from API
   useEffect(() => {
-    if (!user?.id) return;
-    apiGet(`/users/${user.id}/courses/teaching`).then(async (data) => {
-      const schoolId = school?.id;
-      const items = (data?.items ?? []).filter((item) => {
-        if (schoolId == null) return true;
+    if (!user?.id || !school?.id) return;
+
+    setLoading(true);
+
+    Promise.all([
+      apiGet(`/schools/${school.id}/periods`).catch(() => ({ items: [] })),
+      apiGet(`/users/${user.id}/courses/teaching`).catch(() => ({ items: [] })),
+    ]).then(async ([periodsData, coursesData]) => {
+      const schoolPeriods = (periodsData?.items ?? [])
+        .slice()
+        .sort((a, b) => Number(a.no ?? a.priority ?? a.id) - Number(b.no ?? b.priority ?? b.id));
+      setPeriods(schoolPeriods);
+
+      const items = (coursesData?.items ?? []).filter((item) => {
         const course = parseField(item, "course") ?? item;
-        return String(course?.school_id ?? item?.school_id ?? "") === String(schoolId);
+        return String(course?.school_id ?? item?.school_id ?? "") === String(school.id);
       });
+
       const allEvents = [];
       for (const item of items) {
         const c   = parseField(item, "course") ?? item;
@@ -247,14 +401,16 @@ export default function TeacherDashboard() {
         try {
           const ttData = await apiGet(`/courses/${cId}/timetables`);
           (ttData?.items ?? []).forEach((tt, idx) => {
+            const lessonType = parseField(tt, "lesson_type") ?? tt.lesson_type ?? null;
+            const eventTime = getEventTime(tt);
             allEvents.push({
               name,
-              day:      tt.weekday ?? (idx % 7),
-              hour:     tt.period_id ?? (idx % 6 + 2),
-              minute:   0,
-              type:     (() => {
-                try { return JSON.parse(tt["{}lesson_type"])?.name ?? "Лекц"; } catch { return "Лекц"; }
-              })(),
+              day: apiWeekdayToJsDay(tt.weekday ?? idx % 7),
+              slot: eventTime.slot,
+              hour24: eventTime.hour24,
+              minute: eventTime.minute,
+              timeLabel: eventTime.timeLabel,
+              type: lessonType?.name ?? "Лекц",
               colorIdx: idx % 4,
             });
           });
@@ -266,7 +422,7 @@ export default function TeacherDashboard() {
 
   // Which dates to show in day/week view
   const displayDates = view === "өдөр"
-    ? [today]
+    ? [dayDate]
     : weekDates;
 
   return (
@@ -322,6 +478,7 @@ export default function TeacherDashboard() {
             dates={displayDates}
             timetable={timetable}
             today={today}
+            periods={periods}
           />
         )}
       </div>

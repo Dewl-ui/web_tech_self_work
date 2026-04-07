@@ -7,10 +7,11 @@
 @baseUrl = https://todu.mn/bs/lms/v1
 
 # Paste token from auth.http login response:
-@token = PASTE_TOKEN_HERE
+@token = gZVUNx-ZR-ah3aWQ2bIHIg
 @currentUser = 1
-@schoolId = 1
+@schoolId = 2
 @userId = 2
+@teacherId = 41
 
 # -----------------------------------------------------------------------------
 ### Get all schools (list for school-select screen)
@@ -71,8 +72,8 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "user_id": {{userId}},
-  "role_id": 2,
+  "user_id": {{teacherId}},
+  "role_id": 20,
   "current_user": {{currentUser}}
 }
 
