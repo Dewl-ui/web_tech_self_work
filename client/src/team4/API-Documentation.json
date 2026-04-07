@@ -20,7 +20,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -92,24 +94,28 @@
       "put": {
         "description": "Ирцийн төрлийн мэдээллийг өөрчилнө",
         "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
-          },
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -161,25 +167,40 @@
     "/categories/{category_id}": {
       "put": {
         "description": "Ангиллын мэдээллийг өөрчилнө",
-        "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
+        "security": [
+          {
+            "BasicAuth": []
           },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
+        "responses": {
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -209,6 +230,17 @@
       },
       "get": {
         "description": "Ангиллын дэлгэрэнгүй мэдээлэл авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -268,6 +300,17 @@
       },
       "delete": {
         "description": "Ангилал устгана",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "204": {
             "description": "Deleted result."
@@ -290,6 +333,17 @@
     "/categories/{category_id}/courses": {
       "get": {
         "description": "Тухайн ангилал дах хичээлүүдийг авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -380,6 +434,17 @@
     "/categories/{category_id}/courses/{course_id}": {
       "delete": {
         "description": "Хичээлийг ангиллаас хасна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "204": {
             "description": "Deleted result."
@@ -421,6 +486,17 @@
     "/courses/{course_id}": {
       "get": {
         "description": "Хичээлийн дэлгэрэнгүй мэдээллийг авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -501,25 +577,40 @@
       },
       "put": {
         "description": "Хичээлийн мэдээллийг өөрчилнө",
-        "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
+        "security": [
+          {
+            "BasicAuth": []
           },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
+        "responses": {
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -549,6 +640,17 @@
       },
       "delete": {
         "description": "Хичээлийг устгана",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "204": {
             "description": "Deleted result."
@@ -569,6 +671,17 @@
       },
       "post": {
         "description": "Хичээлийг хувилж үүсгэнэ",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "201": {
             "description": "The successfully created record.",
@@ -576,7 +689,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -608,6 +723,17 @@
     "/courses/{course_id}/attendance-points": {
       "get": {
         "description": "Ирцийн оноонуудыг авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -669,6 +795,17 @@
       },
       "post": {
         "description": "Ирцийн оноо нэмнэ",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "201": {
             "description": "The successfully created record.",
@@ -676,7 +813,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -708,6 +847,17 @@
     "/courses/{course_id}/attendances": {
       "get": {
         "description": "Хичээлийн ирцүүдийг авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -771,6 +921,17 @@
     "/courses/{course_id}/exams": {
       "get": {
         "description": "Хичээлийн шалгалтуудыг авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -844,6 +1005,17 @@
       },
       "post": {
         "description": "Хичээлд шалгалт нэмнэ",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "201": {
             "description": "The successfully created record.",
@@ -851,7 +1023,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -883,6 +1057,17 @@
     "/courses/{course_id}/gradebook": {
       "get": {
         "description": "Явцын дүнгүүдийг авна.",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -895,7 +1080,9 @@
                       "type": "array",
                       "items": {
                         "type": "object",
-                        "properties": {}
+                        "properties": {
+
+                        }
                       }
                     }
                   }
@@ -921,6 +1108,17 @@
     "/courses/{course_id}/gradebook/attendances": {
       "get": {
         "description": "Ирцийн дүнгүүдийг авна.",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -975,6 +1173,17 @@
     "/courses/{course_id}/gradebook/exams": {
       "get": {
         "description": "Шалгалтын дүнгүүдийг авна.",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -1026,6 +1235,17 @@
     "/courses/{course_id}/gradebook/submissions": {
       "get": {
         "description": "Даалгаврын дүнгүүдийг авна.",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -1077,6 +1297,17 @@
     "/courses/{course_id}/groups": {
       "get": {
         "description": "Хичээлийн багуудыг авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -1138,6 +1369,17 @@
       },
       "post": {
         "description": "Хичээлд баг нэмнэ",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "201": {
             "description": "The successfully created record.",
@@ -1145,7 +1387,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -1177,6 +1421,17 @@
     "/courses/{course_id}/lessons": {
       "get": {
         "description": "Хичээлийн агуулгуудыг авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -1253,6 +1508,17 @@
       },
       "post": {
         "description": "Хичээлийн агуулга нэмнэ",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "201": {
             "description": "The successfully created record.",
@@ -1260,7 +1526,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -1292,6 +1560,17 @@
     "/courses/{course_id}/question-points": {
       "get": {
         "description": "Асуултын оноонуудыг авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -1353,6 +1632,17 @@
       },
       "post": {
         "description": "Асуултын оноо нэмнэ",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "201": {
             "description": "The successfully created record.",
@@ -1360,7 +1650,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -1392,6 +1684,17 @@
     "/courses/{course_id}/questions": {
       "post": {
         "description": "Асуулт нэмнэ",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "201": {
             "description": "The successfully created record.",
@@ -1399,7 +1702,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -1429,6 +1734,17 @@
       },
       "get": {
         "description": "Асуултууд авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -1507,6 +1823,17 @@
     "/courses/{course_id}/questions/summary": {
       "get": {
         "description": "Хичээлийн асуултуудыг сэдэв, түвшин, төрлөөр нь тоолно.",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -1558,6 +1885,17 @@
     "/courses/{course_id}/timetables": {
       "get": {
         "description": "Хичээлийн хуваарийн сонголтуудыг авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -1642,6 +1980,17 @@
       },
       "post": {
         "description": "Хичээлийн хуваарийн мөр нэмнэ",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "201": {
             "description": "The successfully created record.",
@@ -1649,7 +1998,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -1681,6 +2032,17 @@
     "/courses/{course_id}/timetables/my": {
       "get": {
         "description": "Миний сонгосон хуваарийн мөрүүдийг авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -1741,6 +2103,17 @@
       },
       "post": {
         "description": "Хуваарийн мөр сонгоно",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "201": {
             "description": "The successfully created record.",
@@ -1748,7 +2121,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -1780,6 +2155,17 @@
     "/courses/{course_id}/timetables/my/{timetable_id}": {
       "delete": {
         "description": "Сонгосон хуваарийн мөрөө цуцална",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "204": {
             "description": "Deleted result."
@@ -1821,6 +2207,17 @@
     "/courses/{course_id}/timetables/users": {
       "get": {
         "description": "Курсын бүх оюутны сонгосон хуваарийн мөрүүдийг авна (багш/админ)",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -1873,6 +2270,17 @@
       },
       "post": {
         "description": "Багш оюутанд хуваарийн мөр онооно (MERGE)",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "201": {
             "description": "The successfully created record.",
@@ -1880,7 +2288,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -1912,6 +2322,17 @@
     "/courses/{course_id}/timetables/users/{user_id}/{timetable_id}": {
       "delete": {
         "description": "Багш оюутны хуваарийн мөрийг устгана",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "204": {
             "description": "Deleted result."
@@ -1963,6 +2384,17 @@
     "/courses/{course_id}/users": {
       "get": {
         "description": "Хичээлийн хэрэглэгчдийг авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -2039,6 +2471,17 @@
       },
       "post": {
         "description": "Хичээлд хэрэглэгч нэмнэ",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "201": {
             "description": "The successfully created record.",
@@ -2046,7 +2489,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -2078,6 +2523,17 @@
     "/courses/{course_id}/users/{user_id}": {
       "get": {
         "description": "Хичээлийн хэрэглэгчийн мэдээллийг авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -2156,25 +2612,40 @@
       },
       "put": {
         "description": "Хичээлийн хэрэглэгчийн баг, багш эсвэл оюутан гэсэн мэдээллийг өөрчилнө.",
-        "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
+        "security": [
+          {
+            "BasicAuth": []
           },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
+        "responses": {
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -2214,6 +2685,17 @@
       },
       "delete": {
         "description": "Хэрэглэгчийг хичээлээс хасна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "204": {
             "description": "Deleted result."
@@ -2458,24 +2940,28 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
-          },
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -2612,7 +3098,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -2656,24 +3144,28 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
-          },
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -2868,7 +3360,9 @@
                       "type": "array",
                       "items": {
                         "type": "object",
-                        "properties": {}
+                        "properties": {
+
+                        }
                       }
                     }
                   }
@@ -3012,7 +3506,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -3170,7 +3666,9 @@
                       "type": "array",
                       "items": {
                         "type": "object",
-                        "properties": {}
+                        "properties": {
+
+                        }
                       }
                     }
                   }
@@ -3518,7 +4016,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -3578,7 +4078,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -3643,7 +4145,9 @@
                       "type": "array",
                       "items": {
                         "type": "object",
-                        "properties": {}
+                        "properties": {
+
+                        }
                       }
                     }
                   }
@@ -3697,7 +4201,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -3758,7 +4264,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -3823,7 +4331,9 @@
                       "type": "array",
                       "items": {
                         "type": "object",
-                        "properties": {}
+                        "properties": {
+
+                        }
                       }
                     }
                   }
@@ -3877,7 +4387,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -3993,24 +4505,28 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
-          },
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -4138,24 +4654,28 @@
       "put": {
         "description": "Хичээлийн өдөр/цагийн хуваарийг засна",
         "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
-          },
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -4261,7 +4781,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -4333,24 +4855,28 @@
       "put": {
         "description": "Хичээлийн төрлийн нэрийг өөрчилнө",
         "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
-          },
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -4402,25 +4928,40 @@
     "/lessons/{lesson_id}": {
       "put": {
         "description": "Хичээлийн агуулгын мэдээллийг өөрчилнө",
-        "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
+        "security": [
+          {
+            "BasicAuth": []
           },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
+        "responses": {
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -4450,6 +4991,17 @@
       },
       "get": {
         "description": "Хичээлийн агуулгын мэдээллийг авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -4521,6 +5073,17 @@
       },
       "delete": {
         "description": "Хичээлийн агуулгыг устгана",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "204": {
             "description": "Deleted result."
@@ -4543,6 +5106,17 @@
     "/lessons/{lesson_id}/attendances": {
       "post": {
         "description": "Хичээлийн агуулга дээр ирц бүртгэнэ",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "201": {
             "description": "The successfully created record.",
@@ -4550,7 +5124,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -4580,6 +5156,17 @@
       },
       "get": {
         "description": "Хичээлийн агуулгын ирцүүдийг авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -4643,6 +5230,17 @@
     "/lessons/{lesson_id}/attendances/{user_id}": {
       "delete": {
         "description": "Ирцийг устгана",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "204": {
             "description": "Deleted result."
@@ -4673,6 +5271,17 @@
       },
       "get": {
         "description": "Retrieve a record from v1",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -4736,25 +5345,40 @@
       },
       "put": {
         "description": "Ирцийн төрлийг өөрчилнө",
-        "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
+        "security": [
+          {
+            "BasicAuth": []
           },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
+        "responses": {
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -4796,6 +5420,17 @@
     "/lessons/{lesson_id}/submissions": {
       "post": {
         "description": "Create a new record on v1",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "201": {
             "description": "The successfully created record.",
@@ -4803,7 +5438,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -4833,6 +5470,17 @@
       },
       "get": {
         "description": "Хичээлийн агуулга дээр илгээсэн даалгавруудыг авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -4908,6 +5556,17 @@
     "/lessons/{lesson_id}/timetables": {
       "get": {
         "description": "Тухайн хичээлийн яг хэдний өдөр хэдээс хэдэн цагийн хооронд орох хуваарийг авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -4966,6 +5625,17 @@
       },
       "post": {
         "description": "Хичээлд орох тодорхой өдөр/цагийн хуваарь нэмнэ",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "201": {
             "description": "The successfully created record.",
@@ -4973,7 +5643,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -5012,7 +5684,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -5040,7 +5714,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -5068,7 +5744,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -5096,7 +5774,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -5157,25 +5837,40 @@
     "/periods/{period_id}": {
       "put": {
         "description": "Парын мэдээллийг засна",
-        "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
+        "security": [
+          {
+            "BasicAuth": []
           },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
+        "responses": {
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -5205,6 +5900,17 @@
       },
       "delete": {
         "description": "Пар устгана",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "204": {
             "description": "Deleted result."
@@ -5281,7 +5987,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -5382,24 +6090,28 @@
       "put": {
         "description": "Асуултын түвшний нэрийг өөрчилнө",
         "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
-          },
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -5485,7 +6197,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -5536,24 +6250,28 @@
       "put": {
         "description": "Асуултын төрлийн нэрийг өөрчилнө",
         "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
-          },
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -5742,24 +6460,28 @@
       "put": {
         "description": "Асуултын мэдээллийг өөрчилнө",
         "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
-          },
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -5831,6 +6553,17 @@
     "/roles": {
       "get": {
         "description": "Хэрэглэгчийн эрхүүдийг авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -5878,6 +6611,17 @@
       },
       "post": {
         "description": "Эрх нэмнэ",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "201": {
             "description": "The successfully created record.",
@@ -5885,7 +6629,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -5906,6 +6652,17 @@
     "/roles/{role_id}": {
       "delete": {
         "description": "Хэрэглэгчийн эрхийг устгана",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "204": {
             "description": "Deleted result."
@@ -5935,6 +6692,17 @@
       },
       "get": {
         "description": "Нэг эрхийн мэдээллийг авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -5985,25 +6753,40 @@
       },
       "put": {
         "description": "Эрхийн нэрийг өөрчилнө",
-        "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
+        "security": [
+          {
+            "BasicAuth": []
           },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
+        "responses": {
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -6125,7 +6908,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -6240,7 +7025,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -6279,7 +7066,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -6389,7 +7178,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -6410,6 +7201,17 @@
     "/schools/{school_id}": {
       "delete": {
         "description": "Сургууль устгана",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "204": {
             "description": "Deleted result."
@@ -6430,6 +7232,17 @@
       },
       "post": {
         "description": "Сургуулийг системд нэмэх хүсэлтийг зөвшөөрнө.",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "201": {
             "description": "The successfully created record.",
@@ -6437,7 +7250,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -6467,25 +7282,40 @@
       },
       "put": {
         "description": "Сургуулийн нэр, зураг, эрэмбийг өөрчилнө",
-        "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
+        "security": [
+          {
+            "BasicAuth": []
           },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
+        "responses": {
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -6515,6 +7345,17 @@
       },
       "get": {
         "description": "Сургуулийн мэдээлэл авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -6591,6 +7432,17 @@
     "/schools/{school_id}/bank-info": {
       "get": {
         "description": "Сургуулийн дансны мэдээлэл (оюутанд заавар харуулах)",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -6625,6 +7477,17 @@
     "/schools/{school_id}/categories": {
       "get": {
         "description": "Хичээлийн ангиллуудыг авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -6692,6 +7555,17 @@
       },
       "post": {
         "description": "Хичээлийн ангилал нэмнэ",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "201": {
             "description": "The successfully created record.",
@@ -6699,7 +7573,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -6731,6 +7607,17 @@
     "/schools/{school_id}/courses": {
       "get": {
         "description": "Сургуулийн хичээлүүдийг авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -6819,6 +7706,17 @@
       },
       "post": {
         "description": "Хичээл нэмнэ",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "201": {
             "description": "The successfully created record.",
@@ -6826,7 +7724,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -6858,6 +7758,17 @@
     "/schools/{school_id}/exams": {
       "get": {
         "description": "Сургуулийн шалгалтуудыг авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -6870,7 +7781,9 @@
                       "type": "array",
                       "items": {
                         "type": "object",
-                        "properties": {}
+                        "properties": {
+
+                        }
                       }
                     }
                   }
@@ -6896,6 +7809,17 @@
     "/schools/{school_id}/payment-debt-report": {
       "get": {
         "description": "Сургуулийн өр, төлбөрийн тайлан (экспортод зориулсан)",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -6980,6 +7904,17 @@
     "/schools/{school_id}/payment-policy": {
       "get": {
         "description": "Сургуулийн төлбөр, өрийн бодлогын мэдээлэл авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -7024,25 +7959,40 @@
       },
       "put": {
         "description": "Сургуулийн төлбөр, өрийн бодлогыг засна",
-        "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
+        "security": [
+          {
+            "BasicAuth": []
           },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
+        "responses": {
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -7074,6 +8024,17 @@
     "/schools/{school_id}/periods": {
       "get": {
         "description": "Сургуулийн парын жагсаалтыг авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -7132,6 +8093,17 @@
       },
       "post": {
         "description": "Сургуулийн шинэ пар нэмнэ",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "201": {
             "description": "The successfully created record.",
@@ -7139,7 +8111,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -7171,6 +8145,17 @@
     "/schools/{school_id}/requests": {
       "post": {
         "description": "Сургуульд эрх хүсэх хүсэлт илгээнэ",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "201": {
             "description": "The successfully created record.",
@@ -7178,7 +8163,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -7208,6 +8195,17 @@
       },
       "get": {
         "description": "Сургуулийн гишүүнчлэлийн хүсэлтүүд",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -7289,6 +8287,17 @@
     "/schools/{school_id}/requests/{request_id}": {
       "post": {
         "description": "Сургууль нэмэх хүсэлтийг зөвшөөрнө",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "201": {
             "description": "The successfully created record.",
@@ -7296,7 +8305,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -7336,6 +8347,17 @@
       },
       "delete": {
         "description": "Сургуулийн эрхийн хүсэлт татгалзана",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "204": {
             "description": "Deleted result."
@@ -7377,6 +8399,17 @@
     "/schools/{school_id}/teachers": {
       "get": {
         "description": "Сургуулийн хичээлүүд дээр заадаг багш нарын жагсаалтыг авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -7434,6 +8467,17 @@
     "/schools/{school_id}/users": {
       "post": {
         "description": "Хэрэглэгчийг сургуульд нэмэх хүсэлтийг зөвшөөрнө.",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "201": {
             "description": "The successfully created record.",
@@ -7441,7 +8485,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -7471,6 +8517,17 @@
       },
       "get": {
         "description": "Сургуулийн хэрэглэгчдийг авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -7558,6 +8615,17 @@
     "/schools/{school_id}/users/{user_id}": {
       "delete": {
         "description": "Хэрэглэгчийг сургуулиас хасна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "204": {
             "description": "Deleted result."
@@ -7590,6 +8658,17 @@
     "/schools/{school_id}/users/{user_id}/debt": {
       "get": {
         "description": "Оюутны өрийн мэдээлэл авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -7653,25 +8732,40 @@
       },
       "put": {
         "description": "Оюутны өрийг засна (админ)",
-        "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
+        "security": [
+          {
+            "BasicAuth": []
           },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
+        "responses": {
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -7713,6 +8807,17 @@
     "/schools/{school_id}/users/{user_id}/payments": {
       "get": {
         "description": "Оюутны төлбөрийн түүх авна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The queried record.",
@@ -7796,6 +8901,17 @@
       },
       "post": {
         "description": "Оюутан төлбөрийн мэдээлэл оруулна (баримт, банк, дүн, огноо)",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "201": {
             "description": "The successfully created record.",
@@ -7803,7 +8919,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -7845,6 +8963,17 @@
     "/schools/{school_id}/users/{user_id}/payments/{payment_id}/verify": {
       "post": {
         "description": "Нягтлан баталгаажуулна",
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "BearerAuth": []
+          },
+          {
+            "OAuth2": []
+          }
+        ],
         "responses": {
           "201": {
             "description": "The successfully created record.",
@@ -7852,7 +8981,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -7992,24 +9123,28 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
-          },
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -8082,24 +9217,28 @@
       "put": {
         "description": "Хичээлийн хуваарийн мөрийг засна",
         "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
-          },
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -8178,7 +9317,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -8206,7 +9347,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -8234,7 +9377,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -8273,7 +9418,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -8444,24 +9591,28 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
-          },
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -8607,24 +9758,28 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
-          },
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -8744,7 +9899,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -8788,24 +9945,28 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
-          },
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -8929,24 +10090,28 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
-          },
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -8985,7 +10150,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -9088,24 +10255,28 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
-          },
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -9370,7 +10541,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -9583,7 +10756,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -9616,24 +10791,28 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "The successfully updated record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
-          },
           "201": {
             "description": "The successfully created record.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The successfully updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -9683,7 +10862,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+
+                  }
                 }
               }
             }
@@ -9858,16 +11039,22 @@
         "flows": {
           "implicit": {
             "authorizationUrl": "https://todu.mn/bs/lms/oauth/auth",
-            "scopes": {}
+            "scopes": {
+
+            }
           },
           "authorizationCode": {
             "authorizationUrl": "https://todu.mn/bs/lms/oauth/auth",
             "tokenUrl": "https://todu.mn/bs/lms/oauth/token",
-            "scopes": {}
+            "scopes": {
+
+            }
           },
           "clientCredentials": {
             "tokenUrl": "https://todu.mn/bs/lms/oauth/token",
-            "scopes": {}
+            "scopes": {
+
+            }
           }
         }
       }
@@ -9881,7 +11068,9 @@
         "format": "date-time",
         "pattern": "^\\d{4}-[01]\\d-[0123]\\dT[012]\\d:[0-5]\\d:[0-5]\\d(.\\d+)?(Z|([-+][012]\\d:[0-5]\\d))$"
       },
-      "JSON": {},
+      "JSON": {
+
+      },
       "NUMBER": {
         "type": "number"
       },
@@ -10636,6 +11825,9 @@
       "v1_ITEM_48": {
         "properties": {
           "bank_account_info": {
+            "type": "string"
+          },
+          "current_user": {
             "type": "string"
           },
           "max_debt": {

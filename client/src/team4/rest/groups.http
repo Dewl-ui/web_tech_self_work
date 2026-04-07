@@ -1,0 +1,92 @@
+# =============================================================================
+# GROUPS — /courses/{course_id}/groups, /groups/{group_id}
+# Base URL: https://todu.mn/bs/lms/v1
+# Member 5 — GroupManagement, GroupUserList
+# =============================================================================
+
+@baseUrl = https://todu.mn/bs/lms/v1
+
+# Paste token from auth.http login response (admin or teacher):
+@token = PASTE_TOKEN_HERE
+@currentUser = 1
+@courseId = 1
+@groupId = 1
+@userId = 2
+
+# -----------------------------------------------------------------------------
+### Get all groups in a course
+GET {{baseUrl}}/courses/{{courseId}}/groups?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Create a new group in a course
+POST {{baseUrl}}/courses/{{courseId}}/groups
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Бүлэг А",
+  "current_user": {{currentUser}}
+}
+
+# -----------------------------------------------------------------------------
+### Get a specific group by ID
+GET {{baseUrl}}/groups/{{groupId}}?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Update a group
+PUT {{baseUrl}}/groups/{{groupId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Шинэ Бүлэг А",
+  "current_user": {{currentUser}}
+}
+
+# -----------------------------------------------------------------------------
+### Delete a group
+DELETE {{baseUrl}}/groups/{{groupId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "current_user": {{currentUser}}
+}
+
+# -----------------------------------------------------------------------------
+### Get users in a group (via course timetable / group user list)
+GET {{baseUrl}}/courses/{{courseId}}/timetables/users?current_user={{currentUser}}&group_id={{groupId}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Get my timetable for a course
+GET {{baseUrl}}/courses/{{courseId}}/timetables/my?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Get a specific timetable entry (mine)
+GET {{baseUrl}}/courses/{{courseId}}/timetables/my/1?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Get course attendances
+GET {{baseUrl}}/courses/{{courseId}}/attendances?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Get attendances for a specific lesson
+GET {{baseUrl}}/lessons/1/attendances?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Mark attendance for a user in a lesson
+PUT {{baseUrl}}/lessons/1/attendances/{{userId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "status": "present",
+  "current_user": {{currentUser}}
+}

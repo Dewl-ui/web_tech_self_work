@@ -1,0 +1,54 @@
+### Role Management API Check File
+### Base URL: https://todu.mn/bs/lms/v1
+### Supports: List, create, read, update, delete roles (permissions)
+### Note: Roles are system-wide. School-level role assignment is handled via school membership requests.
+
+@baseUrl = https://todu.mn/bs/lms/v1
+@roleId = 10
+
+@accessToken = YCJOeDHVGkNSymwXCEdjpA
+
+### 1. List all roles
+# GET /roles
+# Headers: Authorization: Bearer <access_token>
+# Response: { "items": [ { id, name, priority, created_on, ... } ] }
+GET {{baseUrl}}/roles
+Authorization: Bearer {{accessToken}}
+
+### 2. Create a new role (admin only)
+# POST /roles
+# Headers: Authorization: Bearer <access_token>
+# Request body: name, priority (optional)
+POST {{baseUrl}}/roles
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Department Head",
+  "priority": 10
+}
+
+### 3. Get role by ID
+# GET /roles/{role_id}
+# Headers: Authorization: Bearer <access_token>
+GET {{baseUrl}}/roles/{{roleId}}
+Authorization: Bearer {{accessToken}}
+
+### 4. Update role (admin only)
+# PUT /roles/{role_id}
+# Headers: Authorization: Bearer <access_token>
+# Request body: name, priority (optional)
+PUT {{baseUrl}}/roles/{{roleId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Senior Department Head",
+  "priority": 15
+}
+
+### 5. Delete role (admin only)
+# DELETE /roles/{role_id}
+# Headers: Authorization: Bearer <access_token>
+DELETE {{baseUrl}}/roles/{{roleId}}
+Authorization: Bearer {{accessToken}}

@@ -6,7 +6,7 @@ function sanitizeCategoryPayload(data = {}) {
       name: data.name,
       picture: data.picture,
       school_id: data.school_id,
-      priority: data.priority ?? 1, // ← заавал 1 байна
+      priority: data.priority,
       parent_id: data.parent_id,
     }).filter(([, value]) => value !== "" && value !== null && value !== undefined)
   );
