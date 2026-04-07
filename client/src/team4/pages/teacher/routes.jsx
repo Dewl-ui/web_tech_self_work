@@ -11,6 +11,7 @@ import { Route } from "react-router-dom";
 import { ProtectedRoute } from "../../utils/AuthContext";
 import { ROLES } from "../../utils/constants";
 
+import AttendancePage from "./AttendancePage";
 import CourseUserEdit from "./CourseUserEdit";
 import CourseUserList from "./CourseUserList";
 import GroupManagement from "./GroupManagement";
@@ -21,6 +22,9 @@ const teacherRoutes = [
   // Teacher dashboard — /team4/teacher
   <Route key="teacher-dashboard" path="teacher"
     element={<ProtectedRoute role={ROLES.TEACHER}><TeacherDashboard /></ProtectedRoute>} />,
+
+  <Route key="attendance" path="teacher/attendance"
+    element={<ProtectedRoute role={ROLES.TEACHER}><AttendancePage /></ProtectedRoute>} />,
 
   // Course user management — /team4/courses/:course_id/users*
   <Route key="course-users" path="courses/:course_id/users"
