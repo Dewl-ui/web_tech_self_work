@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FiBookOpen, FiChevronRight, FiSave } from "react-icons/fi";
 import { apiGet, apiPut, parseField } from "../../utils/api";
+import { useAuth } from "../../utils/AuthContext";
 import { useToast } from "../../components/ui/Toast";
 
 function Field({ label, value, onChange, type = "text", readOnly = false }) {
@@ -25,6 +26,7 @@ function Field({ label, value, onChange, type = "text", readOnly = false }) {
 }
 
 export default function TeacherProfile() {
+  const { school } = useAuth();
   const toast = useToast();
   const [profile, setProfile] = useState(null);
   const [courses, setCourses] = useState([]);
@@ -46,14 +48,24 @@ export default function TeacherProfile() {
           return apiGet(`/users/${data.id}/courses/teaching`);
         }
       })
-      .then((res) => setCourses(res?.items ?? []))
+      .then((res) => {
+        const schoolId = school?.id;
+        const items = res?.items ?? [];
+        const filtered = schoolId == null
+          ? items
+          : items.filter((item) => {
+              const course = parseField(item, "course") ?? item;
+              return String(course?.school_id ?? item?.school_id ?? "") === String(schoolId);
+            });
+        setCourses(filtered);
+      })
       .catch((err) => {
         const msg = err.message || "Профайл ачааллахад алдаа гарлаа.";
         setError(msg);
         toast.error(msg);
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [school?.id]);
 
   async function handleSave(e) {
     e.preventDefault();
