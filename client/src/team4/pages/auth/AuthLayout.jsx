@@ -6,7 +6,7 @@ const slides = [
   "/team4/auth_images/school2.jpg",
   "/team4/auth_images/school3.jpg",
   "/team4/auth_images/school4.jpg",
-  "/team4/auth_images/school5.jpg",
+  // "/team4/auth_images/school5.jpg",
   "/team4/auth_images/school1.jpg",
 ];
 
