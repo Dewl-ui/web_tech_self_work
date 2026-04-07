@@ -232,7 +232,7 @@ export default function TeacherDashboard() {
   // Load timetable from API
   useEffect(() => {
     if (!user?.id) return;
-    apiGet(`/users/${user.id}/courses`).then(async (data) => {
+    apiGet(`/users/${user.id}/courses/teaching`).then(async (data) => {
       const items = data?.items ?? [];
       const allEvents = [];
       for (const item of items) {
