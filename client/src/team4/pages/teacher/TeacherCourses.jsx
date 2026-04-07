@@ -82,9 +82,9 @@ export default function TeacherCourses() {
     return; 
   }
 
-  // 2. Багшийн ID-аар хичээлүүдийг авах
-  // Endpoint: /users/41/courses
-  apiGet(`/users/${storedUser.id}/courses`)
+  // 2. Багшийн ID-аар заадаг хичээлүүдийг авах
+  // Endpoint: /users/{id}/courses/teaching
+  apiGet(`/users/${storedUser.id}/courses/teaching`)
     .then(async (data) => {
       const items = data?.items ?? [];
       

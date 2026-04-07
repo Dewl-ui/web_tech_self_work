@@ -21,12 +21,14 @@ export default function Layout() {
     <div className="flex min-h-screen bg-zinc-50 -mx-4 -my-6 sm:-m-6 md:-my-10 md:-mx-8">
 
       {/* ── Desktop sidebar ── */}
-      <aside className="hidden md:flex md:w-56 md:flex-col md:shrink-0 border-r border-zinc-200">
-        <SideMenu onClose={() => {}} />
-      </aside>
+      {school && (
+        <aside className="hidden md:flex md:w-56 md:flex-col md:shrink-0 border-r border-zinc-200">
+          <SideMenu onClose={() => {}} />
+        </aside>
+      )}
 
       {/* ── Mobile sidebar overlay ── */}
-      {sideOpen && (
+      {school && sideOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/30 md:hidden"
           onClick={() => setSideOpen(false)}
@@ -35,13 +37,15 @@ export default function Layout() {
       )}
 
       {/* ── Mobile sidebar drawer ── */}
-      <aside
-        className={`fixed inset-y-0 left-0 z-50 w-56 flex flex-col border-r border-zinc-200
-          transform transition-transform duration-200 ease-in-out md:hidden
-          ${sideOpen ? "translate-x-0" : "-translate-x-full"}`}
-      >
-        <SideMenu onClose={() => setSideOpen(false)} />
-      </aside>
+      {school && (
+        <aside
+          className={`fixed inset-y-0 left-0 z-50 w-56 flex flex-col border-r border-zinc-200
+            transform transition-transform duration-200 ease-in-out md:hidden
+            ${sideOpen ? "translate-x-0" : "-translate-x-full"}`}
+        >
+          <SideMenu onClose={() => setSideOpen(false)} />
+        </aside>
+      )}
 
       {/* ── Main content area ── */}
       <div className="flex min-w-0 flex-1 flex-col">

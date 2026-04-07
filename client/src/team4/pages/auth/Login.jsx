@@ -105,14 +105,14 @@ export default function Login() {
         </form>
 
         {/* Divider */}
-        <div className="flex items-center gap-3">
+        {/* <div className="flex items-center gap-3">
           <div className="h-px flex-1 bg-zinc-200" />
           <span className="text-xs text-zinc-400">эсвэл</span>
           <div className="h-px flex-1 bg-zinc-200" />
-        </div>
+        </div> */}
 
         {/* Google button */}
-        <button
+        {/* <button
           type="button"
           onClick={() => toast.warning("Google-аар нэвтрэх одоогоор идэвхгүй.")}
           className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-zinc-200
@@ -120,7 +120,7 @@ export default function Login() {
         >
           <FcGoogle className="h-4 w-4" />
           Google
-        </button>
+        </button> */}
 
         {/* Register link */}
         <p className="text-center text-sm text-zinc-500">
