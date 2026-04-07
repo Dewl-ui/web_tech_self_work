@@ -183,7 +183,7 @@ function MonthGrid({ year, month, timetable, today }) {
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function TeacherDashboard() {
-  const { user } = useAuth();
+  const { user, school } = useAuth();
   const [semWeek, setSemWeek]   = useState(getCurrentSemesterWeek);
   const [timetable, setTimetable] = useState([]);
   const [view, setView]         = useState("өдөр");   // өдөр | 7 хоног | сар
@@ -233,7 +233,12 @@ export default function TeacherDashboard() {
   useEffect(() => {
     if (!user?.id) return;
     apiGet(`/users/${user.id}/courses/teaching`).then(async (data) => {
-      const items = data?.items ?? [];
+      const schoolId = school?.id;
+      const items = (data?.items ?? []).filter((item) => {
+        if (schoolId == null) return true;
+        const course = parseField(item, "course") ?? item;
+        return String(course?.school_id ?? item?.school_id ?? "") === String(schoolId);
+      });
       const allEvents = [];
       for (const item of items) {
         const c   = parseField(item, "course") ?? item;
@@ -257,7 +262,7 @@ export default function TeacherDashboard() {
       }
       setTimetable(allEvents);
     }).finally(() => setLoading(false));
-  }, [user?.id]);
+  }, [user?.id, school?.id]);
 
   // Which dates to show in day/week view
   const displayDates = view === "өдөр"
