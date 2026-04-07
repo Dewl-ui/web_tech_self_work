@@ -46,7 +46,7 @@ export default function TeacherHomeSummary({ userId }) {
 
   useEffect(() => {
     if (!userId) return;
-    apiGet(`/users/${userId}/courses`)
+    apiGet(`/users/${userId}/courses/teaching`)
       .then((data) => setCourses(data?.items ?? []))
       .catch(() => setCourses([]))
       .finally(() => setLoading(false));
