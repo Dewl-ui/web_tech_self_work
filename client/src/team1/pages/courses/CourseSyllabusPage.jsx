@@ -5,81 +5,10 @@ import { getLessonsByCourse } from "../../services/lessonService";
 import { getCourseUsers } from "../../services/courseUserService";
 import { getErrorMessage } from "../../utils/school";
 
-function getLessonTypeLabel(lesson) {
-  const raw = lesson?.type?.name || lesson?.type || lesson?.lesson_type?.name || "";
-  const text = String(raw || "").trim();
-
-  if (text) {
-    return text;
-  }
-
-  if (lesson?.has_submission || lesson?.open_on || lesson?.close_on || lesson?.end_on) {
-    return "Даалгавар";
-  }
-
-  if (
-    typeof lesson?.content === "string" &&
-    (lesson.content.includes("youtube.com") || lesson.content.includes("youtu.be"))
-  ) {
-    return "Видео";
-  }
-
-  return "Текст";
-}
-
-function buildWeeks(lessons = []) {
-  const weeks = Array.from({ length: 16 }, (_, index) => ({
-    id: index + 1,
-    title: `${index + 1} долоо хоног`,
-    lessons: [],
-  }));
-
-  lessons.forEach((lesson, index) => {
-    const weekIndex = Math.min(
-      16,
-      Math.max(
-        1,
-        Number(
-          lesson?.week ||
-            lesson?.week_number ||
-            lesson?.order_week ||
-            lesson?.priority ||
-            1
-        )
-      )
-    );
-
-    weeks[weekIndex - 1].lessons.push({
-      ...lesson,
-      name: lesson?.name || `Хичээл ${index + 1}`,
-      typeLabel: getLessonTypeLabel(lesson),
-    });
-  });
-
-  return weeks;
-}
-
-function countAssignmentLessons(weeks) {
-  return weeks.reduce(
-    (sum, week) =>
-      sum +
-      week.lessons.filter((lesson) => lesson.has_submission || lesson.typeLabel === "Даалгавар")
-        .length,
-    0
-  );
-}
-
-function countVideoLessons(weeks) {
-  return weeks.reduce(
-    (sum, week) =>
-      sum + week.lessons.filter((lesson) => lesson.typeLabel === "Видео").length,
-    0
-  );
-}
-
 export default function CourseSyllabusPage() {
   const { course_id } = useParams();
   const navigate = useNavigate();
+
   const [course, setCourse] = useState(null);
   const [weeks, setWeeks] = useState([]);
   const [students, setStudents] = useState([]);
@@ -87,12 +16,17 @@ export default function CourseSyllabusPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    Promise.all([
-      getCourse(course_id),
-      getLessonsByCourse(course_id),
-      getCourseUsers(course_id).catch(() => []),
-    ])
-      .then(([courseItem, lessonItems, courseUsers]) => {
+    async function loadData() {
+      try {
+        setLoading(true);
+        setError("");
+
+        const [courseItem, lessonItems, courseUsers] = await Promise.all([
+          getCourse(course_id),
+          getLessonsByCourse(course_id),
+          getCourseUsers(course_id).catch(() => []),
+        ]);
+
         setCourse({
           id: courseItem?.id || course_id,
           name: courseItem?.name || "Хичээл",
@@ -105,25 +39,98 @@ export default function CourseSyllabusPage() {
           credits: courseItem?.credits || 3,
           durationWeeks: 16,
         });
-        setWeeks(buildWeeks(lessonItems || []));
+
+        const weekList = Array.from({ length: 16 }, (_, i) => ({
+          id: i + 1,
+          title: `${i + 1} долоо хоног`,
+          lessons: [],
+        }));
+
+        (lessonItems || []).forEach((lesson, index) => {
+          const rawType =
+            lesson?.type?.name ||
+            lesson?.type ||
+            lesson?.lesson_type?.name ||
+            "";
+
+          let typeLabel = String(rawType).trim();
+
+          if (!typeLabel) {
+            if (
+              lesson?.has_submission ||
+              lesson?.open_on ||
+              lesson?.close_on ||
+              lesson?.end_on
+            ) {
+              typeLabel = "Даалгавар";
+            } else if (
+              typeof lesson?.content === "string" &&
+              (lesson.content.includes("youtube.com") ||
+                lesson.content.includes("youtu.be"))
+            ) {
+              typeLabel = "Видео";
+            } else {
+              typeLabel = "Текст";
+            }
+          }
+
+          const weekNumber = Number(
+            lesson?.week ||
+              lesson?.week_number ||
+              lesson?.order_week ||
+              lesson?.priority ||
+              1
+          );
+
+          const safeWeek = Math.min(16, Math.max(1, weekNumber || 1));
+
+          weekList[safeWeek - 1].lessons.push({
+            ...lesson,
+            name: lesson?.name || `Хичээл ${index + 1}`,
+            typeLabel,
+          });
+        });
+
+        setWeeks(weekList);
         setStudents(courseUsers || []);
-      })
-      .catch((loadError) => {
-        setError(getErrorMessage(loadError, "Төлөвлөгөө ачаалж чадсангүй."));
-      })
-      .finally(() => setLoading(false));
+      } catch (err) {
+        setError(getErrorMessage(err, "Төлөвлөгөө ачаалж чадсангүй."));
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
   }, [course_id]);
 
-  const totalLessons = useMemo(
-    () => weeks.reduce((sum, week) => sum + week.lessons.length, 0),
-    [weeks]
-  );
-  const assignmentCount = useMemo(() => countAssignmentLessons(weeks), [weeks]);
-  const videoCount = useMemo(() => countVideoLessons(weeks), [weeks]);
-  const materialCount = useMemo(
-    () => Math.max(totalLessons - assignmentCount, 0),
-    [totalLessons, assignmentCount]
-  );
+  const totalLessons = useMemo(() => {
+    return weeks.reduce((sum, week) => sum + week.lessons.length, 0);
+  }, [weeks]);
+
+  const assignmentCount = useMemo(() => {
+    return weeks.reduce((sum, week) => {
+      return (
+        sum +
+        week.lessons.filter(
+          (lesson) =>
+            lesson.has_submission || lesson.typeLabel === "Даалгавар"
+        ).length
+      );
+    }, 0);
+  }, [weeks]);
+
+  const videoCount = useMemo(() => {
+    return weeks.reduce((sum, week) => {
+      return (
+        sum +
+        week.lessons.filter((lesson) => lesson.typeLabel === "Видео").length
+      );
+    }, 0);
+  }, [weeks]);
+
+  const materialCount = useMemo(() => {
+    return Math.max(totalLessons - assignmentCount, 0);
+  }, [totalLessons, assignmentCount]);
 
   if (loading) {
     return <div className="rounded-2xl bg-white p-6 shadow-sm">Ачаалж байна...</div>;
@@ -151,27 +158,36 @@ export default function CourseSyllabusPage() {
         <div className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-500">
           Сургалтын төлөвлөгөө
         </div>
+
         <h1 className="mt-2 text-3xl font-bold text-slate-900">{course.name}</h1>
-        <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500">{course.description}</p>
+
+        <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500">
+          {course.description}
+        </p>
 
         <div className="mt-6 grid gap-3 md:grid-cols-4">
           <div className="rounded-2xl bg-indigo-50 p-4">
             <div className="text-xs text-slate-500">Багш</div>
             <div className="mt-1 font-semibold text-slate-900">{course.teacher}</div>
           </div>
+
           <div className="rounded-2xl bg-violet-50 p-4">
             <div className="text-xs text-slate-500">Үргэлжлэх хугацаа</div>
             <div className="mt-1 font-semibold text-slate-900">
               {course.durationWeeks} долоо хоног
             </div>
           </div>
+
           <div className="rounded-2xl bg-amber-50 p-4">
             <div className="text-xs text-slate-500">Кредит</div>
             <div className="mt-1 font-semibold text-slate-900">{course.credits}</div>
           </div>
+
           <div className="rounded-2xl bg-emerald-50 p-4">
             <div className="text-xs text-slate-500">Бүртгүүлсэн оюутан</div>
-            <div className="mt-1 font-semibold text-slate-900">{students.length} оюутан</div>
+            <div className="mt-1 font-semibold text-slate-900">
+              {students.length} оюутан
+            </div>
           </div>
         </div>
       </div>
@@ -206,10 +222,13 @@ export default function CourseSyllabusPage() {
               <div className="h-2 rounded-full bg-slate-100">
                 <div
                   className="h-2 rounded-full bg-indigo-500"
-                  style={{ width: `${totalLessons ? (assignmentCount / totalLessons) * 100 : 0}%` }}
+                  style={{
+                    width: `${totalLessons ? (assignmentCount / totalLessons) * 100 : 0}%`,
+                  }}
                 />
               </div>
             </div>
+
             <div>
               <div className="mb-1 flex items-center justify-between">
                 <span>Видео</span>
@@ -218,10 +237,13 @@ export default function CourseSyllabusPage() {
               <div className="h-2 rounded-full bg-slate-100">
                 <div
                   className="h-2 rounded-full bg-amber-500"
-                  style={{ width: `${totalLessons ? (videoCount / totalLessons) * 100 : 0}%` }}
+                  style={{
+                    width: `${totalLessons ? (videoCount / totalLessons) * 100 : 0}%`,
+                  }}
                 />
               </div>
             </div>
+
             <div>
               <div className="mb-1 flex items-center justify-between">
                 <span>Бусад материал</span>
@@ -230,7 +252,9 @@ export default function CourseSyllabusPage() {
               <div className="h-2 rounded-full bg-slate-100">
                 <div
                   className="h-2 rounded-full bg-emerald-500"
-                  style={{ width: `${totalLessons ? (materialCount / totalLessons) * 100 : 0}%` }}
+                  style={{
+                    width: `${totalLessons ? (materialCount / totalLessons) * 100 : 0}%`,
+                  }}
                 />
               </div>
             </div>

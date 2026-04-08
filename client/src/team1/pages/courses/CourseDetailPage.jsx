@@ -14,6 +14,7 @@ import {
   isSchoolAdmin,
   setCurrentCourse,
   setCurrentLesson,
+  setLessonCompleted,
 } from "../../utils/school";
 
 function getLessonTypeLabel(lesson) {
@@ -172,6 +173,25 @@ export default function CourseDetailPage() {
         ? previous.filter((item) => item !== id)
         : [...previous, id]
     );
+  };
+
+  const handleToggleLessonCompleted = (lessonId) => {
+    let nextCompleted = false;
+
+    const nextWeeks = weeks.map((week) => ({
+      ...week,
+      lessons: week.lessons.map((lesson) => {
+        if (Number(lesson.id) !== Number(lessonId)) {
+          return lesson;
+        }
+
+        nextCompleted = !lesson.completed;
+        return { ...lesson, completed: nextCompleted };
+      }),
+    }));
+
+    setLessonCompleted(course_id, lessonId, nextCompleted);
+    setWeeks(nextWeeks);
   };
 
   const handleTeacherRequest = async () => {
@@ -424,8 +444,21 @@ export default function CourseDetailPage() {
                           <div className="text-xs text-slate-400">{lesson.typeLabel}</div>
                         </button>
 
-                        {canCreateLesson(role) ? (
-                          <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleToggleLessonCompleted(lesson.id)}
+                            className={`inline-flex h-8 w-36 items-center justify-center rounded-lg px-3 text-xs font-semibold ${
+                              lesson.completed
+                                ? "bg-emerald-100 text-emerald-700"
+                                : "bg-indigo-600 text-white"
+                            }`}
+                          >
+                            {lesson.completed ? "Хийснийг цуцлах" : "Хийсэн гэж тэмдэглэх"}
+                          </button>
+
+                          {canCreateLesson(role) ? (
+                            <>
                             <button
                               type="button"
                               onClick={() =>
@@ -446,8 +479,9 @@ export default function CourseDetailPage() {
                                 Устгах
                               </button>
                             ) : null}
-                          </div>
-                        ) : null}
+                            </>
+                          ) : null}
+                        </div>
                       </div>
                     ))}
                   </div>
