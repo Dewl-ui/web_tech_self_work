@@ -4,12 +4,7 @@ import useTeam1Role from "../../hooks/useTeam1Role";
 import { getCourse } from "../../services/courseService";
 import { createRequest } from "../../services/requestService";
 import { deleteLesson, getLessonsByCourse } from "../../services/lessonService";
-import {
-  addCourseUser,
-  findUserByEmail,
-  getCourseUsers,
-  removeCourseUser,
-} from "../../services/courseUserService";
+import { getCourseUsers } from "../../services/courseUserService";
 import {
   canCreateLesson,
   canDeleteLesson,
@@ -25,7 +20,10 @@ function getLessonTypeLabel(lesson) {
   const raw = lesson?.type?.name || lesson?.type || lesson?.lesson_type?.name || "";
   const text = String(raw || "").trim();
 
-  if (text) return text;
+  if (text) {
+    return text;
+  }
+
   if (lesson?.has_submission || lesson?.open_on || lesson?.close_on || lesson?.end_on) {
     return "Даалгавар";
   }
@@ -70,12 +68,31 @@ function buildWeeks(lessons = [], completedLessonIds = []) {
     });
   });
 
+  weeks.forEach((week) => {
+    week.lessons.sort(
+      (left, right) => Number(left?.priority || 0) - Number(right?.priority || 0)
+    );
+  });
+
   return weeks;
 }
 
-function formatStudentName(student) {
-  const fullName = `${student?.last_name || ""} ${student?.first_name || ""}`.trim();
-  return fullName || student?.email || student?.username || "Сурагч";
+function countAssignmentLessons(weeks) {
+  return weeks.reduce(
+    (sum, week) =>
+      sum +
+      week.lessons.filter((lesson) => lesson.has_submission || lesson.typeLabel === "Даалгавар")
+        .length,
+    0
+  );
+}
+
+function countVideoLessons(weeks) {
+  return weeks.reduce(
+    (sum, week) =>
+      sum + week.lessons.filter((lesson) => lesson.typeLabel === "Видео").length,
+    0
+  );
 }
 
 export default function CourseDetailPage() {
@@ -85,10 +102,8 @@ export default function CourseDetailPage() {
   const [course, setCourse] = useState(null);
   const [weeks, setWeeks] = useState([]);
   const [students, setStudents] = useState([]);
-  const [studentEmail, setStudentEmail] = useState("");
   const [openWeeks, setOpenWeeks] = useState([1]);
   const [loading, setLoading] = useState(true);
-  const [savingStudent, setSavingStudent] = useState(false);
   const [error, setError] = useState("");
   const [requestMessage, setRequestMessage] = useState("");
   const [completionVersion, setCompletionVersion] = useState(0);
@@ -96,8 +111,10 @@ export default function CourseDetailPage() {
   useEffect(() => {
     const handleCompletionChange = () => setCompletionVersion((value) => value + 1);
     window.addEventListener("team1-lesson-completion-change", handleCompletionChange);
-    return () =>
+
+    return () => {
       window.removeEventListener("team1-lesson-completion-change", handleCompletionChange);
+    };
   }, []);
 
   const loadData = async () => {
@@ -113,6 +130,12 @@ export default function CourseDetailPage() {
       teacher: courseItem?.teacher?.name || courseItem?.teacher_name || "Багш",
       code: courseItem?.code || courseItem?.course_code || "—",
       progress: courseItem?.progress || 0,
+      description:
+        courseItem?.description ||
+        courseItem?.short_description ||
+        "Хичээлийн товч мэдээлэл",
+      credits: courseItem?.credits || 3,
+      durationWeeks: 16,
     };
 
     setCurrentCourse(normalizedCourse);
@@ -129,9 +152,25 @@ export default function CourseDetailPage() {
       .finally(() => setLoading(false));
   }, [course_id, completionVersion]);
 
+  const totalLessons = useMemo(
+    () => weeks.reduce((sum, week) => sum + week.lessons.length, 0),
+    [weeks]
+  );
+
+  const assignmentCount = useMemo(() => countAssignmentLessons(weeks), [weeks]);
+  const videoCount = useMemo(() => countVideoLessons(weeks), [weeks]);
+  const materialCount = useMemo(
+    () => Math.max(totalLessons - assignmentCount, 0),
+    [totalLessons, assignmentCount]
+  );
+
+  const isWeekOpen = (weekId) => openWeeks.includes(weekId);
+
   const toggleWeek = (id) => {
-    setOpenWeeks((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    setOpenWeeks((previous) =>
+      previous.includes(id)
+        ? previous.filter((item) => item !== id)
+        : [...previous, id]
     );
   };
 
@@ -156,52 +195,6 @@ export default function CourseDetailPage() {
       setError(getErrorMessage(deleteError, "Хичээлийн хэсгийг устгаж чадсангүй."));
     }
   };
-
-  const handleAddStudent = async () => {
-    const email = String(studentEmail || "").trim();
-    const emailPattern = /^[A-Za-z][0-9]{8,10}@must\.edu\.mn$/i;
-
-    if (!emailPattern.test(email)) {
-      setError("Оюутны имэйл must.edu.mn хэлбэртэй байх ёстой.");
-      return;
-    }
-
-    try {
-      setSavingStudent(true);
-      setError("");
-      const user = await findUserByEmail(email);
-
-      if (!user?.id) {
-        setError("Тухайн имэйлтэй хэрэглэгч олдсонгүй.");
-        return;
-      }
-
-      await addCourseUser(course_id, user.id);
-      setStudentEmail("");
-      await loadData();
-    } catch (studentError) {
-      setError(getErrorMessage(studentError, "Сурагч нэмж чадсангүй."));
-    } finally {
-      setSavingStudent(false);
-    }
-  };
-
-  const handleRemoveStudent = async (userId) => {
-    try {
-      setError("");
-      await removeCourseUser(course_id, userId);
-      setStudents((prev) =>
-        prev.filter((student) => Number(student.user_id || student.id) !== Number(userId))
-      );
-    } catch (studentError) {
-      setError(getErrorMessage(studentError, "Сурагч хасаж чадсангүй."));
-    }
-  };
-
-  const totalLessons = useMemo(
-    () => weeks.reduce((sum, week) => sum + week.lessons.length, 0),
-    [weeks]
-  );
 
   const openLessonDetail = (lesson) => {
     setCurrentLesson(lesson);
@@ -249,6 +242,7 @@ export default function CourseDetailPage() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <button
+              type="button"
               onClick={() => navigate("/team1/courses")}
               className="mb-1 block text-sm text-indigo-500 hover:underline"
             >
@@ -256,6 +250,7 @@ export default function CourseDetailPage() {
             </button>
             <h1 className="text-xl font-bold text-gray-800">{course.name}</h1>
           </div>
+
           <div className="flex flex-wrap gap-3">
             <button
               type="button"
@@ -266,6 +261,7 @@ export default function CourseDetailPage() {
             </button>
             {isSchoolAdmin(role) ? (
               <button
+                type="button"
                 onClick={handleTeacherRequest}
                 className="rounded-xl border border-indigo-200 bg-white px-5 py-2 text-sm font-semibold text-indigo-600"
               >
@@ -274,6 +270,7 @@ export default function CourseDetailPage() {
             ) : null}
           </div>
         </div>
+
         <div className="mt-2 flex flex-wrap gap-5 text-xs text-gray-500">
           <span>Багш: {course.teacher}</span>
           <span>Код: {course.code}</span>
@@ -285,6 +282,7 @@ export default function CourseDetailPage() {
       {requestMessage ? (
         <div className="rounded-xl bg-sky-50 px-4 py-3 text-sky-600">{requestMessage}</div>
       ) : null}
+
       {error ? (
         <div className="rounded-xl bg-red-50 px-4 py-3 text-red-600">{error}</div>
       ) : null}
@@ -293,97 +291,89 @@ export default function CourseDetailPage() {
         <div className="rounded-[2rem] bg-white p-6 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h2 className="text-xl font-bold text-slate-800">Сурагч бүртгэх</h2>
+              <h2 className="text-xl font-bold text-slate-800">Сурагчид ба багууд</h2>
               <p className="mt-1 text-sm text-slate-500">
-                Оюутны имэйл жишээ: B232270040@must.edu.mn
+                Энэ хичээлийн баг үүсгэх, сурагч нэмэх, хасах үйлдлийг тусдаа
+                хуудсаар удирдана.
               </p>
             </div>
-          </div>
-
-          <div className="mt-4 flex flex-col gap-3 md:flex-row">
-            <input
-              type="email"
-              value={studentEmail}
-              onChange={(event) => setStudentEmail(event.target.value)}
-              placeholder="Оюутны имэйл"
-              className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none"
-            />
             <button
               type="button"
-              onClick={handleAddStudent}
-              disabled={savingStudent}
-              className="rounded-xl bg-indigo-600 px-4 py-2 font-semibold text-white disabled:opacity-50"
+              onClick={() => navigate(`/team1/courses/${course_id}/users`)}
+              className="rounded-xl bg-indigo-600 px-4 py-2 font-semibold text-white"
             >
-              {savingStudent ? "Нэмж байна..." : "Сурагч нэмэх"}
+              Сурагч удирдах
             </button>
-          </div>
-
-          <div className="mt-5 space-y-3">
-            {students.length === 0 ? (
-              <div className="rounded-xl bg-slate-50 px-4 py-4 text-sm text-slate-500">
-                Бүртгэлтэй сурагч алга.
-              </div>
-            ) : (
-              students.map((student, index) => (
-                <div
-                  key={`${student.user_id || student.id}-${index}`}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-100 px-4 py-3"
-                >
-                  <div>
-                    <p className="font-semibold text-slate-800">
-                      {formatStudentName(student)}
-                    </p>
-                    <p className="text-sm text-slate-400">
-                      {student.email || student.username || "И-мэйлгүй"}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveStudent(student.user_id || student.id)}
-                    className="rounded-xl border border-red-200 px-4 py-2 text-sm font-semibold text-red-500"
-                  >
-                    Хасах
-                  </button>
-                </div>
-              ))
-            )}
           </div>
         </div>
       ) : null}
 
       <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
-        <div className="rounded-2xl bg-white p-4 shadow-sm">
-          {weeks.map((week) => (
-            <div key={week.id} className="mb-4">
-              <button
-                type="button"
-                onClick={() => toggleWeek(week.id)}
-                className="mb-2 block w-full text-left font-semibold text-gray-700"
-              >
-                {week.title}
-              </button>
-              <div className="space-y-2">
-                {week.lessons.map((lesson) => (
-                  <button
-                    key={lesson.id}
-                    type="button"
-                    onClick={() => openLessonDetail(lesson)}
-                    className="block w-full rounded-lg p-2 text-left text-sm hover:bg-blue-100"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="font-medium text-slate-700">{lesson.name}</div>
-                      {lesson.completed ? (
-                        <span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-semibold text-emerald-600">
-                          Хийсэн
-                        </span>
-                      ) : null}
-                    </div>
-                    <div className="text-xs text-slate-400">{lesson.typeLabel}</div>
-                  </button>
-                ))}
+        <div className="space-y-5">
+          <button
+            type="button"
+            onClick={() => navigate(`/team1/courses/${course_id}/syllabus`)}
+            className="flex w-full items-center justify-between rounded-2xl border border-indigo-200 bg-indigo-50 px-5 py-4 text-left shadow-sm transition hover:bg-indigo-100"
+          >
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-600">
+                Төлөвлөгөө
+              </div>
+              <div className="mt-2 text-lg font-bold text-slate-900">
+                Төлөвлөгөө харах
+              </div>
+              <div className="mt-1 text-sm text-slate-500">
+                Хичээлийн хөтөлбөр, бүтэц, задаргааг тусдаа хуудсаар үзнэ.
               </div>
             </div>
-          ))}
+            <div className="rounded-full bg-white px-3 py-2 text-sm font-semibold text-indigo-600">
+              Нээх
+            </div>
+          </button>
+
+          <div className="rounded-2xl bg-white p-4 shadow-sm">
+            {weeks.map((week) => (
+              <div key={week.id} className="mb-4">
+                <button
+                  type="button"
+                  onClick={() => toggleWeek(week.id)}
+                  className="mb-2 flex w-full items-center justify-between rounded-xl px-3 py-2 text-left font-semibold text-gray-700 transition hover:bg-slate-50"
+                >
+                  <span>{week.title}</span>
+                  <span className="text-base text-slate-500">
+                    {isWeekOpen(week.id) ? "⌄" : "›"}
+                  </span>
+                </button>
+
+                {isWeekOpen(week.id) ? (
+                  <div className="space-y-2">
+                    {week.lessons.map((lesson) => (
+                      <div
+                        key={lesson.id}
+                        className="rounded-lg p-2 text-left text-sm hover:bg-blue-100"
+                      >
+                        <button
+                          type="button"
+                          onClick={() => openLessonDetail(lesson)}
+                          className="block w-full text-left"
+                        >
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="font-medium text-slate-700">{lesson.name}</div>
+                            {lesson.completed ? (
+                              <span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-semibold text-emerald-600">
+                                Хийсэн
+                              </span>
+                            ) : null}
+                          </div>
+                          <div className="text-xs text-slate-400">{lesson.typeLabel}</div>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="space-y-6">
@@ -393,9 +383,12 @@ export default function CourseDetailPage() {
                 <button
                   type="button"
                   onClick={() => toggleWeek(week.id)}
-                  className="text-left text-lg font-bold"
+                  className="flex items-center gap-3 text-left text-lg font-bold"
                 >
-                  {week.title}
+                  <span className="text-base text-slate-500">
+                    {isWeekOpen(week.id) ? "⌄" : "›"}
+                  </span>
+                  <span>{week.title}</span>
                 </button>
 
                 <button
@@ -407,7 +400,7 @@ export default function CourseDetailPage() {
                 </button>
               </div>
 
-              {openWeeks.includes(week.id) ? (
+              {isWeekOpen(week.id) ? (
                 week.lessons.length > 0 ? (
                   <div className="space-y-3">
                     {week.lessons.map((lesson) => (

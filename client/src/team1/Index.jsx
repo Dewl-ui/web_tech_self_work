@@ -8,6 +8,8 @@ import CourseCreatePage from "./pages/courses/CourseCreatePage";
 import CourseDetailPage from "./pages/courses/CourseDetailPage";
 import CourseEditPage from "./pages/courses/CourseEditPage";
 import CourseReportPage from "./pages/courses/CourseReportPage";
+import CourseSyllabusPage from "./pages/courses/CourseSyllabusPage";
+import CourseUsersPage from "./pages/courses/CourseUsersPage";
 import LessonListPage from "./pages/lessons/LessonListPage";
 import LessonCreatePage from "./pages/lessons/LessonCreatePage";
 import LessonDetailPage from "./pages/lessons/LessonDetailPage";
@@ -28,6 +30,8 @@ export default function Team1() {
         <Route path="courses/create" element={<CourseCreatePage />} />
         <Route path="courses/edit/:courseId" element={<CourseEditPage />} />
         <Route path="courses/:course_id/report" element={<CourseReportPage />} />
+        <Route path="courses/:course_id/syllabus" element={<CourseSyllabusPage />} />
+        <Route path="courses/:course_id/users" element={<CourseUsersPage />} />
         <Route path="categories" element={<CategoriesPage />} />
         <Route path="categories/:id" element={<CategoryDetailPage />} />
         <Route path="courses/:course_id" element={<CourseDetailPage />} />

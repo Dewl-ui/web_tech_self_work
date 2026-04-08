@@ -73,6 +73,32 @@ export async function getCourseUsers(courseId) {
   return extractItems(payload).map((item, index) => normalizeCourseUser(item, index));
 }
 
+export async function getCourseGroups(courseId) {
+  const response = await authFetch(`/courses/${courseId}/groups`);
+  const payload = await ensureOk(response);
+
+  return extractItems(payload).map((item, index) => ({
+    ...item,
+    id: item.id || index + 1,
+    name: item.name || `Баг ${index + 1}`,
+    priority: item.priority ?? index + 1,
+  }));
+}
+
+export async function createCourseGroup(courseId, data) {
+  const body = {
+    name: String(data?.name || "").trim(),
+    priority: String(data?.priority || "1").trim() || "1",
+  };
+
+  const response = await authFetch(`/courses/${courseId}/groups`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+
+  return ensureOk(response);
+}
+
 export async function addCourseUser(courseId, userId, groupId = "0") {
   const body = {
     group_id: String(groupId ?? "0"),
