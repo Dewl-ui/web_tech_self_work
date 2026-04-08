@@ -22,7 +22,8 @@ const systemNavItems = [
 const schoolNavItems = [
   {
     to: "/team4/admin",
-    label: "Админ самбар",
+    // label: "Админ самбар",
+    label: "Сургуулийн самбар",
     icon: FiShield,
     roles: [ADMIN],
   },
@@ -93,7 +94,8 @@ export default function SideMenu({ collapsed, onToggle, onClose }) {
   const { user, role, school } = useAuth();
   const roleLabel = parseField(school, "role")?.name ?? null;
 
-  const systemVisible = filterItems(systemNavItems, role);
+  const isSystemSchool = school?.id === 0;
+  const systemVisible = isSystemSchool ? filterItems(systemNavItems, role) : [];
   const schoolVisible = filterItems(schoolNavItems, role);
   const manageVisible = filterItems(manageNavItems, role);
   const bottomVisible = filterItems(bottomNavItems, role);
@@ -186,7 +188,7 @@ export default function SideMenu({ collapsed, onToggle, onClose }) {
             Нэвтэрсэн
           </p>
           <p className="text-sm font-medium text-zinc-800 truncate">
-            {[user.last_name, user.first_name].filter((v) => v && v !== "-").join(" ") || user.email}
+            {`${user.last_name ?? ""} ${user.first_name ?? ""}`.trim() || user.email}
           </p>
           {roleLabel && (
             <p className="text-xs text-zinc-400 mt-0.5">{`Хандах эрх - ${roleLabel}`}</p>

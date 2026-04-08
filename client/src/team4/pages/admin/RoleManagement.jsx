@@ -90,6 +90,7 @@ export default function RoleManagement() {
   const [deleting, setDeleting] = useState(false);
 
   const selectedSchoolId = getSchoolId(school);
+  const isSystemAdmin = school?.id === 0;
 
   async function loadRoles() {
     try {
@@ -273,9 +274,11 @@ export default function RoleManagement() {
           </div>
         </div>
 
-        <Button onClick={openCreate}>
-          <FiPlus className="h-4 w-4" /> Эрх нэмэх
-        </Button>
+        {isSystemAdmin && (
+          <Button onClick={openCreate}>
+            <FiPlus className="h-4 w-4" /> Эрх нэмэх
+          </Button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
@@ -467,7 +470,7 @@ export default function RoleManagement() {
                       <TableHead>ID</TableHead>
                       <TableHead>Нэр</TableHead>
                       <TableHead>Эрэмбэ</TableHead>
-                      <TableHead className="text-right">Үйлдэл</TableHead>
+                      {isSystemAdmin && <TableHead className="text-right">Үйлдэл</TableHead>}
                     </TableRow>
                   </TableHeader>
 
@@ -479,26 +482,28 @@ export default function RoleManagement() {
                           <Badge variant="secondary">{role.name}</Badge>
                         </TableCell>
                         <TableCell>{role.priority ?? "—"}</TableCell>
-                        <TableCell>
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => openEdit(role)}
-                            >
-                              <FiEdit2 className="h-4 w-4" /> Засах
-                            </Button>
+                        {isSystemAdmin && (
+                          <TableCell>
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => openEdit(role)}
+                              >
+                                <FiEdit2 className="h-4 w-4" /> Засах
+                              </Button>
 
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setConfirmRole(role)}
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              <FiTrash2 className="h-4 w-4" /> Устгах
-                            </Button>
-                          </div>
-                        </TableCell>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setConfirmRole(role)}
+                                className="text-red-600 hover:text-red-700"
+                              >
+                                <FiTrash2 className="h-4 w-4" /> Устгах
+                              </Button>
+                            </div>
+                          </TableCell>
+                        )}
                       </TableRow>
                     ))}
                   </TableBody>
