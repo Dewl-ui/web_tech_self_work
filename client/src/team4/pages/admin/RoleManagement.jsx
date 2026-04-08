@@ -9,6 +9,9 @@ import {
   FiCheck,
   FiClock,
   FiUser,
+  FiMail,
+  FiPhone,
+  FiCalendar,
 } from "react-icons/fi";
 import {
   apiGet,
@@ -40,30 +43,61 @@ import {
   TableCell,
 } from "../../components/ui/Table";
 import { useAuth } from "../../utils/AuthContext";
+
 function getSchoolId(school) {
   return String(
-    school?.id ??
-      school?.school_id ??
-      school?.SCHOOL_ID ??
-      school?.ID ??
-      "",
+    school?.id ?? school?.school_id ?? school?.SCHOOL_ID ?? school?.ID ?? "",
   );
 }
+
 function getRequestUser(req) {
+  const firstName = req?.user?.first_name || "";
+  const lastName = req?.user?.last_name || "";
+
+  const fullName = [lastName, firstName]
+    .filter((v) => v && v !== "-")
+    .join(" ");
+
   return (
-    req?.["{}user"] ||
+    fullName ||
+    req?.user?.username ||
     req?.user_name ||
-    [req?.last_name, req?.first_name].filter(Boolean).join(" ") ||
     `Хэрэглэгч #${req?.user_id ?? "?"}`
   );
 }
 
 function getRequestRole(req) {
-  return req?.["{}role"] || req?.role_name || `Эрх #${req?.role_id ?? "?"}`;
+  return req?.role?.name || req?.role_name || `Эрх #${req?.role_id ?? "?"}`;
 }
 
 function getRequestStatus(req) {
-  return req?.["{}status"] || req?.status_name || `Төлөв #${req?.status_id ?? "?"}`;
+  if (req?.status_id === 10) return "Хүлээгдэж байна";
+  if (req?.status_id === 20) return "Зөвшөөрсөн";
+  if (req?.status_id === 30) return "Татгалзсан";
+  return `Төлөв #${req?.status_id ?? "?"}`;
+}
+
+function getRequestEmail(req) {
+  return req?.user?.email || "—";
+}
+
+function getRequestPhone(req) {
+  return req?.user?.phone || "—";
+}
+
+function getRequestUsername(req) {
+  return req?.user?.username || "—";
+}
+
+function getRequestCreatedOn(req) {
+  return req?.created_on || req?.updated_on || "";
+}
+
+function formatDate(value) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString("mn-MN");
 }
 
 export default function RoleManagement() {
@@ -79,18 +113,16 @@ export default function RoleManagement() {
   const [requestsError, setRequestsError] = useState("");
   const [requestActionId, setRequestActionId] = useState(null);
 
-  // Form state for create / edit
   const [editing, setEditing] = useState(null);
   const [formOpen, setFormOpen] = useState(false);
   const [form, setForm] = useState({ name: "", priority: "" });
   const [saving, setSaving] = useState(false);
 
-  // Delete role
   const [confirmRole, setConfirmRole] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
   const selectedSchoolId = getSchoolId(school);
-
+  const isSystemAdmin = school?.id === 0;
   async function loadRoles() {
     try {
       setLoading(true);
@@ -121,7 +153,8 @@ export default function RoleManagement() {
       const data = await apiGet(`/schools/${selectedSchoolId}/requests`);
       setRequests(data?.items ?? (Array.isArray(data) ? data : []));
     } catch (err) {
-      const msg = err.message || "Эрхийн хүсэлтийн жагсаалт авахад алдаа гарлаа.";
+      const msg =
+        err.message || "Эрхийн хүсэлтийн жагсаалт авахад алдаа гарлаа.";
       setRequestsError(msg);
       toast.error(msg);
     } finally {
@@ -260,27 +293,31 @@ export default function RoleManagement() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 text-purple-700">
             <FiShield className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900">Эрхийн удирдлага</h1>
+            <h1 className="text-2xl font-bold text-zinc-900">
+              Эрхийн удирдлага
+            </h1>
             <p className="text-sm text-zinc-500">
-              Зүүн талд хүсэлтүүд, баруун талд эрхийн удирдлага
+              Зүүн талд эрхийн хүсэлтүүд, баруун талд эрхийн тохиргоо
             </p>
           </div>
         </div>
 
-        <Button onClick={openCreate}>
-          <FiPlus className="h-4 w-4" /> Эрх нэмэх
-        </Button>
+        {isSystemAdmin && (
+          <Button onClick={openCreate}>
+            <FiPlus className="h-4 w-4" /> Эрх нэмэх
+          </Button>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-        {/* LEFT: Request list */}
-        <div className="xl:col-span-1">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-5">
+        {/* LEFT */}
+        <div className="xl:col-span-3">
           <Card className="h-full">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -296,15 +333,15 @@ export default function RoleManagement() {
 
             <CardContent>
               {!selectedSchoolId ? (
-                <div className="rounded-xl border border-dashed border-zinc-200 py-10 text-center text-sm text-zinc-500">
+                <div className="rounded-xl border border-dashed border-zinc-200 py-12 text-center text-sm text-zinc-500">
                   Сургууль сонгоогүй байна.
                 </div>
               ) : requestsLoading ? (
-                <div className="space-y-3">
-                  {[1, 2, 3, 4].map((i) => (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
                     <div
                       key={i}
-                      className="h-24 animate-pulse rounded-xl bg-zinc-100"
+                      className="h-56 animate-pulse rounded-2xl bg-zinc-100"
                     />
                   ))}
                 </div>
@@ -313,52 +350,106 @@ export default function RoleManagement() {
                   {requestsError}
                 </div>
               ) : requests.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-zinc-200 py-10 text-center text-sm text-zinc-500">
+                <div className="rounded-xl border border-dashed border-zinc-200 py-12 text-center text-sm text-zinc-500">
                   Хүсэлт алга байна.
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {requests.map((req) => {
                     const acting = requestActionId === req.id;
 
                     return (
                       <div
                         key={req.id}
-                        className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm"
+                        className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"
                       >
-                        <div className="mb-2 flex items-start justify-between gap-3">
-                          <div>
-                            <div className="flex items-center gap-2 text-sm font-semibold text-zinc-900">
-                              <FiUser className="h-4 w-4 text-zinc-500" />
-                              <span>{getRequestUser(req)}</span>
+                        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                          <div className="flex items-start gap-3">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-purple-100 text-purple-700">
+                              <FiUser className="h-5 w-5" />
                             </div>
-                            <p className="mt-1 text-xs text-zinc-500">
-                              ID: {req.id} · user_id: {req.user_id ?? "—"}
+
+                            <div>
+                              <h3 className="text-base font-semibold text-zinc-900">
+                                {getRequestUser(req)}
+                              </h3>
+                              <p className="mt-1 text-xs text-zinc-500">
+                                Хүсэлт ID: {req.id} · user_id:{" "}
+                                {req.user_id ?? "—"}
+                              </p>
+                            </div>
+                          </div>
+
+                          <Badge variant="secondary">
+                            {getRequestStatus(req)}
+                          </Badge>
+                        </div>
+
+                        <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+                          <div className="rounded-xl bg-zinc-50 p-3">
+                            <div className="flex items-center gap-2 text-xs text-zinc-500">
+                              <FiShield className="h-4 w-4" />
+                              <span>Хүссэн эрх</span>
+                            </div>
+                            <p className="mt-1 text-sm font-medium text-zinc-900">
+                              {getRequestRole(req)}
                             </p>
                           </div>
 
-                          <Badge variant="secondary">{getRequestStatus(req)}</Badge>
+                          <div className="rounded-xl bg-zinc-50 p-3">
+                            <div className="flex items-center gap-2 text-xs text-zinc-500">
+                              <FiCalendar className="h-4 w-4" />
+                              <span>Огноо</span>
+                            </div>
+                            <p className="mt-1 text-sm font-medium text-zinc-900">
+                              {formatDate(getRequestCreatedOn(req))}
+                            </p>
+                          </div>
+
+                          <div className="rounded-xl bg-zinc-50 p-3">
+                            <div className="flex items-center gap-2 text-xs text-zinc-500">
+                              <FiMail className="h-4 w-4" />
+                              <span>Имэйл</span>
+                            </div>
+                            <p className="mt-1 break-all text-sm font-medium text-zinc-900">
+                              {getRequestEmail(req)}
+                            </p>
+                          </div>
+
+                          <div className="rounded-xl bg-zinc-50 p-3">
+                            <div className="flex items-center gap-2 text-xs text-zinc-500">
+                              <FiPhone className="h-4 w-4" />
+                              <span>Утас</span>
+                            </div>
+                            <p className="mt-1 text-sm font-medium text-zinc-900">
+                              {getRequestPhone(req)}
+                            </p>
+                          </div>
+
+                          <div className="rounded-xl bg-zinc-50 p-3 md:col-span-2">
+                            <div className="flex items-center gap-2 text-xs text-zinc-500">
+                              <FiUser className="h-4 w-4" />
+                              <span>Username</span>
+                            </div>
+                            <p className="mt-1 text-sm font-medium text-zinc-900">
+                              {getRequestUsername(req)}
+                            </p>
+                          </div>
                         </div>
 
-                        <div className="space-y-1 text-sm">
-                          <p>
-                            <span className="text-zinc-500">Хүссэн эрх:</span>{" "}
-                            <span className="font-medium text-zinc-900">
-                              {getRequestRole(req)}
-                            </span>
-                          </p>
-
-                          <p className="text-zinc-600">
+                        <div className="mt-4 rounded-xl border border-dashed border-zinc-200 bg-zinc-50 p-3">
+                          <p className="text-xs text-zinc-500">Тайлбар</p>
+                          <p className="mt-1 text-sm text-zinc-700">
                             {req.description?.trim() || "Тайлбар оруулаагүй"}
                           </p>
                         </div>
 
-                        <div className="mt-3 flex gap-2">
+                        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
                           <Button
                             size="sm"
                             onClick={() => handleApproveRequest(req.id)}
                             disabled={acting}
-                            className="flex-1"
+                            className="sm:flex-1"
                           >
                             <FiCheck className="h-4 w-4" />
                             {acting ? "Түр хүлээнэ үү..." : "Зөвшөөрөх"}
@@ -369,7 +460,7 @@ export default function RoleManagement() {
                             variant="outline"
                             onClick={() => handleRejectRequest(req.id)}
                             disabled={acting}
-                            className="flex-1 text-red-600 hover:text-red-700"
+                            className="text-red-600 hover:text-red-700 sm:flex-1"
                           >
                             <FiX className="h-4 w-4" />
                             Татгалзах
@@ -384,16 +475,18 @@ export default function RoleManagement() {
           </Card>
         </div>
 
-        {/* RIGHT: Role create/edit/list */}
+        {/* RIGHT */}
         <div className="space-y-6 xl:col-span-2">
           {formOpen && (
             <Card>
               <CardHeader>
-                <CardTitle>{editing ? "Эрх засах" : "Шинэ эрх нэмэх"}</CardTitle>
+                <CardTitle>
+                  {editing ? "Эрх засах" : "Шинэ эрх нэмэх"}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSave} className="space-y-4">
-                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-3">
                     <div className="space-y-1.5">
                       <Label>Нэр *</Label>
                       <Input
@@ -467,7 +560,9 @@ export default function RoleManagement() {
                       <TableHead>ID</TableHead>
                       <TableHead>Нэр</TableHead>
                       <TableHead>Эрэмбэ</TableHead>
-                      <TableHead className="text-right">Үйлдэл</TableHead>
+                      {isSystemAdmin && (
+                        <TableHead className="text-right">Үйлдэл</TableHead>
+                      )}
                     </TableRow>
                   </TableHeader>
 
@@ -479,26 +574,28 @@ export default function RoleManagement() {
                           <Badge variant="secondary">{role.name}</Badge>
                         </TableCell>
                         <TableCell>{role.priority ?? "—"}</TableCell>
-                        <TableCell>
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => openEdit(role)}
-                            >
-                              <FiEdit2 className="h-4 w-4" /> Засах
-                            </Button>
+                        {isSystemAdmin && (
+                          <TableCell>
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => openEdit(role)}
+                              >
+                                <FiEdit2 className="h-4 w-4" /> Засах
+                              </Button>
 
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setConfirmRole(role)}
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              <FiTrash2 className="h-4 w-4" /> Устгах
-                            </Button>
-                          </div>
-                        </TableCell>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setConfirmRole(role)}
+                                className="text-red-600 hover:text-red-700"
+                              >
+                                <FiTrash2 className="h-4 w-4" /> Устгах
+                              </Button>
+                            </div>
+                          </TableCell>
+                        )}
                       </TableRow>
                     ))}
                   </TableBody>
