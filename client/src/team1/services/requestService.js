@@ -37,6 +37,11 @@ function decorateMembershipRequest(request) {
   };
 }
 
+export async function getSchoolMembershipRequests(schoolId) {
+  const payload = await requestAPI.getBySchool(schoolId);
+  return extractItems(payload).map(decorateMembershipRequest);
+}
+
 export async function getRequests() {
   const currentSchool = getCurrentSchool();
   const [schoolRequests, membershipRequests] = await Promise.all([

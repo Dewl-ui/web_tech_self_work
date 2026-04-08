@@ -201,6 +201,7 @@ export function extractItem(payload) {
 export const schoolAPI = {
   getAll: () => api.get("/schools"),
   getOne: (schoolId) => api.get(`/schools/${schoolId}`),
+  getTeachers: (schoolId) => api.get(`/schools/${schoolId}/teachers`),
   create: (data) => api.post("/schools", data),
   update: (schoolId, data) => api.put(`/schools/${schoolId}`, data),
   delete: (schoolId) => api.delete(`/schools/${schoolId}`),
