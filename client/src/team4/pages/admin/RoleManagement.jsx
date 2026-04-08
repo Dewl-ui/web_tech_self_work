@@ -46,7 +46,11 @@ import { useAuth } from "../../utils/AuthContext";
 
 function getSchoolId(school) {
   return String(
-    school?.id ?? school?.school_id ?? school?.SCHOOL_ID ?? school?.ID ?? "",
+    school?.id ??
+      school?.school_id ??
+      school?.SCHOOL_ID ??
+      school?.ID ??
+      "",
   );
 }
 
@@ -299,9 +303,7 @@ export default function RoleManagement() {
             <FiShield className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900">
-              Эрхийн удирдлага
-            </h1>
+            <h1 className="text-2xl font-bold text-zinc-900">Эрхийн удирдлага</h1>
             <p className="text-sm text-zinc-500">
               Зүүн талд эрхийн хүсэлтүүд, баруун талд эрхийн тохиргоо
             </p>
@@ -313,6 +315,7 @@ export default function RoleManagement() {
             <FiPlus className="h-4 w-4" /> Эрх нэмэх
           </Button>
         )}
+
       </div>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-5">
@@ -374,8 +377,7 @@ export default function RoleManagement() {
                                 {getRequestUser(req)}
                               </h3>
                               <p className="mt-1 text-xs text-zinc-500">
-                                Хүсэлт ID: {req.id} · user_id:{" "}
-                                {req.user_id ?? "—"}
+                                Хүсэлт ID: {req.id} · user_id: {req.user_id ?? "—"}
                               </p>
                             </div>
                           </div>
@@ -480,9 +482,7 @@ export default function RoleManagement() {
           {formOpen && (
             <Card>
               <CardHeader>
-                <CardTitle>
-                  {editing ? "Эрх засах" : "Шинэ эрх нэмэх"}
-                </CardTitle>
+                <CardTitle>{editing ? "Эрх засах" : "Шинэ эрх нэмэх"}</CardTitle>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSave} className="space-y-4">
@@ -560,9 +560,7 @@ export default function RoleManagement() {
                       <TableHead>ID</TableHead>
                       <TableHead>Нэр</TableHead>
                       <TableHead>Эрэмбэ</TableHead>
-                      {isSystemAdmin && (
-                        <TableHead className="text-right">Үйлдэл</TableHead>
-                      )}
+                      {isSystemAdmin && <TableHead className="text-right">Үйлдэл</TableHead>}
                     </TableRow>
                   </TableHeader>
 
@@ -596,6 +594,7 @@ export default function RoleManagement() {
                             </div>
                           </TableCell>
                         )}
+
                       </TableRow>
                     ))}
                   </TableBody>

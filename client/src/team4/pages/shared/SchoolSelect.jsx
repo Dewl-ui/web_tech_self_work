@@ -22,11 +22,40 @@ export default function SchoolSelect() {
   const [schools, setSchools] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isSystemAdmin, setIsSystemAdmin] = useState(false);
 
   useEffect(() => {
     if (!user?.id) return;
+
     apiGet(`/users/${user.id}/schools`)
-      .then((data) => setSchools(data?.items ?? []))
+      .then(async (data) => {
+        const userSchools = data?.items ?? [];
+
+        // If the user belongs to the system school (id=0) with admin role,
+        // fetch ALL registered schools so they can access any school.
+        const hasSystemAdmin = userSchools.some((s) => {
+          const role = parseField(s, "role");
+          return s.id === 0 && role?.id === ROLES.ADMIN;
+        });
+
+        if (hasSystemAdmin) {
+          setIsSystemAdmin(true);
+          try {
+            const allData = await apiGet("/schools?limit=10000");
+            const allSchools = allData?.items ?? [];
+            // Merge: keep system school from userSchools (has role info),
+            // then add all other schools
+            const systemSchool = userSchools.find((s) => s.id === 0);
+            const otherSchools = allSchools.filter((s) => s.id !== 0);
+            setSchools(systemSchool ? [systemSchool, ...otherSchools] : otherSchools);
+          } catch {
+            // Fallback to user's own schools if /schools fails
+            setSchools(userSchools);
+          }
+        } else {
+          setSchools(userSchools);
+        }
+      })
       .catch((err) => {
         const msg = err.message || "Сургуулийн мэдээлэл авахад алдаа гарлаа";
         setError(msg);
@@ -36,7 +65,14 @@ export default function SchoolSelect() {
   }, [user?.id]);
 
   function handleSelect(school) {
-    selectSchool(school);
+    // For system admin selecting a school without role info, inject admin role
+    const roleObj = parseField(school, "role");
+    if (!roleObj && isSystemAdmin) {
+      const adminSchool = { ...school, "{}role": JSON.stringify({ id: ROLES.ADMIN, name: "Админ" }) };
+      selectSchool(adminSchool);
+    } else {
+      selectSchool(school);
+    }
     toast.success(`${school.name ?? "Сургууль"} сонгогдлоо.`);
     navigate("/team4/", { replace: true });
   }
