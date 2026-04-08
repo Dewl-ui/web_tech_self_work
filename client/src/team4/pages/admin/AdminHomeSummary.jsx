@@ -47,9 +47,9 @@ export default function AdminHomeSummary({ userId }) {
 
   useEffect(() => {
     Promise.allSettled([
-      apiGet("/users"),
+      apiGet("/users?limit=10000"),
       apiGet("/roles"),
-      userId ? apiGet(`/users/${userId}/schools`) : Promise.resolve({ items: [] }),
+      apiGet("/schools?limit=10000"),
     ]).then(([u, r, s]) => {
       setStats({
         users:   u.status === "fulfilled" ? (u.value?.items?.length ?? "–") : "–",
@@ -63,9 +63,9 @@ export default function AdminHomeSummary({ userId }) {
   return (
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard title="Нийт хэрэглэгч" value={stats.users}   icon={<FiUsers  className="h-5 w-5" />} loading={loading} />
-        <StatCard title="Эрхийн тоо"      value={stats.roles}   icon={<FiShield className="h-5 w-5" />} loading={loading} />
-        <StatCard title="Сургуулийн тоо"  value={stats.schools} icon={<FaSchool className="h-5 w-5" />} loading={loading} />
+        <StatCard title="Системийн нийт хэрэглэгч" value={stats.users}   icon={<FiUsers  className="h-5 w-5" />} loading={loading} />
+        <StatCard title="Системийн нийт эрхийн тоо"      value={stats.roles}   icon={<FiShield className="h-5 w-5" />} loading={loading} />
+        <StatCard title="Нийт сургууль"  value={stats.schools} icon={<FaSchool className="h-5 w-5" />} loading={loading} />
       </div>
 
       <div className="rounded-xl border border-zinc-200 bg-white p-5">

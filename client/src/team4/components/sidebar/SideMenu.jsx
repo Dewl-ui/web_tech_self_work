@@ -9,7 +9,7 @@ import { ROLES } from "../../utils/constants";
 
 const { ADMIN, TEACHER, STUDENT } = ROLES;
 
-const mainNavItems = [
+const systemNavItems = [
   {
     to: "/team4",
     label: "Нүүр хуудас",
@@ -17,6 +17,9 @@ const mainNavItems = [
     roles: [ADMIN, TEACHER, STUDENT],
     isHome: true,
   },
+];
+
+const schoolNavItems = [
   {
     to: "/team4/admin",
     label: "Админ самбар",
@@ -90,7 +93,8 @@ export default function SideMenu({ collapsed, onToggle, onClose }) {
   const { user, role, school } = useAuth();
   const roleLabel = parseField(school, "role")?.name ?? null;
 
-  const mainVisible = filterItems(mainNavItems, role);
+  const systemVisible = filterItems(systemNavItems, role);
+  const schoolVisible = filterItems(schoolNavItems, role);
   const manageVisible = filterItems(manageNavItems, role);
   const bottomVisible = filterItems(bottomNavItems, role);
 
@@ -123,10 +127,30 @@ export default function SideMenu({ collapsed, onToggle, onClose }) {
 
       {/* Nav links */}
       <nav className="flex-1 px-2 py-2 space-y-1 overflow-y-auto">
-        {/* Main section */}
-        {mainVisible.length > 0 && (
+        {/* System section */}
+        {systemVisible.length > 0 && (
           <div className="space-y-0.5">
-            {mainVisible.map((item) => (
+            {!collapsed && (
+              <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+                Систем
+              </p>
+            )}
+            {systemVisible.map((item) => (
+              <SideNavLink key={`${item.to}-${item.label}`} item={item} collapsed={collapsed} onClose={onClose} />
+            ))}
+          </div>
+        )}
+
+        {/* School section */}
+        {schoolVisible.length > 0 && (
+          <div className="space-y-0.5 pt-3">
+            {!collapsed && (
+              <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+                Сургууль
+              </p>
+            )}
+            {collapsed && <div className="mx-auto my-2 h-px w-4 bg-zinc-200" />}
+            {schoolVisible.map((item) => (
               <SideNavLink key={`${item.to}-${item.label}`} item={item} collapsed={collapsed} onClose={onClose} />
             ))}
           </div>
@@ -162,7 +186,7 @@ export default function SideMenu({ collapsed, onToggle, onClose }) {
             Нэвтэрсэн
           </p>
           <p className="text-sm font-medium text-zinc-800 truncate">
-            {`${user.last_name ?? ""} ${user.first_name ?? ""}`.trim() || user.email}
+            {[user.last_name, user.first_name].filter((v) => v && v !== "-").join(" ") || user.email}
           </p>
           {roleLabel && (
             <p className="text-xs text-zinc-400 mt-0.5">{`Хандах эрх - ${roleLabel}`}</p>
