@@ -1,7 +1,7 @@
 // Member A OWNS this file — Admin profile page at /team4/profile
 import { useEffect, useState } from "react";
 import { FiUser, FiMail, FiPhone, FiSave, FiShield } from "react-icons/fi";
-import { apiGet, apiPut } from "../../utils/api";
+import { apiGet, apiPut, withCurrentUser } from "../../utils/api";
 import { useToast } from "../../components/ui/Toast";
 
 function Field({ label, value, onChange, type = "text", readOnly = false }) {
@@ -26,7 +26,7 @@ function Field({ label, value, onChange, type = "text", readOnly = false }) {
 export default function AdminProfile() {
   const toast = useToast();
   const [profile, setProfile] = useState(null);
-  const [form, setForm]       = useState({ first_name: "", last_name: "", phone: "" });
+  const [form, setForm]       = useState({ first_name: "", last_name: "", family_name: "", phone: "", picture: "" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving]   = useState(false);
   const [error, setError]     = useState("");
@@ -36,9 +36,11 @@ export default function AdminProfile() {
       .then((data) => {
         setProfile(data);
         setForm({
-          first_name: data.first_name ?? "",
-          last_name:  data.last_name  ?? "",
-          phone:      data.phone      ?? "",
+          first_name:  data.first_name  ?? "",
+          last_name:   data.last_name   ?? "",
+          family_name: data.family_name ?? "",
+          phone:       data.phone       ?? "",
+          picture:     data.picture     ?? "",
         });
       })
       .catch((err) => {
@@ -54,7 +56,7 @@ export default function AdminProfile() {
     setError("");
     setSaving(true);
     try {
-      await apiPut("/users/me", form);
+      await apiPut("/users/me", withCurrentUser(form));
       toast.success("Амжилттай хадгалагдлаа.");
     } catch (err) {
       toast.error(err.message || "Хадгалахад алдаа гарлаа.");
