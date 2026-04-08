@@ -39,25 +39,16 @@ import {
   TableHead,
   TableCell,
 } from "../../components/ui/Table";
-
-function getSelectedSchoolId() {
-  try {
-    const raw = localStorage.getItem("team4_school");
-    if (!raw) return "";
-
-    const school = JSON.parse(raw);
-    return String(
-      school?.id ??
-        school?.school_id ??
-        school?.SCHOOL_ID ??
-        school?.ID ??
-        "",
-    );
-  } catch {
-    return "";
-  }
+import { useAuth } from "../../utils/AuthContext";
+function getSchoolId(school) {
+  return String(
+    school?.id ??
+      school?.school_id ??
+      school?.SCHOOL_ID ??
+      school?.ID ??
+      "",
+  );
 }
-
 function getRequestUser(req) {
   return (
     req?.["{}user"] ||
@@ -77,6 +68,7 @@ function getRequestStatus(req) {
 
 export default function RoleManagement() {
   const toast = useToast();
+  const { school } = useAuth();
 
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -97,7 +89,7 @@ export default function RoleManagement() {
   const [confirmRole, setConfirmRole] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  const selectedSchoolId = getSelectedSchoolId();
+  const selectedSchoolId = getSchoolId(school);
 
   async function loadRoles() {
     try {
