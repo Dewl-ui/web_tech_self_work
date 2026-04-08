@@ -1,1 +1,9 @@
-export default function QuestionEdit() { return <div>Question Edit</div>; }
+import DynamicQuestionEditor from '../components/DynamicQuestionEditor';
+
+// ... form дотор
+<DynamicQuestionEditor 
+  typeId={formData.type_id} 
+  formData={formData} 
+  setFormData={setFormData} 
+  
+/>
