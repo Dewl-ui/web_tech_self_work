@@ -1,44 +1,45 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./Layout";
 import Home from "./Home";
+import Dashboard from "./pages/Dashboard";
+import Login from "./Login";
 import QuestionList from "./pages/QuestionList";
-import Dashboard from "./pages/Dashboard"; 
-import Login from "../layout/Login"; 
-import QuestionReport from "./pages/QuestionReport";
-
-
-// Компонентуудыг импортлох
-import QuestionCreate from "./pages/QuestionCreate"; 
-import QuestionTypes from "./pages/QuestionTypes"; 
+import QuestionCreate from "./pages/QuestionCreate";
+import QuestionEdit from "./pages/QuestionEdit";
+import QuestionView from "./pages/QuestionView";
+import QuestionTypes from "./pages/QuestionTypes";
 import QuestionLevels from "./pages/QuestionLevels";
-
-// ХЭРЭВ CourseCreate файл байхгүй бол энэ мөрийг comment болгох:
-// import CourseCreate from "./pages/CourseCreate"; 
+import QuestionPoints from "./pages/QuestionPoints";
+import QuestionReport from "./pages/QuestionReport";
 
 const Index = () => {
   return (
     <Routes>
       <Route path="login" element={<Login />} />
-      
       <Route path="" element={<Layout />}>
-        <Route index element={<Dashboard />} /> 
+        <Route index element={<Dashboard />} />
         <Route path="home" element={<Home />} />
         <Route path="dashboard" element={<Dashboard />} />
-        
-        {/* Асуулттай холбоотой замууд */}
+
+        {/* Глобал асуултын төрөл, түвшин */}
+        <Route path="question-types" element={<QuestionTypes />} />
+        <Route path="question-levels" element={<QuestionLevels />} />
+
+        {/* Хичээлтэй холбоотой замууд */}
         <Route path="courses/:course_id/questions">
           <Route index element={<QuestionList />} />
           <Route path="create" element={<QuestionCreate />} />
-          <Route path="types" element={<QuestionTypes />} />
-          <Route path="levels" element={<QuestionLevels />} />
           <Route path="report" element={<QuestionReport />} />
+          <Route path=":question_id" element={<QuestionView />} />
+          <Route path=":question_id/edit" element={<QuestionEdit />} />
         </Route>
 
-        {/* Шинэ хичээл нэмэх зам */}
-        {/* CourseCreate файл бэлэн болох хүртэл QuestionCreate-ийг түр ашиглаж болно */}
-        <Route path="courses/create" element={<QuestionCreate />} />
+        {/* Асуултын оноо удирдах */}
+        <Route
+          path="courses/:course_id/question-points"
+          element={<QuestionPoints />}
+        />
       </Route>
-
       <Route path="*" element={<Navigate to="" replace />} />
     </Routes>
   );
