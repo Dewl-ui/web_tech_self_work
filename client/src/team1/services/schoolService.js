@@ -10,6 +10,11 @@ export async function getSchool(id) {
   return extractItem(payload);
 }
 
+export async function getSchoolTeachers(id) {
+  const payload = await schoolAPI.getTeachers(id);
+  return extractItems(payload);
+}
+
 export async function createSchool(data) {
   const payload = await schoolAPI.create(data);
   return extractItem(payload);
