@@ -115,6 +115,14 @@ export function AuthProvider({ children }) {
     setRole(null);
   }
 
+  async function refreshUser() {
+    try {
+      const me = await apiGet("/users/me");
+      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(me));
+      setUser(me);
+    } catch { /* ignore */ }
+  }
+
   function selectSchool(schoolObj) {
     const parsedRole = parseField(schoolObj, "role");
     const roleId = parsedRole?.id ?? null;           // e.g. 10, 20, or 30
@@ -130,7 +138,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, school, role, isAdmin, isTeacher, isStudent, login, logout, selectSchool }}
+      value={{ user, school, role, isAdmin, isTeacher, isStudent, login, logout, selectSchool, refreshUser }}
     >
       {children}
     </AuthContext.Provider>

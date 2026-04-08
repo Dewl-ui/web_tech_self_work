@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { FiUser, FiMail, FiPhone, FiSave, FiShield } from "react-icons/fi";
 import { apiGet, apiPut, withCurrentUser } from "../../utils/api";
+import { useAuth } from "../../utils/AuthContext";
 import { useToast } from "../../components/ui/Toast";
 
 function Field({ label, value, onChange, type = "text", readOnly = false }) {
@@ -25,6 +26,7 @@ function Field({ label, value, onChange, type = "text", readOnly = false }) {
 
 export default function AdminProfile() {
   const toast = useToast();
+  const { refreshUser } = useAuth();
   const [profile, setProfile] = useState(null);
   const [form, setForm]       = useState({ first_name: "", last_name: "", family_name: "", phone: "", picture: "" });
   const [loading, setLoading] = useState(true);
@@ -57,6 +59,7 @@ export default function AdminProfile() {
     setSaving(true);
     try {
       await apiPut("/users/me", withCurrentUser(form));
+      await refreshUser();
       toast.success("Амжилттай хадгалагдлаа.");
     } catch (err) {
       toast.error(err.message || "Хадгалахад алдаа гарлаа.");
@@ -93,7 +96,7 @@ export default function AdminProfile() {
           </div>
           <div>
             <p className="text-lg font-semibold text-zinc-900">
-              {[profile?.last_name, profile?.first_name].filter(Boolean).join(" ") || "—"}
+              {[profile?.last_name, profile?.first_name].filter((v) => v && v !== "-").join(" ") || "—"}
             </p>
             <p className="text-sm text-zinc-400">@{profile?.username ?? "—"}</p>
           </div>

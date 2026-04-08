@@ -162,10 +162,10 @@ export default function SideMenu({ collapsed, onToggle, onClose }) {
             Нэвтэрсэн
           </p>
           <p className="text-sm font-medium text-zinc-800 truncate">
-            {`${user.first_name ?? ""} ${user.last_name ?? ""}`.trim() || user.email}
+            {`${user.last_name ?? ""} ${user.first_name ?? ""}`.trim() || user.email}
           </p>
           {roleLabel && (
-            <p className="text-xs text-zinc-400 mt-0.5">{roleLabel}</p>
+            <p className="text-xs text-zinc-400 mt-0.5">{`Хандах эрх - ${roleLabel}`}</p>
           )}
         </div>
       )}

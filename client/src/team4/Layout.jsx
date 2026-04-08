@@ -27,7 +27,7 @@ export default function Layout() {
   }
 
   const roleLabel = parseField(school, "role")?.name ?? null;
-  const userName = [user?.last_name, user?.first_name].filter(Boolean).join(" ") || user?.email || "";
+  const userName = [user?.last_name, user?.first_name].filter((v) => v && v !== "-").join(" ") || user?.email || "";
   const initials = userName
     .split(" ")
     .map((n) => n[0])
