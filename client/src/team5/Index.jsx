@@ -5,12 +5,13 @@ import QuestionList from "./pages/QuestionList";
 import Dashboard from "./pages/Dashboard"; 
 import Login from "../layout/Login"; 
 
-
-// 1. Файлын нэр болон компонентын нэрийг зөв холбох
+// Компонентуудыг импортлох
 import QuestionCreate from "./pages/QuestionCreate"; 
-import CourseCreate from "./pages/CourseCreate"; // Энийг нэмж импортлоно
 import QuestionTypes from "./pages/QuestionTypes"; 
 import QuestionLevels from "./pages/QuestionLevels";
+
+// ХЭРЭВ CourseCreate файл байхгүй бол энэ мөрийг comment болгох:
+// import CourseCreate from "./pages/CourseCreate"; 
 
 const Index = () => {
   return (
@@ -27,12 +28,12 @@ const Index = () => {
           <Route index element={<QuestionList />} />
           <Route path="create" element={<QuestionCreate />} />
           <Route path="types" element={<QuestionTypes />} />
-           <Route path="levels" element={<QuestionLevels />} />
+          <Route path="levels" element={<QuestionLevels />} />
         </Route>
 
-        {/* 2. "Шинэ хичээл нэмэх" хуудсанд зориулсан тусдаа зам */}
-        {/* Энэ зам дээр CourseCreate компонентыг ажиллуулна */}
-        <Route path="courses/create" element={<CourseCreate />} />
+        {/* Шинэ хичээл нэмэх зам */}
+        {/* CourseCreate файл бэлэн болох хүртэл QuestionCreate-ийг түр ашиглаж болно */}
+        <Route path="courses/create" element={<QuestionCreate />} />
       </Route>
 
       <Route path="*" element={<Navigate to="" replace />} />
