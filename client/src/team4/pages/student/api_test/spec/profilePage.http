@@ -1,0 +1,58 @@
+@baseUrl = https://todu.mn/bs/lms/v1
+@schoolId = 2
+@userId = 539
+
+@courseId = 204
+
+@accessToken = 4CiGpMD-fN9R29bDwlZtEg
+
+### 1. user login
+POST {{baseUrl}}/token/email
+Content-Type: application/json
+
+{
+  "email": "schoolstudent@must.edu.mn",
+  "password": "123",
+  "push_token": "fcm_token_optional"
+}
+
+### Get own info
+GET {{baseUrl}}/users/me
+Authorization: Bearer {{accessToken}}
+
+{
+  "id": 539,
+  "first_name": "Оюутан",
+  "last_name": "-",
+  "family_name": "-",
+  "picture": "no-image.jpg",
+  "username": "schoolstudent",
+  "email": "schoolstudent@must.edu.mn",
+  "phone": null,
+  "facebook_id": null,
+  "schools": [
+    {
+      "id": 2,
+      "name": "Мэдээлэл, Холбооны Технологийн Сургууль",
+      "role": {
+        "id": 30,
+        "name": "Суралцагч"
+      }
+    },
+    {
+      "id": 0,
+      "name": "Humuun.edu.mn Нээлттэй орчин",
+      "role": {
+        "id": 30,
+        "name": "Суралцагч"
+      }
+    }
+  ],
+  "links": [
+    {
+      "rel": "collection",
+      "href": "https://todu.mn/bs/lms/v1/users/"
+    }
+  ]
+}
+

@@ -1,0 +1,59 @@
+### User Management API Check File
+### Base URL: https://todu.mn/bs/lms/v1
+### Supports: List users, Create user, Get user, Update user, Delete user
+### Note: All endpoints require authentication (admin role for create/update/delete).
+
+@baseUrl = https://todu.mn/bs/lms/v1
+@userId = 12345
+
+@accessToken = i8zSSGzb7UhwvExNCT4jIw
+
+### 1. List all users
+GET {{baseUrl}}/users
+Authorization: Bearer {{accessToken}}
+
+### 2. Create a new user (admin only)
+POST {{baseUrl}}/users
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "username": "johndoe",
+  "password": "secret123",
+  "first_name": "John",
+  "last_name": "Doe",
+  "email": "john.doe@example.com",
+  "phone": "99119911",
+  "facebook_id": ""
+}
+
+### 3. Get user by ID
+GET {{baseUrl}}/users/{{userId}}
+Authorization: Bearer {{accessToken}}
+
+### 4. Update user (admin only)
+PUT {{baseUrl}}/users/{{userId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "first_name": "Johnathan",
+  "last_name": "Doe",
+  "phone": "99229922",
+  "email": "johnathan.doe@example.com"
+}
+
+### 5. Delete user (admin only)
+DELETE {{baseUrl}}/users/{{userId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{}
+
+### 6. Get courses of a specific user (enrollments)
+GET {{baseUrl}}/users/{{userId}}/courses
+Authorization: Bearer {{accessToken}}
+
+### 7. Get schools of a specific user
+GET {{baseUrl}}/users/{{userId}}/schools
+Authorization: Bearer {{accessToken}}

@@ -1,6 +1,6 @@
-import Login from "../layout/Login";
+import Login from "../layout/Login"  ;
 
-const Example = () => {
+const Example =()=> {
 
     return <div>
         <h1>Example</h1>
