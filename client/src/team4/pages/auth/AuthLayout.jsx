@@ -21,7 +21,7 @@ function RightPanel() {
   }, []);
 
   return (
-    <div className="relative hidden min-h-0 min-w-0 overflow-hidden lg:block lg:min-h-screen lg:w-1/2">
+    <div className="relative hidden min-h-0 min-w-0 overflow-hidden lg:block lg:min-h-screen lg:w-1/2 ">
       {slides.map((src, i) => (
         <img
           key={src}
