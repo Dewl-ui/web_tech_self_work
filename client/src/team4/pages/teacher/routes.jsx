@@ -11,6 +11,7 @@ import { Route } from "react-router-dom";
 import { ProtectedRoute } from "../../utils/AuthContext";
 import { ROLES } from "../../utils/constants";
 
+import AttendancePage from "./AttendancePage";
 import CourseUserEdit from "./CourseUserEdit";
 import CourseUserList from "./CourseUserList";
 import GroupManagement from "./GroupManagement";
@@ -22,11 +23,18 @@ const teacherRoutes = [
   <Route key="teacher-dashboard" path="teacher"
     element={<ProtectedRoute role={ROLES.TEACHER}><TeacherDashboard /></ProtectedRoute>} />,
 
+  <Route key="attendance" path="teacher/attendance"
+    element={<ProtectedRoute role={ROLES.TEACHER}><AttendancePage /></ProtectedRoute>} />,
+
   // Course user management — /team4/courses/:course_id/users*
   <Route key="course-users" path="courses/:course_id/users"
     element={<ProtectedRoute role={[ROLES.ADMIN, ROLES.TEACHER]}><CourseUserList /></ProtectedRoute>} />,
   <Route key="course-users-edit" path="courses/:course_id/users/edit"
     element={<ProtectedRoute role={[ROLES.ADMIN, ROLES.TEACHER]}><CourseUserEdit /></ProtectedRoute>} />,
+
+      // Course attendance — /team4/courses/:course_id/attendance
+  <Route key="course-attendance" path="courses/:course_id/attendance"
+    element={<ProtectedRoute role={[ROLES.ADMIN, ROLES.TEACHER]}><AttendancePage /></ProtectedRoute>} />,
 
   // Group management — /team4/courses/:course_id/groups*
   <Route key="groups" path="courses/:course_id/groups"

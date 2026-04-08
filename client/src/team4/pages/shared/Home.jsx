@@ -24,7 +24,7 @@ export default function Home() {
   const { user, role, school, isAdmin, isTeacher, isStudent } = useAuth();
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="mx-auto max-w-6xl space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-zinc-900">
           {ROLE_TITLES[role] ?? "Dashboard"}
