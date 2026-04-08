@@ -13,7 +13,8 @@ const Layout = () => {
     { name: "Асуултын төрөл", path: `${base}/courses/1/questions/types`, icon: "📁" }, 
     { name: "Асуултын түвшин", path: `${base}/courses/1/questions/levels`, icon: "📶" },
     { name: "Асуулт жагсаалт", path: `${base}/courses/1/questions`, icon: "📝" },
-    { name: "Тайлан / Статистик", path: "#", icon: "📉" },
+    { name: "Тайлан / Статистик", path: `${base}/courses/1/questions/report`, icon: "📈" },
+
   ];
 
   return (

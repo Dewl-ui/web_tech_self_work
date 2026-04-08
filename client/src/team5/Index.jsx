@@ -4,6 +4,8 @@ import Home from "./Home";
 import QuestionList from "./pages/QuestionList";
 import Dashboard from "./pages/Dashboard"; 
 import Login from "../layout/Login"; 
+import QuestionReport from "./pages/QuestionReport";
+
 
 // Компонентуудыг импортлох
 import QuestionCreate from "./pages/QuestionCreate"; 
@@ -29,6 +31,7 @@ const Index = () => {
           <Route path="create" element={<QuestionCreate />} />
           <Route path="types" element={<QuestionTypes />} />
           <Route path="levels" element={<QuestionLevels />} />
+          <Route path="report" element={<QuestionReport />} />
         </Route>
 
         {/* Шинэ хичээл нэмэх зам */}
