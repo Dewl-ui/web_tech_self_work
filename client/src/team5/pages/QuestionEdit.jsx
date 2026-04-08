@@ -1,9 +1,5 @@
-import DynamicQuestionEditor from '../components/DynamicQuestionEditor';
+const QuestionEdit = () => {
+  return <div className="p-6">QuestionEdit page</div>;
+};
 
-// ... form дотор
-<DynamicQuestionEditor 
-  typeId={formData.type_id} 
-  formData={formData} 
-  setFormData={setFormData} 
-  
-/>
+export default QuestionEdit;
