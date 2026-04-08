@@ -199,7 +199,7 @@ export default function Register() {
         </div>
 
         {/* Google button */}
-        <button
+        {/* <button
           type="button"
           onClick={() => toast.warning("Google-аар бүртгүүлэх одоогоор идэвхгүй.")}
           className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-zinc-200
@@ -207,7 +207,7 @@ export default function Register() {
         >
           <FcGoogle className="h-4 w-4" />
           Google
-        </button>
+        </button> */}
 
         {/* Login link */}
         <p className="text-center text-sm text-zinc-500">

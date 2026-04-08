@@ -3,6 +3,7 @@ import { FiUser } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { EmptyState, Skeleton } from "../../components/ui";
 import { apiGet, getStoredUser, parseField } from "../../utils/api";
+import { useAuth } from "../../utils/AuthContext";
 
 const COURSE_IMAGES = [
   "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&q=80",
@@ -69,6 +70,7 @@ function CourseCard({ course, index, loading }) {
 }
 
 export default function TeacherCourses() {
+  const { school } = useAuth();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -82,11 +84,16 @@ export default function TeacherCourses() {
     return; 
   }
 
-  // 2. Багшийн ID-аар хичээлүүдийг авах
-  // Endpoint: /users/41/courses
-  apiGet(`/users/${storedUser.id}/courses`)
+  // 2. Багшийн ID-аар заадаг хичээлүүдийг авах
+  // Endpoint: /users/{id}/courses/teaching
+  apiGet(`/users/${storedUser.id}/courses/teaching`)
     .then(async (data) => {
-      const items = data?.items ?? [];
+      const schoolId = school?.id;
+      const items = (data?.items ?? []).filter((item) => {
+        if (schoolId == null) return true;
+        const course = parseField(item, "course") ?? item;
+        return String(course?.school_id ?? item?.school_id ?? "") === String(schoolId);
+      });
       
       if (items.length === 0) {
         setCourses([]);
@@ -124,7 +131,7 @@ export default function TeacherCourses() {
       setCourses([]);
     })
     .finally(() => setLoading(false));
-}, []);
+}, [school?.id]);
   const ghostCount = loading ? 0 : (3 - (courses.length % 3)) % 3;
 
   return (
