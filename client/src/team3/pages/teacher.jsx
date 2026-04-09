@@ -28,7 +28,7 @@ const REQUESTS_STORAGE_KEY = "team3.teacher.requests.v2";
 const defaultRequests = [
   {
     id: 1,
-    student: "Б.Отгонбат",
+    student: "B211870300",
     lesson: "Веб систем ба технологи",
     answer: "№",
     status: "Хүлээгдэж буй",
@@ -36,7 +36,7 @@ const defaultRequests = [
   },
   {
     id: 2,
-    student: "Б.Болд",
+    student: "B211870301",
     lesson: "Гүн сургалт",
     answer: "а",
     status: "Зөвшөөрсөн",
@@ -44,7 +44,7 @@ const defaultRequests = [
   },
   {
     id: 3,
-    student: "Н.Тэргэл",
+    student: "B211870305",
     lesson: "Компьютерын архитектур дизайн",
     answer: "а",
     status: "Зөвшөөрсөн",
@@ -52,7 +52,7 @@ const defaultRequests = [
   },
   {
     id: 4,
-    student: "О.Анхаа",
+    student: "B211870308",
     lesson: "Интернэт протоколын шинжилгээ",
     answer: "а",
     status: "Татгалзсан",
@@ -715,6 +715,7 @@ export function TeacherAttendanceStatsEmpty() {
 
 export function TeacherRequests() {
   const [rows, setRows] = useState(getStoredRequests());
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     saveStoredRequests(rows);
@@ -738,8 +739,17 @@ export function TeacherRequests() {
     );
   };
 
+  const filteredRows = rows.filter((row) =>
+    row.student.toLowerCase().includes(search.trim().toLowerCase()),
+  );
+
   return (
-    <Shell role="teacher">
+    <Shell
+      role="teacher"
+      searchValue={search}
+      onSearchChange={setSearch}
+      searchPlaceholder="Оюутны кодоор хайх..."
+    >
       <PageTitle title="Чөлөө авах хүсэлт (Хичээл)" />
       <Panel className="max-w-5xl">
         <div className={softTableWrap}>
@@ -756,44 +766,54 @@ export function TeacherRequests() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
-                <tr key={row.id} className="transition hover:bg-sky-50/60">
-                  <td className={softTd}>{row.student}</td>
-                  <td className={softTd}>{row.lesson}</td>
-                  <td className={softTd}>{row.answer}</td>
-                  <td className={softTd}>
-                    <StatusBadge value={row.status} />
-                  </td>
-                  <td className={softTd}>
-                    <div className="flex items-center gap-3">
-                      <Link
-                        to={`${row.id}`}
-                        className="font-semibold text-indigo-600 transition hover:text-indigo-800"
-                      >
-                        Харах
-                      </Link>
+              {filteredRows.length > 0 ? (
+                filteredRows.map((row) => (
+                  <tr key={row.id} className="transition hover:bg-sky-50/60">
+                    <td className={softTd}>{row.student}</td>
+                    <td className={softTd}>{row.lesson}</td>
+                    <td className={softTd}>{row.answer}</td>
+                    <td className={softTd}>
+                      <StatusBadge value={row.status} />
+                    </td>
+                    <td className={softTd}>
+                      <div className="flex items-center gap-3">
+                        <Link
+                          to={`${row.id}`}
+                          className="font-semibold text-indigo-600 transition hover:text-indigo-800"
+                        >
+                          Харах
+                        </Link>
 
-                      <button
-                        type="button"
-                        onClick={() => approveRequest(row.id)}
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100 text-lg font-bold text-emerald-600 shadow-sm transition hover:scale-105 hover:bg-emerald-200"
-                        title="Зөвшөөрөх"
-                      >
-                        ✓
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => approveRequest(row.id)}
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100 text-lg font-bold text-emerald-600 shadow-sm transition hover:scale-105 hover:bg-emerald-200"
+                          title="Зөвшөөрөх"
+                        >
+                          ✓
+                        </button>
 
-                      <button
-                        type="button"
-                        onClick={() => rejectRequest(row.id)}
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-rose-100 text-lg font-bold text-rose-600 shadow-sm transition hover:scale-105 hover:bg-rose-200"
-                        title="Татгалзах"
-                      >
-                        ✕
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => rejectRequest(row.id)}
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-rose-100 text-lg font-bold text-rose-600 shadow-sm transition hover:scale-105 hover:bg-rose-200"
+                          title="Татгалзах"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} className={softTd}>
+                    <div className="py-6 text-center text-slate-500">
+                      Хайлтад тохирох оюутан олдсонгүй
                     </div>
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
