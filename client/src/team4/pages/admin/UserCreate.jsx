@@ -53,7 +53,7 @@ export default function UserCreate() {
       return;
     }
     const schoolId = getSchoolId(school);
-    if (!schoolId) {
+    if (schoolId == null) {
       setError("Сургууль сонгогдоогүй байна.");
       return;
     }
@@ -106,7 +106,7 @@ export default function UserCreate() {
       });
 
       // 2. Add user to current school with selected role
-      if (schoolId && form.role_id) {
+      if (schoolId != null && form.role_id) {
         try {
           await apiPost(`/schools/${schoolId}/users`, withCurrentUser({
             username: form.username || form.email,
