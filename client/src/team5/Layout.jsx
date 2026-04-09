@@ -120,5 +120,3 @@ const NavLink = ({ item, active }) => (
 );
 
 export default Layout;
-//ok
-//hiihi
