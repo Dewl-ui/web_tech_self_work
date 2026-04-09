@@ -17,6 +17,7 @@ import CourseUserList from "./CourseUserList";
 import GroupManagement from "./GroupManagement";
 import GroupUserList from "./GroupUserList";
 import TeacherDashboard from "./TeacherDashboard";
+import TimetableManagePage from "./TimetableManagePage"; 
 
 const teacherRoutes = [
   // Teacher dashboard — /team4/teacher
@@ -41,6 +42,11 @@ const teacherRoutes = [
     element={<ProtectedRoute role={[ROLES.ADMIN, ROLES.TEACHER]}><GroupManagement /></ProtectedRoute>} />,
   <Route key="group-users" path="courses/:course_id/groups/:group_id/users"
     element={<ProtectedRoute role={[ROLES.ADMIN, ROLES.TEACHER]}><GroupUserList /></ProtectedRoute>} />,
+
+  // Timetable management — /team4/courses/:course_id/timetable
+  <Route key="timetable-manage" path="courses/:course_id/timetable"
+    element={<ProtectedRoute role={[ROLES.ADMIN, ROLES.TEACHER]}><TimetableManagePage /></ProtectedRoute>} />,
+
 
   // Add more teacher <Route> entries below this line
 ];
