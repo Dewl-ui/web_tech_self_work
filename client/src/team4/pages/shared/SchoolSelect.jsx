@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiLogOut, FiChevronRight, FiAlertCircle, FiSend } from "react-icons/fi";
+import {
+  FiLogOut,
+  FiChevronRight,
+  FiAlertCircle,
+  FiSend,
+} from "react-icons/fi";
 import { FaSchool } from "react-icons/fa";
 import { useAuth } from "../../utils/AuthContext";
 import { apiGet, parseField } from "../../utils/api";
@@ -45,7 +50,9 @@ export default function SchoolSelect() {
             const systemSchool = userSchools.find((s) => s.id === 0);
             const otherSchools = allSchools.filter((s) => s.id !== 0);
 
-            setSchools(systemSchool ? [systemSchool, ...otherSchools] : otherSchools);
+            setSchools(
+              systemSchool ? [systemSchool, ...otherSchools] : otherSchools,
+            );
           } catch {
             setSchools(userSchools);
           }
@@ -87,7 +94,9 @@ export default function SchoolSelect() {
     <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center p-6">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-zinc-900">Сургуулиа сонгоно уу</h1>
+          <h1 className="text-2xl font-bold text-zinc-900">
+            Сургуулиа сонгоно уу
+          </h1>
           <p className="mt-1.5 text-sm text-zinc-500">
             {user?.email && (
               <span className="font-medium text-zinc-700">{user.email}</span>
@@ -99,7 +108,10 @@ export default function SchoolSelect() {
         {loading && (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-16 animate-pulse rounded-xl bg-zinc-100" />
+              <div
+                key={i}
+                className="h-16 animate-pulse rounded-xl bg-zinc-100"
+              />
             ))}
           </div>
         )}
@@ -116,7 +128,9 @@ export default function SchoolSelect() {
             <div className="mb-3 flex justify-center text-4xl">
               <FaSchool />
             </div>
-            <p className="font-medium text-zinc-800">Сургуультай холбогдоогүй байна</p>
+            <p className="font-medium text-zinc-800">
+              Сургуультай холбогдоогүй байна
+            </p>
             <p className="mt-1 text-sm text-zinc-500">
               Та ямар нэг сургуулийн гишүүн биш байна.
             </p>
@@ -197,6 +211,7 @@ export default function SchoolSelect() {
       <RequestAccessDialog
         open={showRequestDialog}
         onClose={() => setShowRequestDialog(false)}
+        userSchools={schools}
       />
     </div>
   );
