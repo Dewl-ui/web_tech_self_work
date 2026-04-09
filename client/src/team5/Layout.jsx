@@ -6,12 +6,12 @@ const Layout = () => {
   const base = "/team5";
 
   const menuItems = [
-    { name: "Хяналтын самбар", path: `${base}/dashboard`, icon: "📊", section: "main" },
-    { name: "Хичээлүүд", path: `${base}/home`, icon: "📚", badge: { text: "8", color: "green" }, section: "main" },
-    { name: "Асуултын төрөл", path: `${base}/courses/1/questions/types`, icon: "🏷️", section: "questions" },
-    { name: "Асуултын түвшин", path: `${base}/courses/1/questions/levels`, icon: "📶", section: "questions" },
-    { name: "Асуулт жагсаалт", path: `${base}/courses/1/questions`, icon: "📋", badge: { text: "82", color: "amber" }, section: "questions" },
-    { name: "Асуултын оноо", path: `${base}/courses/1/questions/points`, icon: "⭐", section: "questions" },
+    { name: "Хяналтын самбар",    path: `${base}/dashboard`,                  icon: "📊", section: "main" },
+    { name: "Хичээлүүд",          path: `${base}/home`,                       icon: "📚", badge: { text: "8", color: "green" }, section: "main" },
+    { name: "Асуултын төрөл",     path: `${base}/question-types`,             icon: "🏷️", section: "questions" },
+    { name: "Асуултын түвшин",    path: `${base}/question-levels`,            icon: "📶", section: "questions" },
+    { name: "Асуулт жагсаалт",    path: `${base}/courses/1/questions`,        icon: "📋", badge: { text: "82", color: "amber" }, section: "questions" },
+    { name: "Асуултын оноо",      path: `${base}/courses/1/question-points`,  icon: "⭐", section: "questions" },
     { name: "Тайлан / Статистик", path: `${base}/courses/1/questions/report`, icon: "📈", section: "reports" },
   ];
 
@@ -20,9 +20,10 @@ const Layout = () => {
   return (
     <div className="flex min-h-screen bg-[#F5F6FA]">
 
-{/* SIDEBAR */}
-<aside className="w-[220px] bg-white border-r border-[#E2E5EF] flex flex-col sticky top-0 h-screen flex-shrink-0 z-40">
-{/* Brand */}
+      {/* SIDEBAR */}
+      <aside className="w-[220px] bg-white border-r border-[#E2E5EF] flex flex-col sticky top-0 h-screen flex-shrink-0 z-40">
+
+        {/* Brand */}
         <div className="h-[75px] border-b border-[#E2E5EF] flex items-center px-4 gap-3 flex-shrink-0">
           <div className="w-8 h-8 bg-[#3B6FF5] rounded-lg flex items-center justify-center text-base flex-shrink-0">🎓</div>
           <div>
@@ -31,14 +32,14 @@ const Layout = () => {
           </div>
         </div>
 
-        {/* Current course pill — fixed, never shrinks */}
+        {/* Current course pill */}
         <div className="mx-2.5 mt-2.5 mb-0 bg-[#EEF2FE] border border-[#C7D4FC] rounded-[10px] px-3 py-2 flex-shrink-0">
           <p className="text-[8.5px] font-bold tracking-[0.8px] uppercase text-[#3B6FF5]">Одоогийн хичээл</p>
           <p className="text-[11.5px] font-extrabold text-[#1A1D2E] mt-0.5">Мэдээлэл зүй</p>
           <p className="text-[9.5px] text-[#3B6FF5] font-mono mt-0.5">CS101 ▾</p>
         </div>
 
-        {/* Nav — takes remaining space, scrolls if needed */}
+        {/* Nav */}
         <nav className="flex-1 overflow-y-auto py-2">
           <p className="text-[8.5px] font-extrabold text-[#BCC0D4] uppercase tracking-[1px] px-3.5 pt-3 pb-1.5">Үндсэн</p>
 
@@ -60,7 +61,7 @@ const Layout = () => {
           ))}
         </nav>
 
-        {/* User profile — fixed at bottom, never shrinks */}
+        {/* User profile */}
         <div className="h-[61px] border-t border-[#E2E5EF] flex items-center px-4 gap-3 flex-shrink-0">
           <div className="w-7 h-7 bg-[#3B6FF5] rounded-full flex items-center justify-center text-white font-extrabold text-[11px] flex-shrink-0">Б</div>
           <div className="overflow-hidden">
@@ -71,8 +72,8 @@ const Layout = () => {
       </aside>
 
       {/* MAIN CONTENT */}
-        <main className="flex-1 flex flex-col min-w-0">
-          <header className="h-[52px] bg-white border-b border-[#E2E5EF] flex items-center justify-between px-6 sticky top-0 z-10">
+      <main className="flex-1 flex flex-col min-w-0">
+        <header className="h-[52px] bg-white border-b border-[#E2E5EF] flex items-center justify-between px-6 sticky top-0 z-10">
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-bold text-[#1A1D2E]">
               {menuItems.find(i => i.path === location.pathname)?.name || "Хуудас"}

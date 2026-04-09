@@ -19,13 +19,15 @@ const Index = () => {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="home" element={<Home />} />
 
+        <Route path="question-types" element={<QuestionTypes />} />
+        <Route path="question-levels" element={<QuestionLevels />} />
+
+        <Route path="courses/:course_id/question-points" element={<QuestionPoints />} />
+
         <Route path="courses/:course_id/questions">
           <Route index element={<QuestionList />} />
           <Route path="create" element={<QuestionCreate />} />
           <Route path="report" element={<QuestionReport />} />
-          <Route path="types" element={<QuestionTypes />} />
-          <Route path="levels" element={<QuestionLevels />} />
-          <Route path="points" element={<QuestionPoints />} />
           <Route path=":question_id" element={<QuestionView />} />
           <Route path=":question_id/edit" element={<QuestionEdit />} />
         </Route>
