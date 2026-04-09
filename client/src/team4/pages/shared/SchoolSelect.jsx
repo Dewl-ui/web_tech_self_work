@@ -208,7 +208,6 @@ export default function SchoolSelect() {
                   onChange={(e) => setRoleId(e.target.value)}
                   className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
                 >
-                  <option value={ROLES.ADMIN}>Админ</option>
                   <option value={ROLES.TEACHER}>Багш</option>
                   <option value={ROLES.STUDENT}>Суралцагч</option>
                 </select>
