@@ -50,11 +50,6 @@ Authorization: Bearer {{accessToken}}
 }
 
 
-
-### ----------------------------------------------------------------------------
-### Own Profile (/users/me)
-### ----------------------------------------------------------------------------
-
 ### 5. Get my profile
 GET {{baseUrl}}/users/me?current_user={{userId}}
 Authorization: Bearer {{accessToken}}
@@ -67,9 +62,6 @@ Content-Type: application/json
 {
   "first_name": "Оюутан",
   "last_name": "Амар",
-  "family_name": "Бат-Эрдэнэ",
-  "phone": "99119911",
-  "picture": "https://png.pngtree.com/png-clipart/20230927/original/pngtree-man-avatar-image-for-profile-png-image_13001882.png"
 }
 
 ### 7. Delete my account
@@ -99,5 +91,6 @@ Content-Type: application/json
 
 {
   "current_user": "",
-  "body": "base64_encoded_image_data_or_file_path"
+  "body": "https://png.pngtree.com/png-clipart/20230927/original/pngtree-man-avatar-image-for-profile-png-image_13001882.png"
+
 }

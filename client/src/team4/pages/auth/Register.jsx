@@ -139,7 +139,7 @@ export default function Register() {
               <label className="text-sm font-medium text-zinc-700">Нэр</label>
               <input
                 type="text"
-                placeholder="Амартувшин"
+                placeholder="Амартүвшин"  
                 value={form.first_name}
                 onChange={set("first_name")}
 
@@ -154,7 +154,7 @@ export default function Register() {
             <label className="text-sm font-medium text-zinc-700">И-мэйл</label>
             <input
               type="text"
-              placeholder="B231910004@must.edu.mn"
+              placeholder="B23@must.edu.mn"
               value={form.email}
               onChange={set("email")}
               className="flex h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm
@@ -167,7 +167,7 @@ export default function Register() {
             <label className="text-sm font-medium text-zinc-700">Хэрэглэгчийн нэр</label>
             <input
               type="text"
-              placeholder="username"
+              placeholder="Амараа"
               value={form.username}
               onChange={set("username")}
               className="flex h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm
