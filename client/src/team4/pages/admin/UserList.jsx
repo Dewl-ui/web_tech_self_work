@@ -36,10 +36,18 @@ function getRoleName(user, currentSchoolId) {
   );
   return matchedSchool?.roles?.[0]?.name || matchedSchool?.role?.name || "-";
 }
+function normalizeRole(roleName) {
+  const n = (roleName || "").toLowerCase();
+  if (n === "админ" || n === "admin") return "admin";
+  if (n === "сургагч" || n === "teacher") return "teacher";
+  if (n === "суралцагч" || n === "student") return "student";
+  return n;
+}
 function getRoleBadgeVariant(roleName) {
-  if (roleName === "Админ") return "default";
-  if (roleName === "Сургагч") return "info";
-  if (roleName === "Суралцагч") return "success";
+  const r = normalizeRole(roleName);
+  if (r === "admin") return "default";
+  if (r === "teacher") return "info";
+  if (r === "student") return "success";
   return "outline";
 }
 function getStatusBadgeVariant(isActive) {
@@ -143,10 +151,10 @@ export default function UserList() {
         return true;
       });
     }
-    const roleOrder = { Админ: 0, Сургагч: 1, Суралцагч: 2 };
+    const roleOrder = { admin: 0, teacher: 1, student: 2 };
     result.sort((a, b) => {
-      const ra = roleOrder[a.roleName] ?? 99;
-      const rb = roleOrder[b.roleName] ?? 99;
+      const ra = roleOrder[normalizeRole(a.roleName)] ?? 99;
+      const rb = roleOrder[normalizeRole(b.roleName)] ?? 99;
       return ra - rb;
     });
 
