@@ -18,8 +18,8 @@ export function updateMyProfile(payload) {
 	return apiPut("/users/me", withCurrentUser(payload));
 }
 
-export function uploadMyProfilePicture(body) {
-	return apiPost("/users/me/picture", withCurrentUser({ body }));
+export function uploadMyProfilePicture(pictureUrl) {
+	return apiPut("/users/me", withCurrentUser({ picture: pictureUrl }));
 }
 
 export function changeMyPassword(password, newPassword) {

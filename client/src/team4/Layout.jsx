@@ -35,6 +35,13 @@ export default function Layout() {
     .toUpperCase()
     .slice(0, 2) || "?";
 
+  function avatarSrc(picture) {
+    if (!picture || picture === "no-image.jpg") return undefined;
+    if (/^(https?:)?\/\//i.test(picture)) return picture;
+    if (picture.startsWith("data:image/")) return picture;
+    return `https://todu.mn/bs/lms/v1/${picture}`;
+  }
+
   return (
     <div
       className="fixed left-0 right-0 bottom-0 flex overflow-hidden bg-zinc-100 z-20"
@@ -135,6 +142,7 @@ export default function Layout() {
                     <DropdownMenuTrigger onClick={() => setOpen(!open)}>
                       <button className="flex items-center gap-2 rounded-lg p-1 hover:bg-zinc-100 transition-colors cursor-pointer">
                         <Avatar
+                          src={avatarSrc(user?.picture)}
                           fallback={initials}
                           size="sm"
                           className="rounded-lg bg-zinc-100 text-zinc-700"

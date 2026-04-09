@@ -59,6 +59,7 @@ export default function AdminProfile() {
     setSaving(true);
     try {
       await apiPut("/users/me", withCurrentUser(form));
+      setProfile((prev) => ({ ...prev, ...form }));
       await refreshUser();
       toast.success("Амжилттай хадгалагдлаа.");
     } catch (err) {
@@ -90,8 +91,16 @@ export default function AdminProfile() {
         <div className="h-24 w-full animate-pulse rounded-xl bg-zinc-100" />
       ) : (
         <div className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-5">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-purple-100
-            text-2xl font-bold text-purple-700">
+          {profile?.picture && profile.picture !== "no-image.jpg" ? (
+            <img
+              src={/^(https?:)?\/\//i.test(profile.picture) ? profile.picture : `https://todu.mn/bs/lms/v1/${profile.picture}`}
+              alt="avatar"
+              className="h-16 w-16 shrink-0 rounded-full object-cover"
+              onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }}
+            />
+          ) : null}
+          <div className={`h-16 w-16 shrink-0 items-center justify-center rounded-full bg-purple-100
+            text-2xl font-bold text-purple-700 ${profile?.picture && profile.picture !== "no-image.jpg" ? "hidden" : "flex"}`}>
             {initials}
           </div>
           <div>
@@ -120,6 +129,7 @@ export default function AdminProfile() {
         <Field label="И-мэйл"   value={profile?.email}    readOnly />
         <Field label="Хэрэглэгчийн нэр" value={profile?.username} readOnly />
         <Field label="Утас"      value={form.phone}  type="tel" onChange={(v) => setForm((f) => ({ ...f, phone: v }))} />
+        <Field label="Профайл зураг (URL)" value={form.picture} onChange={(v) => setForm((f) => ({ ...f, picture: v }))} />
 
         <button
           type="submit"

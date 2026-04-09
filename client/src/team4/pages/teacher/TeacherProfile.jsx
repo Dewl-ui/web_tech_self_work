@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FiBookOpen, FiChevronRight, FiSave } from "react-icons/fi";
-import { apiGet, apiPut, apiPost, parseField, withCurrentUser } from "../../utils/api";
+import { apiGet, apiPut, parseField, withCurrentUser } from "../../utils/api";
 import { useAuth } from "../../utils/AuthContext";
 import { useToast } from "../../components/ui/Toast";
 
@@ -74,16 +74,15 @@ export default function TeacherProfile() {
     setError("");
     setSaving(true);
     try {
-      await apiPut(`/users/${profile.id}`, withCurrentUser({
+      await apiPut("/users/me", withCurrentUser({
         first_name:  form.first_name,
         last_name:   form.last_name,
         family_name: form.family_name,
         phone:       form.phone,
         picture:     form.picture,
-        email:       profile.email,
-        username:    profile.username,
       }));
 
+      setProfile((prev) => ({ ...prev, ...form }));
       await refreshUser();
       toast.success("Амжилттай хадгалагдлаа.");
     } catch (err) {
@@ -115,8 +114,16 @@ export default function TeacherProfile() {
         <div className="h-24 w-full animate-pulse rounded-xl bg-zinc-100" />
       ) : (
         <div className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-5">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-blue-100
-            text-2xl font-bold text-blue-700">
+          {profile?.picture && profile.picture !== "no-image.jpg" ? (
+            <img
+              src={/^(https?:)?\/\//i.test(profile.picture) ? profile.picture : `https://todu.mn/bs/lms/v1/${profile.picture}`}
+              alt="avatar"
+              className="h-16 w-16 shrink-0 rounded-full object-cover"
+              onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }}
+            />
+          ) : null}
+          <div className={`h-16 w-16 shrink-0 items-center justify-center rounded-full bg-blue-100
+            text-2xl font-bold text-blue-700 ${profile?.picture && profile.picture !== "no-image.jpg" ? "hidden" : "flex"}`}>
             {initials}
           </div>
           <div>
@@ -145,6 +152,7 @@ export default function TeacherProfile() {
         <Field label="И-мэйл"   value={profile?.email}    readOnly />
         <Field label="Хэрэглэгчийн нэр" value={profile?.username} readOnly />
         <Field label="Утас"      value={form.phone}  type="tel" onChange={(v) => setForm((f) => ({ ...f, phone: v }))} />
+        <Field label="Профайл зураг (URL)" value={form.picture} onChange={(v) => setForm((f) => ({ ...f, picture: v }))} />
 
         <button
           type="submit"

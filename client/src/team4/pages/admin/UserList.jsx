@@ -283,10 +283,20 @@ export default function UserList() {
                       {" "}
                       <TableCell>{(currentPage - 1) * PAGE_SIZE + index + 1}</TableCell>{" "}
                       <TableCell className="font-medium text-zinc-900">
-                        {" "}
-                        {[user.last_name, user.first_name]
-                          .filter(Boolean)
-                          .join(" ") || "-"}{" "}
+                        <div className="flex items-center gap-2.5">
+                          {user.picture && user.picture !== "no-image.jpg" && (
+                            <img
+                              src={/^(https?:)?\/\//i.test(user.picture) ? user.picture : `https://todu.mn/bs/lms/v1/${user.picture}`}
+                              alt=""
+                              className="h-7 w-7 shrink-0 rounded-full object-cover peer"
+                              onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }}
+                            />
+                          )}
+                          <div className={`h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-xs font-medium text-zinc-500 ${user.picture && user.picture !== "no-image.jpg" ? "hidden" : "flex"}`}>
+                            {[user.first_name, user.last_name].filter(Boolean).map((s) => s[0]?.toUpperCase()).join("").slice(0, 2) || "?"}
+                          </div>
+                          <span>{[user.last_name, user.first_name].filter(Boolean).join(" ") || "-"}</span>
+                        </div>
                       </TableCell>{" "}
                       <TableCell>{user.email || "-"}</TableCell>{" "}
                       <TableCell>{user.username || "-"}</TableCell>{" "}

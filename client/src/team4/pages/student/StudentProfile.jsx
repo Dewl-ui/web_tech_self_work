@@ -24,6 +24,7 @@ import {
   updateMyProfile,
   uploadMyProfilePicture,
 } from "./api/studentProfileApi";
+import { useToast } from "../../components/ui/Toast";
 
 function toDisplayName(profile) {
   const fullName = [profile?.last_name, profile?.first_name]
@@ -37,6 +38,8 @@ function toAvatarSource(picture) {
   if (!picture || picture === "no-image.jpg") return "";
   if (/^(https?:)?\/\//i.test(picture)) return picture;
   if (picture.startsWith("data:image/")) return picture;
+  // Relative path from API (e.g. "users/539_20260409.jpg")
+  if (picture.length > 0) return `https://todu.mn/bs/lms/v1/${picture}`;
   return "";
 }
 
@@ -49,6 +52,7 @@ function toInitials(profile) {
 
 export default function StudentProfile() {
   const { logout, refreshUser } = useAuth();
+  const toast = useToast();
 
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -58,6 +62,7 @@ export default function StudentProfile() {
     last_name: "",
     family_name: "",
     phone: "",
+    picture: "",
   });
 
   const [pictureUrl, setPictureUrl] = useState("");
@@ -93,6 +98,7 @@ export default function StudentProfile() {
           last_name: data?.last_name ?? "",
           family_name: data?.family_name ?? "",
           phone: data?.phone ?? "",
+          picture: data?.picture ?? "",
         });
         setPictureUrl(
           data?.picture && data.picture !== "no-image.jpg" ? data.picture : "",
@@ -130,8 +136,11 @@ export default function StudentProfile() {
       setProfile(nextProfile);
       await refreshUser();
       setSuccessMessage("Профайл мэдээллийг амжилттай шинэчиллээ.");
+      toast.success("Профайл мэдээллийг амжилттай шинэчиллээ.");
     } catch (error) {
-      setErrorMessage(error?.message || "Профайл хадгалахад алдаа гарлаа.");
+      const msg = error?.message || "Профайл хадгалахад алдаа гарлаа.";
+      setErrorMessage(msg);
+      toast.error(msg);
     } finally {
       setIsSavingProfile(false);
     }
@@ -149,14 +158,16 @@ export default function StudentProfile() {
 
     setIsSavingPicture(true);
     try {
-      await uploadMyProfilePicture(pictureUrl.trim());
+      await updateMyProfile({ ...form, picture: pictureUrl.trim() });
       setProfile((prev) => ({ ...prev, picture: pictureUrl.trim() }));
+      setForm((prev) => ({ ...prev, picture: pictureUrl.trim() }));
       await refreshUser();
       setSuccessMessage("Профайл зураг амжилттай шинэчлэгдлээ.");
+      toast.success("Профайл зураг амжилттай шинэчлэгдлээ.");
     } catch (error) {
-      setErrorMessage(
-        error?.message || "Профайл зураг шинэчлэхэд алдаа гарлаа.",
-      );
+      const msg = error?.message || "Профайл зураг шинэчлэхэд алдаа гарлаа.";
+      setErrorMessage(msg);
+      toast.error(msg);
     } finally {
       setIsSavingPicture(false);
     }
@@ -194,8 +205,11 @@ export default function StudentProfile() {
         confirmPassword: "",
       });
       setSuccessMessage("Нууц үг амжилттай солигдлоо.");
+      toast.success("Нууц үг амжилттай солигдлоо.");
     } catch (error) {
-      setErrorMessage(error?.message || "Нууц үг солих үед алдаа гарлаа.");
+      const msg = error?.message || "Нууц үг солих үед алдаа гарлаа.";
+      setErrorMessage(msg);
+      toast.error(msg);
     } finally {
       setIsChangingPassword(false);
     }
@@ -213,9 +227,12 @@ export default function StudentProfile() {
     setIsDeletingAccount(true);
     try {
       await deleteMyAccount();
+      toast.success("Бүртгэл амжилттай устгагдлаа.");
       await logout();
     } catch (error) {
-      setErrorMessage(error?.message || "Бүртгэл устгах үед алдаа гарлаа.");
+      const msg = error?.message || "Бүртгэл устгах үед алдаа гарлаа.";
+      setErrorMessage(msg);
+      toast.error(msg);
     } finally {
       setIsDeletingAccount(false);
     }
