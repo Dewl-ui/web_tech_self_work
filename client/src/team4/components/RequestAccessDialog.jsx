@@ -34,7 +34,33 @@ function formatDate(value) {
   });
 }
 
-export default function RequestAccessDialog({ open, onClose }) {
+function isAdminOfSchool(userSchools, schoolId) {
+  return userSchools.some((school) => {
+    const role =
+      school?.role ||
+      (() => {
+        try {
+          return school?.["{}role"] ? JSON.parse(school["{}role"]) : null;
+        } catch {
+          return null;
+        }
+      })();
+
+    const id =
+      school?.id ?? school?.school_id ?? school?.ID ?? school?.SCHOOL_ID ?? "";
+
+    return (
+      String(id) === String(schoolId) &&
+      Number(role?.id) === Number(ROLES.ADMIN)
+    );
+  });
+}
+
+export default function RequestAccessDialog({
+  open,
+  onClose,
+  userSchools = [],
+}) {
   const toast = useToast();
   const { user } = useAuth();
 
@@ -159,6 +185,15 @@ export default function RequestAccessDialog({ open, onClose }) {
     }
   }
 
+  const isAdminForSelectedSchool =
+    selectedSchoolId && isAdminOfSchool(userSchools, selectedSchoolId);
+
+  const cannotSubmit =
+    !selectedSchoolId ||
+    loadingSchools ||
+    allSchools.length === 0 ||
+    isAdminForSelectedSchool;
+
   function getSchoolNameById(id) {
     const school = allSchools.find((s) => String(s.id) === String(id));
     return school?.name ?? `Сургууль #${id}`;
@@ -264,10 +299,17 @@ export default function RequestAccessDialog({ open, onClose }) {
               />
             </div>
 
+            {isAdminForSelectedSchool && (
+              <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">
+                Та энэ сургуулийн админ тул өөрийн сургууль руу эрхийн хүсэлт
+                илгээх боломжгүй.
+              </div>
+            )}
+
             <div className="flex gap-2">
               <button
                 type="submit"
-                disabled={submitting || loadingSchools || allSchools.length === 0}
+                disabled={submitting || cannotSubmit}
                 className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <FiSend className="h-4 w-4" />
@@ -304,7 +346,10 @@ export default function RequestAccessDialog({ open, onClose }) {
               >
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                   <div className="text-sm font-semibold text-zinc-900">
-                    {getRoleLabel(item.role_id, item?.role?.name || item?.["{}role"])}
+                    {getRoleLabel(
+                      item.role_id,
+                      item?.role?.name || item?.["{}role"],
+                    )}
                   </div>
 
                   <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-700">
