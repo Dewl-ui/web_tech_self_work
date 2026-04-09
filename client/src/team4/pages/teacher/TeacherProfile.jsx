@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FiBookOpen, FiChevronRight, FiSave } from "react-icons/fi";
-import { apiGet, apiPut, parseField } from "../../utils/api";
+import { apiGet, apiPut, apiPost, parseField, withCurrentUser } from "../../utils/api";
 import { useAuth } from "../../utils/AuthContext";
 import { useToast } from "../../components/ui/Toast";
 
@@ -26,11 +26,11 @@ function Field({ label, value, onChange, type = "text", readOnly = false }) {
 }
 
 export default function TeacherProfile() {
-  const { school } = useAuth();
+  const { school, refreshUser } = useAuth();
   const toast = useToast();
   const [profile, setProfile] = useState(null);
   const [courses, setCourses] = useState([]);
-  const [form, setForm]       = useState({ first_name: "", last_name: "", phone: "" });
+  const [form, setForm]       = useState({ first_name: "", last_name: "", family_name: "", phone: "", picture: "" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving]   = useState(false);
   const [error, setError]     = useState("");
@@ -40,9 +40,11 @@ export default function TeacherProfile() {
       .then((data) => {
         setProfile(data);
         setForm({
-          first_name: data.first_name ?? "",
-          last_name:  data.last_name  ?? "",
-          phone:      data.phone      ?? "",
+          first_name:  data.first_name  ?? "",
+          last_name:   data.last_name   ?? "",
+          family_name: data.family_name ?? "",
+          phone:       data.phone       ?? "",
+          picture:     data.picture     ?? "",
         });
         if (data?.id) {
           return apiGet(`/users/${data.id}/courses/teaching`);
@@ -72,7 +74,17 @@ export default function TeacherProfile() {
     setError("");
     setSaving(true);
     try {
-      await apiPut("/users/me", form);
+      await apiPut(`/users/${profile.id}`, withCurrentUser({
+        first_name:  form.first_name,
+        last_name:   form.last_name,
+        family_name: form.family_name,
+        phone:       form.phone,
+        picture:     form.picture,
+        email:       profile.email,
+        username:    profile.username,
+      }));
+
+      await refreshUser();
       toast.success("Амжилттай хадгалагдлаа.");
     } catch (err) {
       toast.error(err.message || "Хадгалахад алдаа гарлаа.");
