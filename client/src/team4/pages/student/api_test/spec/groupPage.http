@@ -1,0 +1,59 @@
+### Base URL
+@baseUrl = https://todu.mn/bs/lms/v1
+@token = cSIzGj2fVXyq2dsG9CktqQ
+@userId = 539
+
+### Login with email & password
+POST {{baseUrl}}/token/email
+Content-Type: application/json
+
+{
+  "email": "schoolstudent@must.edu.mn",
+  "password": "123",
+  "push_token": ""
+}
+
+
+###
+GET {{baseUrl}}/users/me
+Authorization: Bearer {{token}}
+
+### Alternative: Get enrolled courses explicitly
+GET {{baseUrl}}/users/{{userId}}/courses/enrolled
+Authorization: Bearer {{token}}
+
+### ----------------------------------------------------------------------------
+### 3. Group APIs – Student Access
+### ----------------------------------------------------------------------------
+
+### Set a course ID (replace with actual from step 2)
+@courseId = 204
+
+### 3.1 Get all groups of a specific course
+GET {{baseUrl}}/courses/{{courseId}}/groups
+Authorization: Bearer {{token}}
+
+
+### 3.2 Get details of a specific group (use groupId from response above)
+@groupId = 204
+GET {{baseUrl}}/groups/{{groupId}}
+Authorization: Bearer {{token}}
+
+### 3.3 Get all users enrolled in a course (shows which group each user belongs to)
+### Note: Some endpoints may be restricted to teachers; try if student has access.
+GET {{baseUrl}}/courses/{{courseId}}/users
+Authorization: Bearer {{token}}
+?current_user=
+
+### 3.4 Get current user's specific enrollment info in a course (includes group_id)
+GET {{baseUrl}}/courses/{{courseId}}/users/me
+Authorization: Bearer {{token}}
+# Note: The spec does not have /users/me under course, but you can use /courses/{courseId}/users/{userId}
+# with userId from /users/me. Example below:
+
+### Get current user's ID first
+# GET {{baseUrl}}/users/me?current_user=
+# Then use that ID:
+@myUserId = 789
+GET {{baseUrl}}/courses/{{courseId}}/users/{{myUserId}}
+Authorization: Bearer {{token}}

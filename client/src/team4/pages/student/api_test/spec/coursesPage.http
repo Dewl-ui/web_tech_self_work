@@ -4,7 +4,7 @@
 
 @courseId = 204
 
-@accessToken = s1Pj_QQGVvGfEbxgZIoeBQ
+@accessToken = p7vXn3LH7JGiL543jqmNTA
 
 ### 1. user login
 POST {{baseUrl}}/token/email
@@ -58,7 +58,7 @@ Authorization: Bearer {{accessToken}}
 # }
 
 ### student courses
-GET {{baseUrl}}/users/{{userId}}/courses
+GET {{baseUrl}}/users/{{userId}}/courses/enrolled
 Authorization: Bearer {{accessToken}}
 
 
