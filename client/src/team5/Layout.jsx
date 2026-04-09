@@ -21,8 +21,7 @@ const Layout = () => {
     <div className="flex min-h-screen bg-[#F5F6FA]">
 
       {/* SIDEBAR */}
-      <aside className="w-[220px] bg-white border-r border-[#E2E5EF] flex flex-col fixed top-0 left-0 bottom-0 z-50">
-
+       <aside className="w-[220px] bg-white border-r border-[#E2E5EF] flex flex-col sticky top-0 h-screen flex-shrink-0 z-40">
         {/* Brand */}
         <div className="h-[75px] border-b border-[#E2E5EF] flex items-center px-4 gap-3 flex-shrink-0">
           <div className="w-8 h-8 bg-[#3B6FF5] rounded-lg flex items-center justify-center text-base flex-shrink-0">🎓</div>
@@ -72,8 +71,8 @@ const Layout = () => {
       </aside>
 
       {/* MAIN CONTENT */}
-      <main className="flex-1 ml-[220px] flex flex-col min-h-screen">
-        <header className="h-[52px] bg-white border-b border-[#E2E5EF] flex items-center justify-between px-6 sticky top-0 z-10">
+        <main className="flex-1 flex flex-col min-w-0">
+          <header className="h-[52px] bg-white border-b border-[#E2E5EF] flex items-center justify-between px-6 sticky top-0 z-10">
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-bold text-[#1A1D2E]">
               {menuItems.find(i => i.path === location.pathname)?.name || "Хуудас"}
