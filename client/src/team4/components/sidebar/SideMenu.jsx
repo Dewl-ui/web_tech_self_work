@@ -22,7 +22,7 @@ const systemNavItems = [
 const schoolNavItems = [
   {
     to: "/team4/admin",
-    // label: "Админ самбар",
+    // label: "Админ самбар", 
     label: "Сургуулийн самбар",
     icon: FiShield,
     roles: [ADMIN],
