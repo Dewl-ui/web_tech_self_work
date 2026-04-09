@@ -9,6 +9,7 @@ import { Select } from "../../components/ui/Select";
 import { Button } from "../../components/ui/Button";
 import { Badge } from "../../components/ui/Badge";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
+import { Pagination } from "../../components/ui/Pagination";
 import {
   Card,
   CardHeader,
@@ -29,15 +30,15 @@ function getSchoolId(school) {
     school?.id ?? school?.school_id ?? school?.SCHOOL_ID ?? school?.ID ?? null
   );
 }
-function getRoleNameFromUserDetail(userDetail, currentSchoolId) {
-  const matchedSchool = (userDetail?.schools || []).find(
+function getRoleName(user, currentSchoolId) {
+  const matchedSchool = (user?.schools || []).find(
     (s) => String(s.id) === String(currentSchoolId),
   );
-  return matchedSchool?.role?.name || "-";
+  return matchedSchool?.roles?.[0]?.name || matchedSchool?.role?.name || "-";
 }
 function getRoleBadgeVariant(roleName) {
   if (roleName === "Админ") return "default";
-  if (roleName === "Сургагч") return "secondary";
+  if (roleName === "Сургагч") return "info";
   if (roleName === "Суралцагч") return "success";
   return "outline";
 }
@@ -55,6 +56,8 @@ export default function UserList() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [deletingId, setDeletingId] = useState(null);
   const [confirmUser, setConfirmUser] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 20;
   useEffect(() => {
     const schoolId = getSchoolId(school);
     if (schoolId == null) {
@@ -69,18 +72,10 @@ export default function UserList() {
         setError("");
         const schoolUsersRes = await apiGet(`/schools/${schoolId}/users?limit=10000`);
         const schoolUsers = schoolUsersRes?.items ?? [];
-        const detailResults = await Promise.allSettled(
-          schoolUsers.map((u) => apiGet(`/users/${u.id}`)),
-        );
-        const enrichedUsers = schoolUsers.map((user, index) => {
-          const detailResult = detailResults[index];
-          if (detailResult.status !== "fulfilled") {
-            return { ...user, roleName: "-" };
-          }
-          const detail = detailResult.value;
-          const roleName = getRoleNameFromUserDetail(detail, schoolId);
-          return { ...user, roleName };
-        });
+        const enrichedUsers = schoolUsers.map((user) => ({
+          ...user,
+          roleName: getRoleName(user, schoolId),
+        }));
         setUsers(enrichedUsers);
       } catch (err) {
         console.error(err);
@@ -119,12 +114,13 @@ export default function UserList() {
   const filteredUsers = useMemo(() => {
     let result = [...users];
     if (search.trim()) {
-      const q = search.toLowerCase();
+      const q = search.trim().toLowerCase();
       result = result.filter((u) => {
-        const fullName =
-          `${u.first_name || ""} ${u.last_name || ""}`.toLowerCase();
+        const firstLast = `${u.first_name || ""} ${u.last_name || ""}`.toLowerCase();
+        const lastFirst = `${u.last_name || ""} ${u.first_name || ""}`.toLowerCase();
         return (
-          fullName.includes(q) ||
+          firstLast.includes(q) ||
+          lastFirst.includes(q) ||
           String(u.email || "")
             .toLowerCase()
             .includes(q) ||
@@ -147,8 +143,20 @@ export default function UserList() {
         return true;
       });
     }
+    const roleOrder = { Админ: 0, Сургагч: 1, Суралцагч: 2 };
+    result.sort((a, b) => {
+      const ra = roleOrder[a.roleName] ?? 99;
+      const rb = roleOrder[b.roleName] ?? 99;
+      return ra - rb;
+    });
+
+    setCurrentPage(1);
     return result;
   }, [users, search, roleFilter, statusFilter]);
+
+  const totalPages = Math.ceil(filteredUsers.length / PAGE_SIZE);
+  const pagedUsers = filteredUsers.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
   if (!isAdmin && !isTeacher) {
     return (
       <div className="mx-auto max-w-4xl space-y-2">
@@ -253,7 +261,7 @@ export default function UserList() {
                   {" "}
                   <TableRow>
                     {" "}
-                    <TableHead>ID</TableHead> <TableHead>Нэр</TableHead>{" "}
+                    <TableHead>№</TableHead> <TableHead>Нэр</TableHead>{" "}
                     <TableHead>Имэйл</TableHead> <TableHead>Username</TableHead>{" "}
                     <TableHead>Утас</TableHead> <TableHead>Эрх</TableHead>{" "}
                     <TableHead>Төлөв</TableHead>{" "}
@@ -262,10 +270,10 @@ export default function UserList() {
                 </TableHeader>{" "}
                 <TableBody>
                   {" "}
-                  {filteredUsers.map((user) => (
+                  {pagedUsers.map((user, index) => (
                     <TableRow key={user.id}>
                       {" "}
-                      <TableCell>{user.id}</TableCell>{" "}
+                      <TableCell>{(currentPage - 1) * PAGE_SIZE + index + 1}</TableCell>{" "}
                       <TableCell className="font-medium text-zinc-900">
                         {" "}
                         {[user.last_name, user.first_name]
@@ -326,6 +334,11 @@ export default function UserList() {
                 </TableBody>{" "}
               </Table>
             )}{" "}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
           </CardContent>{" "}
         </Card>{" "}
       </div>{" "}
