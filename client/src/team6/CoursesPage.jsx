@@ -1,39 +1,5 @@
 import { Link } from "react-router-dom";
-
-const courses = [
-  {
-    id: 1,
-    code: "CS201",
-    semester: "2026 оны намар",
-    name: "Өгөгдлийн бүтэц ба алгоритмууд",
-    students: 45,
-    exams: 3,
-  },
-  {
-    id: 2,
-    code: "CS301",
-    semester: "2026 оны намар",
-    name: "Өгөгдлийн сангийн удирдлагын системүүд",
-    students: 38,
-    exams: 2,
-  },
-  {
-    id: 3,
-    code: "CS205",
-    semester: "2026 оны намар",
-    name: "Вэб хөгжүүлэлт",
-    students: 52,
-    exams: 4,
-  },
-  {
-    id: 4,
-    code: "CS302",
-    semester: "2026 оны намар",
-    name: "Үйлдлийн системүүд",
-    students: 41,
-    exams: 2,
-  },
-];
+import { courses } from "./mockData";
 
 const CoursesPage = () => {
   return (

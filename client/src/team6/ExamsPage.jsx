@@ -1,30 +1,9 @@
 import { Link, useParams } from "react-router-dom";
-
-const exams = [
-  {
-    id: 1,
-    title: "Завсрын шалгалт - Мод ба графикууд",
-    course: "Өгөгдлийн бүтэц ба алгоритмууд",
-    description: "Хоёртын мод, AVL мод, график алгоритмуудыг хамарсан цогц шалгалт",
-    duration: "90 мин",
-    score: 100,
-    questions: 25,
-    start: "3-р сарын 15, 10:00 цаг",
-  },
-  {
-    id: 2,
-    title: "Эцсийн шалгалт - Цогц",
-    course: "Өгөгдлийн бүтэц ба алгоритмууд",
-    description: "Семестрийн бүх сэдвийг хамарсан эцсийн шалгалт",
-    duration: "120 мин",
-    score: 150,
-    questions: 40,
-    start: "5-р сарын 05, 12:00 цаг",
-  },
-];
+import { examsByCourse } from "./mockData";
 
 const ExamsPage = () => {
   const { courseId } = useParams();
+  const exams = examsByCourse[courseId] || [];
 
   return (
     <div>

@@ -11,8 +11,15 @@ const SideMenu = () => {
   return (
     <aside className="w-[220px] min-h-screen bg-white border-r flex flex-col p-4">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold">ExamMN</h1>
-        <p className="text-sm text-gray-500">Багш</p>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold">
+            E
+          </div>
+          <div>
+            <h1 className="text-xl font-bold leading-tight">ExamMN</h1>
+            <p className="text-sm text-gray-500">Багш</p>
+          </div>
+        </div>
       </div>
 
       <nav className="space-y-2">
@@ -34,9 +41,9 @@ const SideMenu = () => {
         })}
       </nav>
 
-      <div className="mt-auto pt-10 text-red-500 font-medium cursor-pointer">
+      <button className="mt-auto pt-10 text-left text-red-500 font-medium">
         Гарах
-      </div>
+      </button>
     </aside>
   );
 };

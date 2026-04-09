@@ -1,3 +1,5 @@
+import { dashboardStats, upcomingExams, recentActivities } from "./mockData";
+
 const DashboardPage = () => {
   return (
     <div className="space-y-6">
@@ -9,17 +11,17 @@ const DashboardPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white rounded-2xl shadow p-6">
           <p className="text-sm text-gray-500">Нийт хичээлүүд</p>
-          <h2 className="text-4xl font-bold mt-2">4</h2>
+          <h2 className="text-4xl font-bold mt-2">{dashboardStats.totalCourses}</h2>
         </div>
 
         <div className="bg-white rounded-2xl shadow p-6">
           <p className="text-sm text-gray-500">Идэвхтэй шалгалтууд</p>
-          <h2 className="text-4xl font-bold mt-2">2</h2>
+          <h2 className="text-4xl font-bold mt-2">{dashboardStats.activeExams}</h2>
         </div>
 
         <div className="bg-white rounded-2xl shadow p-6">
           <p className="text-sm text-gray-500">Нийт оюутнууд</p>
-          <h2 className="text-4xl font-bold mt-2">176</h2>
+          <h2 className="text-4xl font-bold mt-2">{dashboardStats.totalStudents}</h2>
         </div>
       </div>
 
@@ -30,17 +32,13 @@ const DashboardPage = () => {
           </div>
 
           <div className="p-4 space-y-4">
-            <div className="border rounded-xl p-4">
-              <h3 className="font-semibold">Завсрын шалгалт - Мод ба графикууд</h3>
-              <p className="text-sm text-gray-500 mt-1">90 минут · 25 асуулт · 42 оролцогч</p>
-              <p className="text-sm text-blue-600 mt-2">3-р сарын 15, 10:00</p>
-            </div>
-
-            <div className="border rounded-xl p-4">
-              <h3 className="font-semibold">Дунд шатны шалгалт - Хэвийн болгох ба гүйлгээ</h3>
-              <p className="text-sm text-gray-500 mt-1">75 минут · 25 асуулт · 12 оролцогч</p>
-              <p className="text-sm text-blue-600 mt-2">3-р сарын 15, 10:00</p>
-            </div>
+            {upcomingExams.map((exam) => (
+              <div key={exam.id} className="border rounded-xl p-4">
+                <h3 className="font-semibold">{exam.title}</h3>
+                <p className="text-sm text-gray-500 mt-1">{exam.meta}</p>
+                <p className="text-sm text-blue-600 mt-2">{exam.date}</p>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -50,9 +48,9 @@ const DashboardPage = () => {
           </div>
 
           <div className="p-4 space-y-4 text-sm text-gray-600">
-            <div>Завсрын шалгалтын нийтлэгдсэн - Мод ба графикууд</div>
-            <div>Graded 42 submissions</div>
-            <div>2-р асуулт хариултыг үүсгэсэн - Дэвшилтэт SQL</div>
+            {recentActivities.map((item, index) => (
+              <div key={index}>{item}</div>
+            ))}
           </div>
         </div>
       </div>

@@ -1,7 +1,14 @@
 import { Link, useParams } from "react-router-dom";
+import { courses, examsByCourse } from "./mockData";
 
 const CourseDetailPage = () => {
   const { courseId } = useParams();
+  const course = courses.find((item) => String(item.id) === String(courseId));
+  const exams = examsByCourse[courseId] || [];
+
+  if (!course) {
+    return <div className="text-red-500">Хичээл олдсонгүй.</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -13,11 +20,11 @@ const CourseDetailPage = () => {
         <div className="flex justify-between items-start">
           <div>
             <div className="flex gap-2 mb-3">
-              <span className="px-3 py-1 bg-gray-100 rounded-full text-sm">CS201</span>
-              <span className="px-3 py-1 bg-gray-100 rounded-full text-sm">2026 оны намар</span>
+              <span className="px-3 py-1 bg-gray-100 rounded-full text-sm">{course.code}</span>
+              <span className="px-3 py-1 bg-gray-100 rounded-full text-sm">{course.semester}</span>
             </div>
 
-            <h1 className="text-4xl font-bold">Өгөгдлийн бүтэц ба алгоритмууд</h1>
+            <h1 className="text-4xl font-bold">{course.name}</h1>
             <p className="text-gray-500 mt-2">
               Шалгалт, оюутнууд болон сургалтын материалыг удирдах
             </p>
@@ -31,15 +38,15 @@ const CourseDetailPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
           <div className="bg-gray-50 rounded-xl p-4">
             <p className="text-gray-500">Оюутнууд</p>
-            <p className="text-3xl font-bold">45</p>
+            <p className="text-3xl font-bold">{course.students}</p>
           </div>
           <div className="bg-gray-50 rounded-xl p-4">
             <p className="text-gray-500">Шалгалтууд</p>
-            <p className="text-3xl font-bold">3</p>
+            <p className="text-3xl font-bold">{course.exams}</p>
           </div>
           <div className="bg-gray-50 rounded-xl p-4">
             <p className="text-gray-500">Дундаж оноо</p>
-            <p className="text-3xl font-bold">78.5%</p>
+            <p className="text-3xl font-bold">{course.average}</p>
           </div>
         </div>
       </div>
@@ -56,21 +63,15 @@ const CourseDetailPage = () => {
         </div>
 
         <div className="p-4 space-y-4">
-          <div className="border rounded-xl p-4">
-            <h3 className="font-semibold">Завсрын шалгалт - Мод ба графикууд</h3>
-            <p className="text-gray-500 text-sm mt-1">
-              Хоёртын мод, AVL мод, график алгоритмуудыг хамарсан цогц шалгалт
-            </p>
-            <p className="text-gray-500 text-sm mt-2">75 минут · 100 оноо · 25 асуулт · 12 оролцогч</p>
-          </div>
-
-          <div className="border rounded-xl p-4">
-            <h3 className="font-semibold">Завсрын шалгалт - Мод ба графикууд</h3>
-            <p className="text-gray-500 text-sm mt-1">
-              Хоёртын мод, AVL мод, график алгоритмуудыг хамарсан цогц шалгалт
-            </p>
-            <p className="text-gray-500 text-sm mt-2">75 минут · 100 оноо · 25 асуулт · 12 оролцогч</p>
-          </div>
+          {exams.map((exam) => (
+            <div key={exam.id} className="border rounded-xl p-4">
+              <h3 className="font-semibold">{exam.title}</h3>
+              <p className="text-gray-500 text-sm mt-1">{exam.description}</p>
+              <p className="text-gray-500 text-sm mt-2">
+                {exam.duration} · {exam.score} оноо · {exam.questions} асуулт · {exam.participants} оролцогч
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </div>
