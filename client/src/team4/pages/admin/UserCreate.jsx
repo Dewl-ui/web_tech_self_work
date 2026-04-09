@@ -18,7 +18,7 @@ function getSchoolId(school) {
 
 export default function UserCreate() {
   const navigate = useNavigate();
-  const { school } = useAuth();
+  const { school, isAdmin } = useAuth();
   const toast = useToast();
 
   const [mode, setMode] = useState("new"); // "new" | "existing"
@@ -184,8 +184,8 @@ export default function UserCreate() {
                 <Label>Эрх *</Label>
                 <Select value={existingForm.role_id} onChange={setEx("role_id")} required>
                   <option value="">-- Сонгох --</option>
-                  <option value="10">Админ</option>
-                  <option value="20">Багш</option>
+                  {isAdmin && <option value="10">Админ</option>}
+                  {isAdmin && <option value="20">Багш</option>}
                   <option value="30">Оюутан</option>
                 </Select>
               </div>
@@ -248,8 +248,8 @@ export default function UserCreate() {
               <Label>Эрх</Label>
               <Select value={form.role_id} onChange={set("role_id")}>
                 <option value="">-- Сонгох --</option>
-                <option value="10">Админ</option>
-                <option value="20">Багш</option>
+                {isAdmin && <option value="10">Админ</option>}
+                {isAdmin && <option value="20">Багш</option>}
                 <option value="30">Оюутан</option>
               </Select>
             </div>

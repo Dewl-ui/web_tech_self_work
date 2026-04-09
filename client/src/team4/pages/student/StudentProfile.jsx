@@ -1,173 +1,531 @@
-// Member C OWNS this file — Student profile page at /team4/profile
-import { useEffect, useState } from "react";
-import { FiUser, FiSave, FiBook } from "react-icons/fi";
-import { getStudentProfile, updateStudentProfile, getStudentCourses, parseField } from "./api/studentCourseApi";
-import { useToast } from "../../components/ui/Toast";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Avatar,
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Input,
+  Label,
+  Skeleton,
+} from "../../components/ui";
+import { useAuth } from "../../utils/AuthContext";
+import {
+  changeMyPassword,
+  deleteMyAccount,
+  getMyProfile,
+  getUserById,
+  updateMyProfile,
+  uploadMyProfilePicture,
+} from "./api/studentProfileApi";
 
-function Field({ label, value, onChange, type = "text", readOnly = false }) {
-  return (
-    <div className="space-y-1.5">
-      <label className="text-sm font-medium text-zinc-700">{label}</label>
-      <input
-        type={type}
-        value={value ?? ""}
-        onChange={onChange ? (e) => onChange(e.target.value) : undefined}
-        readOnly={readOnly}
-        className={`flex h-10 w-full rounded-lg border px-3 py-2 text-sm
-          focus:outline-none focus:ring-2 focus:ring-zinc-900
-          ${readOnly
-            ? "border-zinc-100 bg-zinc-50 text-zinc-400 cursor-default"
-            : "border-zinc-200 bg-white text-zinc-900 placeholder:text-zinc-400"}`}
-      />
-    </div>
-  );
+function toDisplayName(profile) {
+  const fullName = [profile?.last_name, profile?.first_name]
+    .filter((name) => name && name !== "-")
+    .join(" ")
+    .trim();
+  return fullName || "Нэр оруулаагүй";
+}
+
+function toAvatarSource(picture) {
+  if (!picture || picture === "no-image.jpg") return "";
+  if (/^(https?:)?\/\//i.test(picture)) return picture;
+  if (picture.startsWith("data:image/")) return picture;
+  return "";
+}
+
+function toInitials(profile) {
+  const first = profile?.first_name?.[0] ?? "";
+  const last = profile?.last_name?.[0] ?? "";
+  const initials = `${last}${first}`.trim().toUpperCase();
+  return initials || "ST";
 }
 
 export default function StudentProfile() {
-  const toast = useToast();
+  const { logout, refreshUser } = useAuth();
+
   const [profile, setProfile] = useState(null);
-  const [courses, setCourses] = useState([]);
-  const [form, setForm]       = useState({ first_name: "", last_name: "", phone: "" });
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving]   = useState(false);
-  const [error, setError]     = useState("");
+
+  const [form, setForm] = useState({
+    first_name: "",
+    last_name: "",
+    family_name: "",
+    phone: "",
+  });
+
+  const [pictureUrl, setPictureUrl] = useState("");
+
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [isSavingPicture, setIsSavingPicture] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
-    getStudentProfile()
-      .then((data) => {
+    async function load() {
+      setLoading(true);
+      setErrorMessage("");
+
+      try {
+        const me = await getMyProfile();
+        const fallbackProfile = me?.id ? await getUserById(me.id) : me;
+        const data = fallbackProfile ?? me;
+
         setProfile(data);
         setForm({
-          first_name: data.first_name ?? "",
-          last_name:  data.last_name  ?? "",
-          phone:      data.phone      ?? "",
+          first_name: data?.first_name ?? "",
+          last_name: data?.last_name ?? "",
+          family_name: data?.family_name ?? "",
+          phone: data?.phone ?? "",
         });
-        if (data?.id) {
-          return getStudentCourses(data.id);
-        }
-      })
-      .then((res) => setCourses(res?.items ?? []))
-      .catch((err) => {
-        const msg = err.message || "Профайл ачааллахад алдаа гарлаа.";
-        setError(msg);
-        toast.error(msg);
-      })
-      .finally(() => setLoading(false));
+        setPictureUrl(
+          data?.picture && data.picture !== "no-image.jpg" ? data.picture : "",
+        );
+      } catch (error) {
+        setErrorMessage(
+          error?.message || "Профайл мэдээлэл ачааллахад алдаа гарлаа.",
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    load();
   }, []);
 
-  async function handleSave(e) {
-    e.preventDefault();
-    setError("");
-    setSaving(true);
+  const school = useMemo(() => {
+    if (!profile?.schools?.length) return null;
+    return profile.schools[0];
+  }, [profile]);
+
+  const displayName = toDisplayName(profile);
+  const avatarSource = toAvatarSource(profile?.picture);
+  const initials = toInitials(profile);
+
+  async function handleProfileSave(event) {
+    event.preventDefault();
+    setErrorMessage("");
+    setSuccessMessage("");
+    setIsSavingProfile(true);
+
     try {
-      await updateStudentProfile(form);
-      toast.success("Амжилттай хадгалагдлаа.");
-    } catch (err) {
-      toast.error(err.message || "Хадгалахад алдаа гарлаа.");
+      const updated = await updateMyProfile(form);
+      const nextProfile = { ...profile, ...updated, ...form };
+      setProfile(nextProfile);
+      await refreshUser();
+      setSuccessMessage("Профайл мэдээллийг амжилттай шинэчиллээ.");
+    } catch (error) {
+      setErrorMessage(error?.message || "Профайл хадгалахад алдаа гарлаа.");
     } finally {
-      setSaving(false);
+      setIsSavingProfile(false);
     }
   }
 
-  const initials = [profile?.first_name, profile?.last_name]
-    .filter(Boolean).map((s) => s[0].toUpperCase()).join("") || "C";
+  async function handlePictureSave(event) {
+    event.preventDefault();
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    if (!pictureUrl.trim()) {
+      setErrorMessage("Зургийн холбоос оруулна уу.");
+      return;
+    }
+
+    setIsSavingPicture(true);
+    try {
+      await uploadMyProfilePicture(pictureUrl.trim());
+      setProfile((prev) => ({ ...prev, picture: pictureUrl.trim() }));
+      await refreshUser();
+      setSuccessMessage("Профайл зураг амжилттай шинэчлэгдлээ.");
+    } catch (error) {
+      setErrorMessage(
+        error?.message || "Профайл зураг шинэчлэхэд алдаа гарлаа.",
+      );
+    } finally {
+      setIsSavingPicture(false);
+    }
+  }
+
+  async function handlePasswordChange(event) {
+    event.preventDefault();
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    if (!passwordForm.currentPassword || !passwordForm.newPassword) {
+      setErrorMessage("Одоогийн болон шинэ нууц үгээ оруулна уу.");
+      return;
+    }
+
+    if (passwordForm.newPassword.length < 3) {
+      setErrorMessage("Шинэ нууц үг хамгийн багадаа 3 тэмдэгт байна.");
+      return;
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setErrorMessage("Шинэ нууц үг болон давтан нууц үг таарахгүй байна.");
+      return;
+    }
+
+    setIsChangingPassword(true);
+    try {
+      await changeMyPassword(
+        passwordForm.currentPassword,
+        passwordForm.newPassword,
+      );
+      setPasswordForm({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setSuccessMessage("Нууц үг амжилттай солигдлоо.");
+    } catch (error) {
+      setErrorMessage(error?.message || "Нууц үг солих үед алдаа гарлаа.");
+    } finally {
+      setIsChangingPassword(false);
+    }
+  }
+
+  async function handleDeleteAccount() {
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    if (deleteConfirmText.trim().toUpperCase() !== "DELETE") {
+      setErrorMessage("Бүртгэл устгахын тулд DELETE гэж бичнэ үү.");
+      return;
+    }
+
+    setIsDeletingAccount(true);
+    try {
+      await deleteMyAccount();
+      await logout();
+    } catch (error) {
+      setErrorMessage(error?.message || "Бүртгэл устгах үед алдаа гарлаа.");
+    } finally {
+      setIsDeletingAccount(false);
+    }
+  }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-green-700">
-          <FiUser className="h-5 w-5" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold text-zinc-900">Миний профайл</h1>
-          <p className="text-sm text-zinc-500">Оюутан · {profile?.email ?? "…"}</p>
-        </div>
+    <div className="mx-auto max-w-5xl space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-zinc-900">Оюутны профайл</h1>
+        <p className="text-sm text-zinc-500">
+          Өөрийн мэдээллээ энэ хуудсаас шууд шинэчлээрэй.
+        </p>
       </div>
 
-      {/* Avatar + name */}
-      {loading ? (
-        <div className="h-24 w-full animate-pulse rounded-xl bg-zinc-100" />
-      ) : (
-        <div className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-5">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-green-100
-            text-2xl font-bold text-green-700">
-            {initials}
-          </div>
-          <div>
-            <p className="text-lg font-semibold text-zinc-900">
-              {[profile?.last_name, profile?.first_name].filter(Boolean).join(" ") || "—"}
-            </p>
-            <p className="text-sm text-zinc-400">@{profile?.username ?? "—"}</p>
-          </div>
-        </div>
+      {errorMessage && (
+        <Alert variant="destructive">
+          <AlertTitle>Алдаа</AlertTitle>
+          <AlertDescription>{errorMessage}</AlertDescription>
+        </Alert>
       )}
 
-      {/* Edit form */}
-      <form onSubmit={handleSave} className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4">
-        <h2 className="font-semibold text-zinc-800">Мэдээлэл засах</h2>
+      {successMessage && (
+        <Alert variant="success">
+          <AlertTitle>Амжилттай</AlertTitle>
+          <AlertDescription>{successMessage}</AlertDescription>
+        </Alert>
+      )}
 
-        {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
-          </div>
-        )}
-
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Овог" value={form.last_name}  onChange={(v) => setForm((f) => ({ ...f, last_name: v }))} />
-          <Field label="Нэр"  value={form.first_name} onChange={(v) => setForm((f) => ({ ...f, first_name: v }))} />
-        </div>
-        <Field label="И-мэйл"   value={profile?.email}    readOnly />
-        <Field label="Хэрэглэгчийн нэр" value={profile?.username} readOnly />
-        <Field label="Утас"      value={form.phone}  type="tel" onChange={(v) => setForm((f) => ({ ...f, phone: v }))} />
-
-        <button
-          type="submit"
-          disabled={saving || loading}
-          className="flex h-10 items-center gap-2 rounded-lg bg-zinc-900 px-5 text-sm font-medium
-            text-white transition-colors hover:bg-zinc-700 disabled:pointer-events-none disabled:opacity-60"
-        >
-          {saving && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />}
-          <FiSave className="h-4 w-4" />
-          Хадгалах
-        </button>
-      </form>
-
-      {/* Enrolled courses */}
-      <div className="rounded-xl border border-zinc-200 bg-white p-5 space-y-3">
-        <div className="flex items-center gap-2">
-          <FiBook className="h-4 w-4 text-zinc-500" />
-          <h2 className="font-semibold text-zinc-800">Бүртгэлтэй хичээлүүд</h2>
-        </div>
-        {loading ? (
-          <div className="space-y-2">
-            {[1, 2].map((i) => <div key={i} className="h-10 animate-pulse rounded-lg bg-zinc-100" />)}
-          </div>
-        ) : courses.length === 0 ? (
-          <p className="text-sm text-zinc-400">Та ямар нэг хичээлд бүртгэлгүй байна.</p>
-        ) : (
-          <div className="space-y-2">
-            {courses.map((item, i) => {
-              const course = parseField(item, "course") ?? {};
-              const courseId   = course.id ?? item.id ?? item.course_id;
-              const courseName = course.name ?? course.title ?? `Хичээл #${courseId}`;
-              const group = parseField(item, "group");
-              return (
-                <div
-                  key={courseId ?? i}
-                  className="flex items-center justify-between rounded-lg border border-zinc-100 px-4 py-3"
-                >
-                  <div>
-                    <p className="text-sm font-medium text-zinc-800">{courseName}</p>
-                    {group?.name && (
-                      <p className="text-xs text-zinc-400">Бүлэг: {group.name}</p>
-                    )}
-                  </div>
+      <Card>
+        <CardContent className="pt-6">
+          {loading ? (
+            <div className="grid gap-6 md:grid-cols-[220px_1fr]">
+              <div className="space-y-4">
+                <Skeleton className="h-28 w-28 rounded-full" />
+                <Skeleton className="h-4 w-36" />
+                <Skeleton className="h-4 w-44" />
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {[1, 2, 3, 4, 5, 6].map((item) => (
+                  <Skeleton key={item} className="h-16" />
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-[220px_1fr]">
+              <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-center">
+                <Avatar
+                  src={avatarSource}
+                  alt={displayName}
+                  fallback={initials}
+                  className="mx-auto h-24 w-24 text-2xl"
+                />
+                <p className="mt-3 text-sm font-semibold uppercase tracking-wide text-zinc-800">
+                  {displayName}
+                </p>
+                <p className="text-xs text-zinc-500">
+                  {profile?.email || "И-мэйл бүртгэгдээгүй"}
+                </p>
+                <div className="mt-3 flex justify-center">
+                  <Badge>{school?.role?.name || "Суралцагч"}</Badge>
                 </div>
-              );
-            })}
-          </div>
-        )}
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-lg border border-zinc-200 bg-white p-3">
+                  <p className="text-xs text-zinc-500">Оюутны код</p>
+                  <p className="text-sm font-semibold text-zinc-900">
+                    {profile?.username || `ID-${profile?.id || "-"}`}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-zinc-200 bg-white p-3">
+                  <p className="text-xs text-zinc-500">Утас</p>
+                  <p className="text-sm font-semibold text-zinc-900">
+                    {profile?.phone || "Бүртгэгдээгүй"}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-zinc-200 bg-white p-3">
+                  <p className="text-xs text-zinc-500">Сургууль</p>
+                  <p className="text-sm font-semibold text-zinc-900">
+                    {school?.name || "Тодорхойгүй"}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-zinc-200 bg-white p-3">
+                  <p className="text-xs text-zinc-500">Хэрэглэгчийн ID</p>
+                  <p className="text-sm font-semibold text-zinc-900">
+                    {profile?.id || "-"}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-zinc-200 bg-white p-3 sm:col-span-2">
+                  <p className="text-xs text-zinc-500">И-мэйл</p>
+                  <p className="text-sm font-semibold text-zinc-900">
+                    {profile?.email || "Бүртгэгдээгүй"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Профайл засах</CardTitle>
+            <CardDescription>
+              Нэр, овог, холбоо барих мэдээллээ шинэчилнэ.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleProfileSave} className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="last_name">Овог</Label>
+                  <Input
+                    id="last_name"
+                    value={form.last_name}
+                    onChange={(event) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        last_name: event.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="first_name">Нэр</Label>
+                  <Input
+                    id="first_name"
+                    value={form.first_name}
+                    onChange={(event) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        first_name: event.target.value,
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="family_name">Эцгийн нэр</Label>
+                <Input
+                  id="family_name"
+                  value={form.family_name}
+                  onChange={(event) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      family_name: event.target.value,
+                    }))
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone">Утас</Label>
+                <Input
+                  id="phone"
+                  value={form.phone}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, phone: event.target.value }))
+                  }
+                />
+              </div>
+
+              <Button
+                type="submit"
+                loading={isSavingProfile}
+                disabled={loading}
+              >
+                Мэдээлэл хадгалах
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Профайл зураг</CardTitle>
+            <CardDescription>
+              Зургийн URL оруулж профайл зураг шинэчилнэ.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handlePictureSave} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="picture">Зургийн холбоос</Label>
+                <Input
+                  id="picture"
+                  value={pictureUrl}
+                  onChange={(event) => setPictureUrl(event.target.value)}
+                  placeholder="https://..."
+                />
+              </div>
+
+              <Button
+                type="submit"
+                variant="outline"
+                loading={isSavingPicture}
+                disabled={loading}
+              >
+                Зураг шинэчлэх
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Нууц үг солих</CardTitle>
+            <CardDescription>
+              Одоогийн нууц үгээрээ баталгаажуулж шинэ нууц үг оруулна.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handlePasswordChange} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="current_password">Одоогийн нууц үг</Label>
+                <Input
+                  id="current_password"
+                  type="password"
+                  value={passwordForm.currentPassword}
+                  onChange={(event) =>
+                    setPasswordForm((prev) => ({
+                      ...prev,
+                      currentPassword: event.target.value,
+                    }))
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="new_password">Шинэ нууц үг</Label>
+                <Input
+                  id="new_password"
+                  type="password"
+                  value={passwordForm.newPassword}
+                  onChange={(event) =>
+                    setPasswordForm((prev) => ({
+                      ...prev,
+                      newPassword: event.target.value,
+                    }))
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirm_password">Шинэ нууц үг давтах</Label>
+                <Input
+                  id="confirm_password"
+                  type="password"
+                  value={passwordForm.confirmPassword}
+                  onChange={(event) =>
+                    setPasswordForm((prev) => ({
+                      ...prev,
+                      confirmPassword: event.target.value,
+                    }))
+                  }
+                />
+              </div>
+
+              <Button
+                type="submit"
+                variant="outline"
+                loading={isChangingPassword}
+                disabled={loading}
+              >
+                Нууц үг шинэчлэх
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        <Card className="border-red-200">
+          <CardHeader>
+            <CardTitle className="text-red-700">Бүртгэл устгах</CardTitle>
+            <CardDescription>
+              Бүртгэл устгавал буцаах боломжгүй. Баталгаажуулж үргэлжлүүлнэ үү.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Alert variant="warning">
+              <AlertTitle>Анхааруулга</AlertTitle>
+              <AlertDescription>
+                Бүртгэл устгасны дараа таны хувийн мэдээлэл болон хандах эрх
+                цуцлагдана.
+              </AlertDescription>
+            </Alert>
+
+            <div className="space-y-2">
+              <Label htmlFor="delete_confirm">Баталгаажуулах үг</Label>
+              <Input
+                id="delete_confirm"
+                value={deleteConfirmText}
+                onChange={(event) => setDeleteConfirmText(event.target.value)}
+                placeholder="DELETE"
+              />
+            </div>
+
+            <Button
+              type="button"
+              variant="destructive"
+              loading={isDeletingAccount}
+              onClick={handleDeleteAccount}
+            >
+              Бүртгэл устгах
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

@@ -4,7 +4,7 @@
 
 @courseId = 204
 
-@accessToken = 4CiGpMD-fN9R29bDwlZtEg
+@accessToken = v2Z1OkYgQQ1AF2VQ8__8XA
 
 ### 1. user login
 POST {{baseUrl}}/token/email
@@ -16,9 +16,10 @@ Content-Type: application/json
   "push_token": "fcm_token_optional"
 }
 
-### Get own info
-GET {{baseUrl}}/users/me
+### 3. Get user by ID
+GET {{baseUrl}}/users/{{userId}}
 Authorization: Bearer {{accessToken}}
+
 
 {
   "id": 539,
@@ -29,19 +30,11 @@ Authorization: Bearer {{accessToken}}
   "username": "schoolstudent",
   "email": "schoolstudent@must.edu.mn",
   "phone": null,
-  "facebook_id": null,
+  "is_active": 1,
   "schools": [
     {
       "id": 2,
       "name": "Мэдээлэл, Холбооны Технологийн Сургууль",
-      "role": {
-        "id": 30,
-        "name": "Суралцагч"
-      }
-    },
-    {
-      "id": 0,
-      "name": "Humuun.edu.mn Нээлттэй орчин",
       "role": {
         "id": 30,
         "name": "Суралцагч"
@@ -56,3 +49,55 @@ Authorization: Bearer {{accessToken}}
   ]
 }
 
+
+
+### ----------------------------------------------------------------------------
+### Own Profile (/users/me)
+### ----------------------------------------------------------------------------
+
+### 5. Get my profile
+GET {{baseUrl}}/users/me?current_user={{userId}}
+Authorization: Bearer {{accessToken}}
+
+### 6. Update my profile
+PUT {{baseUrl}}/users/me
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "first_name": "Оюутан",
+  "last_name": "Амар",
+  "family_name": "Бат-Эрдэнэ",
+  "phone": "99119911",
+  "picture": "https://png.pngtree.com/png-clipart/20230927/original/pngtree-man-avatar-image-for-profile-png-image_13001882.png"
+}
+
+### 7. Delete my account
+DELETE {{baseUrl}}/users/me
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "current_user": ""
+}
+
+### 8. Change password
+PUT {{baseUrl}}/users/me/password
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "current_user": "",
+  "password": "1234",  
+  "new_password": "123"  
+}
+
+### 9. Upload profile picture (base64 or binary)
+POST {{baseUrl}}/users/me/picture
+Authorization: Bearer {{accessToken}} 
+Content-Type: application/json
+
+{
+  "current_user": "",
+  "body": "base64_encoded_image_data_or_file_path"
+}
