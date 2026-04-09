@@ -66,11 +66,8 @@ export default function CourseUserList() {
     <div className="mx-auto max-w-6xl space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-700">
-            <FiUsers className="h-5 w-5" />
-          </div>
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900">Хичээлийн хэрэглэгчид</h1>
+            <h1 className="text-2xl font-bold text-zinc-900">Хэрэглэгчид</h1>
             <p className="text-sm text-zinc-500">{courseName || `Хичээл #${course_id}`}</p>
           </div>
         </div>
