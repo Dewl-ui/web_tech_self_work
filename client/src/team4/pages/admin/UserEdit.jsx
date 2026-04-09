@@ -74,7 +74,7 @@ export default function UserEdit() {
         picture: form.picture,
       }));
       toast.success("Амжилттай хадгалагдлаа.");
-      navigate(`/team4/users/${user_id}`);
+      navigate(`/team4/users/`);
     } catch (err) {
       const msg = err.message || "Хадгалахад алдаа гарлаа.";
       setError(msg);
@@ -87,7 +87,7 @@ export default function UserEdit() {
   return (
     <div className="mx-auto max-w-xl space-y-6">
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="sm" onClick={() => navigate(`/team4/users/${user_id}`)}>
+        <Button variant="ghost" size="sm" onClick={() => navigate(`/team4/users/`)}>
           <FiArrowLeft className="h-4 w-4" />
         </Button>
         <div>
@@ -147,7 +147,7 @@ export default function UserEdit() {
                   {saving && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />}
                   <FiSave className="h-4 w-4" /> Хадгалах
                 </Button>
-                <Button type="button" variant="outline" onClick={() => navigate(`/team4/users/${user_id}`)}>
+                <Button type="button" variant="outline" onClick={() => navigate(`/team4/users/`)}>
                   Цуцлах
                 </Button>
               </div>
