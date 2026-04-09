@@ -1,0 +1,49 @@
+### Profile Management API Check File
+### Base URL: https://todu.mn/bs/lms/v1
+### Supports: View/update/delete own profile, change password, upload picture, list own schools.
+
+@baseUrl = https://todu.mn/bs/lms/v1
+
+@accessToken = 9nMygePbUeYhO9kt7ibQ7w
+
+### 1. Get own profile
+GET {{baseUrl}}/users/me
+Authorization: Bearer {{accessToken}}
+
+### 2. Update own profile
+PUT {{baseUrl}}/users/me
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "first_name": "Jane",
+  "last_name": "Smith",
+  "phone": "99889988",
+  "address_description": "Ulaanbaatar, Bayangol district"
+}
+
+### 3. Delete own account
+DELETE {{baseUrl}}/users/me
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{}
+
+### 4. Upload profile picture (base64 image)
+# POST /users/me/picture
+# Headers: Authorization: Bearer <access_token>
+# Request body: body (base64 string of image)
+POST {{baseUrl}}/users/me/picture
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "body": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA..."
+}
+
+### 5. Get list of schools the current user belongs to (with role)
+# GET /users/me/schools
+# Headers: Authorization: Bearer <access_token>
+# Response: { "items": [ { id, name, picture, priority, role: { name } } ] }
+GET {{baseUrl}}/users/me/schools
+Authorization: Bearer {{accessToken}}

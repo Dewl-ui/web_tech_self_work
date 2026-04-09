@@ -1,0 +1,95 @@
+# =============================================================================
+# USERS — /users, /users/{user_id}
+# Base URL: https://todu.mn/bs/lms/v1
+# Member 2 — UserList, UserCreate, UserDetail, UserEdit
+# =============================================================================
+
+@baseUrl = https://todu.mn/bs/lms/v1
+
+# Paste token from auth.http login response:
+@token = gZVUNx-ZR-ah3aWQ2bIHIg
+@currentUser = 1
+@userId = 535
+
+# -----------------------------------------------------------------------------
+### Get all users (admin only)
+GET {{baseUrl}}/users?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Get all users — with pagination
+GET {{baseUrl}}/users?current_user={{currentUser}}&limit=20&offset=0
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Get current logged-in user (me)
+GET {{baseUrl}}/users/me?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Get a specific user by ID
+GET {{baseUrl}}/users/{{userId}}?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Create a new user (admin / teacher)
+POST {{baseUrl}}/users
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "first_name": "Тэст",
+  "last_name": "Хэрэглэгч",
+  "email": "test.user@example.com",
+  "username": "testuser",
+  "phone": "88001122",
+  "password": "password123",
+  "current_user": {{currentUser}}
+}
+
+# -----------------------------------------------------------------------------
+### Update a user (admin) — PUT /users/{user_id}
+# Schema: v1_ITEM_64 (first_name, last_name, family_name, email, phone, picture)
+PUT {{baseUrl}}/users/{{userId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "first_name": "Шинэ",
+  "last_name": "Нэр",
+  "family_name": "Гэр бүлийн нэр",
+  "email": "updated@must.edu.mn",
+  "phone": "88009900",
+  "picture": "",
+  "current_user": {{currentUser}}
+}
+
+# -----------------------------------------------------------------------------
+### Delete a user (admin)
+DELETE {{baseUrl}}/users/{{userId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "current_user": {{currentUser}}
+}
+
+# -----------------------------------------------------------------------------
+### Get schools the user belongs to
+GET {{baseUrl}}/users/{{userId}}/schools?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Get courses a specific user is teaching
+GET {{baseUrl}}/users/{{userId}}/courses/teaching?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Get courses a specific user is enrolled in
+GET {{baseUrl}}/users/{{userId}}/courses/enrolled?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Get exams for a specific user
+GET {{baseUrl}}/users/{{userId}}/exams?current_user={{currentUser}}
+Authorization: Bearer {{token}}

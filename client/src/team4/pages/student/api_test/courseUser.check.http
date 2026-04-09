@@ -1,0 +1,57 @@
+### Course User Management API Check File
+### Base URL: https://todu.mn/bs/lms/v1
+### Supports: List course users, add user to course, update user's group in course, remove user from course.
+### Note: Teachers can add students to their courses. Admins can manage all.
+
+@baseUrl = https://todu.mn/bs/lms/v1
+@courseId = 204
+@userId = 12345
+
+@accessToken = i8zSSGzb7UhwvExNCT4jIw
+
+### 1. List users enrolled in a course
+POST {{baseUrl}}/token/email
+Content-Type: application/json
+
+{
+  "email": "schoolstudent@must.edu.mn",
+  "password": "123",
+  "push_token": "fcm_token_optional"
+}
+
+### Get own info
+GET {{baseUrl}}/users/me
+Authorization: Bearer {{accessToken}}
+
+###
+GET {{baseUrl}}/courses/{{courseId}}/users
+Authorization: Bearer {{accessToken}}
+
+
+
+### 2. Add a user to a course (teacher/admin)
+POST {{baseUrl}}/courses/{{courseId}}/users
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "user_id": "{{userId}}",
+  "group_id": "50"
+}
+
+### 3. Get specific course user details
+GET {{baseUrl}}/courses/{{courseId}}/users/{{userId}}
+Authorization: Bearer {{accessToken}}
+
+### 4. Update user's group (or payment info) within a course
+PUT {{baseUrl}}/courses/{{courseId}}/users/{{userId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "group_id": "55"
+}
+
+### 5. Remove a user from a course (teacher/admin)
+DELETE {{baseUrl}}/courses/{{courseId}}/users/{{userId}}
+Authorization: Bearer {{accessToken}}

@@ -1,0 +1,134 @@
+# =============================================================================
+# SCHOOLS — /schools, /schools/{school_id}, /schools/{school_id}/users, etc.
+# Base URL: https://todu.mn/bs/lms/v1
+# Member 3 — SchoolSelect; used by AuthContext.selectSchool()
+# =============================================================================
+
+@baseUrl = https://todu.mn/bs/lms/v1
+
+# Paste token from auth.http login response:
+@token = gZVUNx-ZR-ah3aWQ2bIHIg
+@currentUser = 1
+@schoolId = 2
+@userId = 2
+@teacherId = 41
+
+# -----------------------------------------------------------------------------
+### Get all schools (list for school-select screen)
+GET {{baseUrl}}/schools?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Get a specific school by ID
+GET {{baseUrl}}/schools/{{schoolId}}?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Create a new school (admin)
+POST {{baseUrl}}/schools
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Тест Сургууль",
+  "current_user": {{currentUser}}
+}
+
+# -----------------------------------------------------------------------------
+### Update a school (admin)
+PUT {{baseUrl}}/schools/{{schoolId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Шинэ Нэртэй Сургууль",
+  "current_user": {{currentUser}}
+}
+
+# -----------------------------------------------------------------------------
+### Delete a school (admin)
+DELETE {{baseUrl}}/schools/{{schoolId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "current_user": {{currentUser}}
+}
+
+# -----------------------------------------------------------------------------
+### Get users in a school
+GET {{baseUrl}}/schools/{{schoolId}}/users?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Get a specific user in a school (includes {}role field for selectSchool)
+GET {{baseUrl}}/schools/{{schoolId}}/users/{{userId}}?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Add a user to a school
+POST {{baseUrl}}/schools/{{schoolId}}/users
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "user_id": {{teacherId}},
+  "role_id": 20,
+  "current_user": {{currentUser}}
+}
+
+# -----------------------------------------------------------------------------
+### Remove a user from a school (admin)
+DELETE {{baseUrl}}/schools/{{schoolId}}/users/{{userId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "current_user": {{currentUser}}
+}
+
+# -----------------------------------------------------------------------------
+### Get teachers in a school
+GET {{baseUrl}}/schools/{{schoolId}}/teachers?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Get categories in a school
+GET {{baseUrl}}/schools/{{schoolId}}/categories?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Get courses in a school
+GET {{baseUrl}}/schools/{{schoolId}}/courses?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Get periods in a school
+GET {{baseUrl}}/schools/{{schoolId}}/periods?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Get enrolment requests for a school
+GET {{baseUrl}}/schools/{{schoolId}}/requests?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Approve / update an enrolment request
+PUT {{baseUrl}}/schools/{{schoolId}}/requests/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "status": "approved",
+  "current_user": {{currentUser}}
+}
+
+# -----------------------------------------------------------------------------
+### Get user debt in a school
+GET {{baseUrl}}/schools/{{schoolId}}/users/{{userId}}/debt?current_user={{currentUser}}
+Authorization: Bearer {{token}}
+
+# -----------------------------------------------------------------------------
+### Get payments for a user in a school
+GET {{baseUrl}}/schools/{{schoolId}}/users/{{userId}}/payments?current_user={{currentUser}}
+Authorization: Bearer {{token}}
