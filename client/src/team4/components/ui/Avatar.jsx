@@ -1,12 +1,17 @@
+import { useState } from "react";
+
 const sizes = { sm: "h-8 w-8 text-xs", md: "h-10 w-10 text-sm", lg: "h-14 w-14 text-base" };
 
 export function Avatar({ src, alt = "", fallback, size = "md", className = "" }) {
-  if (src) {
+  const [imgError, setImgError] = useState(false);
+
+  if (src && !imgError) {
     return (
       <img
         src={src}
         alt={alt}
         className={`rounded-full object-cover ${sizes[size] ?? sizes.md} ${className}`}
+        onError={() => setImgError(true)}
       />
     );
   }
