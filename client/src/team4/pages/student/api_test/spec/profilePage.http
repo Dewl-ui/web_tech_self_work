@@ -4,7 +4,7 @@
 
 @courseId = 204
 
-@accessToken = 4CiGpMD-fN9R29bDwlZtEg
+@accessToken = v2Z1OkYgQQ1AF2VQ8__8XA
 
 ### 1. user login
 POST {{baseUrl}}/token/email

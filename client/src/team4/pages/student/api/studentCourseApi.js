@@ -57,7 +57,7 @@ export const updateStudentProfile = (body) =>
   studentPut("/users/me", body);
 
 export const getStudentCourses = (userId) =>
-  studentGet(`/users/${userId}/courses`);
+  studentGet(`/users/${userId}/courses/enrolled`);
 
 export const getCourseDetail = (courseId) =>
   studentGet(`/courses/${courseId}`);
