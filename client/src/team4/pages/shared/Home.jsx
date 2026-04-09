@@ -29,9 +29,10 @@ export default function Home() {
         <h1 className="text-2xl font-bold text-zinc-900">
           {ROLE_TITLES[role] ?? "Dashboard"}
         </h1>
-        {school?.name && (
+        {/* {school?.name && (
           <p className="mt-0.5 text-sm text-zinc-500">{school.name}</p>
-        )}
+        )} */}
+        <p className="mt-0.5 text-sm text-zinc-500">Цахим шалгалтын системийн удирдах хэсэг</p>
       </div>
 
       {isAdmin   && <AdminHomeSummary   userId={user?.id} />}

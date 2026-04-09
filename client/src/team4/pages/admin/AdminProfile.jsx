@@ -1,7 +1,8 @@
 // Member A OWNS this file — Admin profile page at /team4/profile
 import { useEffect, useState } from "react";
 import { FiUser, FiMail, FiPhone, FiSave, FiShield } from "react-icons/fi";
-import { apiGet, apiPut } from "../../utils/api";
+import { apiGet, apiPut, withCurrentUser } from "../../utils/api";
+import { useAuth } from "../../utils/AuthContext";
 import { useToast } from "../../components/ui/Toast";
 
 function Field({ label, value, onChange, type = "text", readOnly = false }) {
@@ -25,8 +26,9 @@ function Field({ label, value, onChange, type = "text", readOnly = false }) {
 
 export default function AdminProfile() {
   const toast = useToast();
+  const { refreshUser } = useAuth();
   const [profile, setProfile] = useState(null);
-  const [form, setForm]       = useState({ first_name: "", last_name: "", phone: "" });
+  const [form, setForm]       = useState({ first_name: "", last_name: "", family_name: "", phone: "", picture: "" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving]   = useState(false);
   const [error, setError]     = useState("");
@@ -36,9 +38,11 @@ export default function AdminProfile() {
       .then((data) => {
         setProfile(data);
         setForm({
-          first_name: data.first_name ?? "",
-          last_name:  data.last_name  ?? "",
-          phone:      data.phone      ?? "",
+          first_name:  data.first_name  ?? "",
+          last_name:   data.last_name   ?? "",
+          family_name: data.family_name ?? "",
+          phone:       data.phone       ?? "",
+          picture:     data.picture     ?? "",
         });
       })
       .catch((err) => {
@@ -54,7 +58,9 @@ export default function AdminProfile() {
     setError("");
     setSaving(true);
     try {
-      await apiPut("/users/me", form);
+      await apiPut("/users/me", withCurrentUser(form));
+      setProfile((prev) => ({ ...prev, ...form }));
+      await refreshUser();
       toast.success("Амжилттай хадгалагдлаа.");
     } catch (err) {
       toast.error(err.message || "Хадгалахад алдаа гарлаа.");
@@ -85,13 +91,21 @@ export default function AdminProfile() {
         <div className="h-24 w-full animate-pulse rounded-xl bg-zinc-100" />
       ) : (
         <div className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-5">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-purple-100
-            text-2xl font-bold text-purple-700">
+          {profile?.picture && profile.picture !== "no-image.jpg" ? (
+            <img
+              src={/^(https?:)?\/\//i.test(profile.picture) ? profile.picture : `https://todu.mn/bs/lms/v1/${profile.picture}`}
+              alt="avatar"
+              className="h-16 w-16 shrink-0 rounded-full object-cover"
+              onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }}
+            />
+          ) : null}
+          <div className={`h-16 w-16 shrink-0 items-center justify-center rounded-full bg-purple-100
+            text-2xl font-bold text-purple-700 ${profile?.picture && profile.picture !== "no-image.jpg" ? "hidden" : "flex"}`}>
             {initials}
           </div>
           <div>
             <p className="text-lg font-semibold text-zinc-900">
-              {[profile?.last_name, profile?.first_name].filter(Boolean).join(" ") || "—"}
+              {[profile?.last_name, profile?.first_name].filter((v) => v && v !== "-").join(" ") || "—"}
             </p>
             <p className="text-sm text-zinc-400">@{profile?.username ?? "—"}</p>
           </div>
@@ -115,6 +129,7 @@ export default function AdminProfile() {
         <Field label="И-мэйл"   value={profile?.email}    readOnly />
         <Field label="Хэрэглэгчийн нэр" value={profile?.username} readOnly />
         <Field label="Утас"      value={form.phone}  type="tel" onChange={(v) => setForm((f) => ({ ...f, phone: v }))} />
+        <Field label="Профайл зураг (URL)" value={form.picture} onChange={(v) => setForm((f) => ({ ...f, picture: v }))} />
 
         <button
           type="submit"

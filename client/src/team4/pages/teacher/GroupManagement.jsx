@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { FiPlus, FiEdit2, FiTrash2, FiUsers, FiSave, FiX, FiLayers } from "react-icons/fi";
+import { FiPlus, FiEdit2, FiTrash2, FiUsers, FiSave, FiX, FiLayers, FiChevronLeft} from "react-icons/fi";
 import { apiGet, apiPost, apiPut, apiDelete, withCurrentUser } from "../../utils/api";
 import { useToast } from "../../components/ui/Toast";
 import { Input } from "../../components/ui/Input";
@@ -116,6 +116,15 @@ export default function GroupManagement() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
+      <div className="flex items-center gap-2 text-sm text-zinc-500">
+      <Link
+        to={`/team4/courses/${course_id}/users`}
+        className="inline-flex items-center gap-1 hover:text-zinc-900"
+      >
+        <FiChevronLeft className="h-4 w-4" />
+        Буцах
+      </Link>
+    </div>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-indigo-700">

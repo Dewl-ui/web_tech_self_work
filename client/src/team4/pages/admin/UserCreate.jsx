@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiArrowLeft, FiSave, FiUserPlus } from "react-icons/fi";
-import { apiPost, withCurrentUser } from "../../utils/api";
+import { FiArrowLeft, FiSave, FiUserPlus, FiUserCheck } from "react-icons/fi";
+import { apiGet, apiPost, withCurrentUser, getStoredUserId } from "../../utils/api";
 import { useAuth } from "../../utils/AuthContext";
 import { useToast } from "../../components/ui/Toast";
 import { Input } from "../../components/ui/Input";
@@ -18,8 +18,10 @@ function getSchoolId(school) {
 
 export default function UserCreate() {
   const navigate = useNavigate();
-  const { school } = useAuth();
+  const { school, isAdmin } = useAuth();
   const toast = useToast();
+
+  const [mode, setMode] = useState("new"); // "new" | "existing"
 
   const [form, setForm] = useState({
     first_name: "",
@@ -31,11 +33,45 @@ export default function UserCreate() {
     password_confirm: "",
     role_id: "",
   });
+  const [existingForm, setExistingForm] = useState({ username: "", role_id: "", user_id: "" });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
   function set(key) {
     return (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
+  }
+
+  function setEx(key) {
+    return (e) => setExistingForm((f) => ({ ...f, [key]: e.target.value }));
+  }
+
+  async function handleAddExisting(e) {
+    e.preventDefault();
+    setError("");
+    if (!existingForm.username.trim() || !existingForm.role_id) {
+      setError("Имэйл/username болон эрхийг заавал сонгоно уу.");
+      return;
+    }
+    const schoolId = getSchoolId(school);
+    if (schoolId == null) {
+      setError("Сургууль сонгогдоогүй байна.");
+      return;
+    }
+    setSaving(true);
+    try {
+      await apiPost(`/schools/${schoolId}/users`, withCurrentUser({
+        username: existingForm.username.trim(),
+        role_id: Number(existingForm.role_id),
+      }));
+      toast.success("Хэрэглэгч сургуульд амжилттай нэмэгдлээ.");
+      navigate("/team4/users");
+    } catch (err) {
+      const msg = err.message || "Хэрэглэгч нэмэхэд алдаа гарлаа.";
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function handleSubmit(e) {
@@ -70,7 +106,7 @@ export default function UserCreate() {
       });
 
       // 2. Add user to current school with selected role
-      if (schoolId && form.role_id) {
+      if (schoolId != null && form.role_id) {
         try {
           await apiPost(`/schools/${schoolId}/users`, withCurrentUser({
             username: form.username || form.email,
@@ -104,7 +140,70 @@ export default function UserCreate() {
         </div>
       </div>
 
-      <Card>
+      {/* Mode toggle */}
+      <div className="flex gap-2">
+        <Button
+          variant={mode === "new" ? "default" : "outline"}
+          onClick={() => { setMode("new"); setError(""); }}
+        >
+          <FiUserPlus className="h-4 w-4" /> Шинэ хэрэглэгч
+        </Button>
+        <Button
+          variant={mode === "existing" ? "default" : "outline"}
+          onClick={() => { setMode("existing"); setError(""); }}
+        >
+          <FiUserCheck className="h-4 w-4" /> Байгаа хэрэглэгч нэмэх
+        </Button>
+      </div>
+
+      {mode === "existing" && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FiUserCheck className="h-5 w-5" /> Байгаа хэрэглэгчийг сургуульд нэмэх
+            </CardTitle>
+            <CardDescription>Системд бүртгэлтэй хэрэглэгчийн имэйл эсвэл username оруулна уу</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleAddExisting} className="space-y-4">
+              {error && (
+                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {error}
+                </div>
+              )}
+              <div className="space-y-1.5">
+                <Label>Username *</Label>
+                <Input
+                  value={existingForm.username}
+                  onChange={setEx("username")}
+                  placeholder="admin"
+                  required
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Эрх *</Label>
+                <Select value={existingForm.role_id} onChange={setEx("role_id")} required>
+                  <option value="">-- Сонгох --</option>
+                  {isAdmin && <option value="10">Админ</option>}
+                  {isAdmin && <option value="20">Багш</option>}
+                  <option value="30">Оюутан</option>
+                </Select>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <Button type="submit" disabled={saving}>
+                  {saving && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />}
+                  <FiSave className="h-4 w-4" /> Нэмэх
+                </Button>
+                <Button type="button" variant="outline" onClick={() => navigate("/team4/users")}>
+                  Цуцлах
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+
+      {mode === "new" && <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FiUserPlus className="h-5 w-5" /> Шинэ хэрэглэгч
@@ -149,8 +248,8 @@ export default function UserCreate() {
               <Label>Эрх</Label>
               <Select value={form.role_id} onChange={set("role_id")}>
                 <option value="">-- Сонгох --</option>
-                <option value="10">Админ</option>
-                <option value="20">Багш</option>
+                {isAdmin && <option value="10">Админ</option>}
+                {isAdmin && <option value="20">Багш</option>}
                 <option value="30">Оюутан</option>
               </Select>
             </div>
@@ -177,7 +276,7 @@ export default function UserCreate() {
             </div>
           </form>
         </CardContent>
-      </Card>
+      </Card>}
     </div>
   );
 }

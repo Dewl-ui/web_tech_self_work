@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { FiArrowLeft, FiSave } from "react-icons/fi";
-import { apiGet, apiPut, withCurrentUser } from "../../utils/api";
+import { FiArrowLeft, FiSave, FiLock } from "react-icons/fi";
+import { apiGet, apiPut, apiPost, withCurrentUser, parseField } from "../../utils/api";
+import { useAuth } from "../../utils/AuthContext";
+import { ROLES } from "../../utils/constants";
 import { useToast } from "../../components/ui/Toast";
 import { Input } from "../../components/ui/Input";
 import { Label } from "../../components/ui/Label";
@@ -14,6 +16,7 @@ export default function UserEdit() {
   const { user_id } = useParams();
   const navigate = useNavigate();
   const toast = useToast();
+  const { school } = useAuth();
 
   const [form, setForm] = useState({
     first_name: "",
@@ -27,6 +30,13 @@ export default function UserEdit() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  const [pwForm, setPwForm] = useState({ new_password: "", confirm_password: "" });
+  const [savingPw, setSavingPw] = useState(false);
+  const [targetIsAdmin, setTargetIsAdmin] = useState(false);
+  const isSystemAdmin = school?.id === 0;
+  const canResetPassword = isSystemAdmin || !targetIsAdmin;
+
+
   useEffect(() => {
     async function load() {
       try {
@@ -39,6 +49,13 @@ export default function UserEdit() {
           phone: data.phone ?? "",
           picture: data.picture ?? "",
         });
+
+        const schools = data.schools ?? [];
+        const hasAdmin = schools.some((s) => {
+          const role = s.role ?? parseField(s, "role");
+          return (s.id === school?.id || s.id === 0) && role?.id === ROLES.ADMIN;
+        });
+        setTargetIsAdmin(hasAdmin);
       } catch (err) {
         const msg = err.message || "Мэдээлэл ачааллахад алдаа гарлаа.";
         setError(msg);
@@ -52,6 +69,34 @@ export default function UserEdit() {
 
   function set(key) {
     return (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
+  }
+
+  async function handlePasswordReset(e) {
+    e.preventDefault();
+    if (!pwForm.new_password) {
+      toast.error("Шинэ нууц үг оруулна уу.");
+      return;
+    }
+    if (pwForm.new_password.length < 3) {
+      toast.error("Нууц үг хамгийн багадаа 3 тэмдэгт байх ёстой.");
+      return;
+    }
+    if (pwForm.new_password !== pwForm.confirm_password) {
+      toast.error("Нууц үг таарахгүй байна.");
+      return;
+    }
+    setSavingPw(true);
+    try {
+      await apiPost(`/users/${user_id}/password`, withCurrentUser({
+        new_password: pwForm.new_password,
+      }));
+      toast.success("Нууц үг амжилттай солигдлоо.");
+      setPwForm({ new_password: "", confirm_password: "" });
+    } catch (err) {
+      toast.error(err.message || "Нууц үг солиход алдаа гарлаа.");
+    } finally {
+      setSavingPw(false);
+    }
   }
 
   async function handleSubmit(e) {
@@ -74,7 +119,7 @@ export default function UserEdit() {
         picture: form.picture,
       }));
       toast.success("Амжилттай хадгалагдлаа.");
-      navigate(`/team4/users/${user_id}`);
+      navigate(`/team4/users/`);
     } catch (err) {
       const msg = err.message || "Хадгалахад алдаа гарлаа.";
       setError(msg);
@@ -87,7 +132,7 @@ export default function UserEdit() {
   return (
     <div className="mx-auto max-w-xl space-y-6">
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="sm" onClick={() => navigate(`/team4/users/${user_id}`)}>
+        <Button variant="ghost" size="sm" onClick={() => navigate(`/team4/users/`)}>
           <FiArrowLeft className="h-4 w-4" />
         </Button>
         <div>
@@ -147,7 +192,7 @@ export default function UserEdit() {
                   {saving && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />}
                   <FiSave className="h-4 w-4" /> Хадгалах
                 </Button>
-                <Button type="button" variant="outline" onClick={() => navigate(`/team4/users/${user_id}`)}>
+                <Button type="button" variant="outline" onClick={() => navigate(`/team4/users/`)}>
                   Цуцлах
                 </Button>
               </div>
@@ -155,6 +200,58 @@ export default function UserEdit() {
           )}
         </CardContent>
       </Card>
+
+      {/* Password reset */}
+      {!loading && !error && canResetPassword && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FiLock className="h-5 w-5" /> Нууц үг шинэчлэх
+            </CardTitle>
+            <CardDescription>Хэрэглэгчийн нууц үгийг шинээр тохируулна</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handlePasswordReset} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label>Шинэ нууц үг *</Label>
+                  <Input
+                    type="password"
+                    value={pwForm.new_password}
+                    onChange={(e) => setPwForm((f) => ({ ...f, new_password: e.target.value }))}
+                    placeholder="••••••"
+                    required
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Нууц үг давтах *</Label>
+                  <Input
+                    type="password"
+                    value={pwForm.confirm_password}
+                    onChange={(e) => setPwForm((f) => ({ ...f, confirm_password: e.target.value }))}
+                    placeholder="••••••"
+                    required
+                  />
+                </div>
+              </div>
+              <Button type="submit" disabled={savingPw}>
+                {savingPw && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />}
+                <FiLock className="h-4 w-4" /> Нууц үг солих
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+
+      {!loading && !error && !canResetPassword && (
+        <Card className="border-zinc-200">
+          <CardContent className="py-4">
+            <p className="text-sm text-zinc-500">
+              Админ хэрэглэгчийн нууц үгийг зөвхөн системийн админ солих боломжтой.
+            </p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

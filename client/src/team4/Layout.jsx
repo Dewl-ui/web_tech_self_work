@@ -27,13 +27,20 @@ export default function Layout() {
   }
 
   const roleLabel = parseField(school, "role")?.name ?? null;
-  const userName = [user?.last_name, user?.first_name].filter(Boolean).join(" ") || user?.email || "";
+  const userName = [user?.last_name, user?.first_name].filter((v) => v && v !== "-").join(" ") || user?.email || "";
   const initials = userName
     .split(" ")
     .map((n) => n[0])
     .join("")
     .toUpperCase()
     .slice(0, 2) || "?";
+
+  function avatarSrc(picture) {
+    if (!picture || picture === "no-image.jpg") return undefined;
+    if (/^(https?:)?\/\//i.test(picture)) return picture;
+    if (picture.startsWith("data:image/")) return picture;
+    return `https://todu.mn/bs/lms/v1/${picture}`;
+  }
 
   return (
     <div
@@ -135,6 +142,7 @@ export default function Layout() {
                     <DropdownMenuTrigger onClick={() => setOpen(!open)}>
                       <button className="flex items-center gap-2 rounded-lg p-1 hover:bg-zinc-100 transition-colors cursor-pointer">
                         <Avatar
+                          src={avatarSrc(user?.picture)}
                           fallback={initials}
                           size="sm"
                           className="rounded-lg bg-zinc-100 text-zinc-700"

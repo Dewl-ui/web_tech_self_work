@@ -78,7 +78,15 @@ export default function UserDetail() {
         <>
           {/* Avatar + name card */}
           <div className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-5">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-blue-100 text-2xl font-bold text-blue-700">
+            {user?.picture && user.picture !== "no-image.jpg" ? (
+              <img
+                src={/^(https?:)?\/\//i.test(user.picture) ? user.picture : `https://todu.mn/bs/lms/v1/${user.picture}`}
+                alt={fullName}
+                className="h-16 w-16 shrink-0 rounded-full object-cover"
+                onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }}
+              />
+            ) : null}
+            <div className={`h-16 w-16 shrink-0 items-center justify-center rounded-full bg-blue-100 text-2xl font-bold text-blue-700 ${user?.picture && user.picture !== "no-image.jpg" ? "hidden" : "flex"}`}>
               {initials}
             </div>
             <div className="min-w-0 flex-1">

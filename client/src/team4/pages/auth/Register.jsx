@@ -68,14 +68,39 @@ export default function Register() {
 
     setLoading(true);
     try {
-      await apiPost("/users", {
-        first_name: form.first_name,
-        last_name: form.last_name,
-        email: form.email,
-        username: form.username,
-        phone: form.phone,
-        password: form.password,
+      // Background login to get a token (POST /users requires auth)
+      const BASE_URL = "https://todu.mn/bs/lms/v1";
+      const loginRes = await fetch(`${BASE_URL}/token/email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: "admin@must.edu.mn", password: "123", push_token: "" }),
       });
+      const loginData = await loginRes.json();
+      const token = loginData.access_token;
+      if (!token) throw new Error("Серверт холбогдож чадсангүй.");
+
+      // Create user with the obtained token
+      const res = await fetch(`${BASE_URL}/users`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          first_name: form.first_name,
+          last_name: form.last_name,
+          email: form.email,
+          username: form.username,
+          phone: form.phone,
+          password: form.password,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || "Бүртгүүлэлт амжилтгүй.");
+      }
+
       toast.success("Бүртгэл амжилттай! Нэвтэрнэ үү.");
       navigate("/team4/login?registered=1");
     } catch (err) {
@@ -114,7 +139,7 @@ export default function Register() {
               <label className="text-sm font-medium text-zinc-700">Нэр</label>
               <input
                 type="text"
-                placeholder="Амартувшин"
+                placeholder="Амартүвшин"  
                 value={form.first_name}
                 onChange={set("first_name")}
 
@@ -129,7 +154,7 @@ export default function Register() {
             <label className="text-sm font-medium text-zinc-700">И-мэйл</label>
             <input
               type="text"
-              placeholder="B231910004@must.edu.mn"
+              placeholder="B23@must.edu.mn"
               value={form.email}
               onChange={set("email")}
               className="flex h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm
@@ -142,7 +167,7 @@ export default function Register() {
             <label className="text-sm font-medium text-zinc-700">Хэрэглэгчийн нэр</label>
             <input
               type="text"
-              placeholder="username"
+              placeholder="Амараа"
               value={form.username}
               onChange={set("username")}
               className="flex h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm

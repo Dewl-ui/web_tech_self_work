@@ -73,27 +73,22 @@ export default function AdminDashboard() {
         setLoading(true);
         setError("");
 
-        const schoolUsersRes = await apiGet(`/schools/${schoolId}/users`);
+        const schoolUsersRes = await apiGet(`/schools/${schoolId}/users?limit=10000`);
         const schoolUsers = schoolUsersRes?.items ?? [];
         setUsers(schoolUsers);
 
-        const schoolCoursesRes = await apiGet(`/schools/${schoolId}/courses`);
+        const schoolCoursesRes = await apiGet(`/schools/${schoolId}/courses?limit=10000`);
         setCourseCount(schoolCoursesRes?.items?.length ?? 0);
-
-        const membershipResults = await Promise.allSettled(
-          schoolUsers.map((u) => apiGet(`/users/${u.id}/schools`))
-        );
 
         let admins = 0;
         let teachers = 0;
         let students = 0;
 
-        membershipResults.forEach((result) => {
-          if (result.status !== "fulfilled") return;
-
-          const userSchools = result.value?.items ?? [];
-          const roleId = getRoleIdFromSchoolMembership(userSchools, schoolId);
-
+        schoolUsers.forEach((u) => {
+          const matchedSchool = (u.schools || []).find(
+            (s) => String(s.id) === String(schoolId)
+          );
+          const roleId = matchedSchool?.roles?.[0]?.id;
           if (roleId === 10) admins += 1;
           else if (roleId === 20) teachers += 1;
           else if (roleId === 30) students += 1;

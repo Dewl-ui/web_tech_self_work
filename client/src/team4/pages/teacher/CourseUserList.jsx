@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { FiEdit2, FiSearch, FiUsers, FiBarChart2, FiLayers } from "react-icons/fi";
+import { FiEdit2, FiSearch, FiUsers, FiBarChart2, FiLayers, FiClock } from "react-icons/fi";
 import { apiGet, parseField } from "../../utils/api";
 import { useToast } from "../../components/ui";
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui";
@@ -66,22 +66,25 @@ export default function CourseUserList() {
     <div className="mx-auto max-w-6xl space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-700">
-            <FiUsers className="h-5 w-5" />
-          </div>
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900">Хичээлийн хэрэглэгчид</h1>
+            <h1 className="text-2xl font-bold text-zinc-900">Хэрэглэгчид</h1>
             <p className="text-sm text-zinc-500">{courseName || `Хичээл #${course_id}`}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-            <Link to={`/team4/courses/${course_id}/attendance`}>
-    <Button variant="outline">
-      <FiBarChart2 className="h-4 w-4" />
-      Ирцийн статистик
-    </Button>
-  </Link>
-  <Link to={`/team4/courses/${course_id}/groups`}>
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          <Link to={`/team4/courses/${course_id}/attendance`}>
+            <Button variant="outline">
+              <FiBarChart2 className="h-4 w-4" />
+              Ирцийн статистик
+            </Button>
+          </Link>
+          <Link to={`/team4/courses/${course_id}/timetable`}>
+            <Button variant="outline">
+              <FiClock className="h-4 w-4" />
+              Цаг хуваарь
+            </Button>
+          </Link>
+          <Link to={`/team4/courses/${course_id}/groups`}>
             <Button variant="outline">
               <FiLayers className="h-4 w-4" />
               Бүлэг удирдах

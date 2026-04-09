@@ -4,7 +4,7 @@
 
 @courseId = 204
 
-@accessToken = s1Pj_QQGVvGfEbxgZIoeBQ
+@accessToken = p7vXn3LH7JGiL543jqmNTA
 
 ### 1. user login
 POST {{baseUrl}}/token/email
@@ -58,69 +58,69 @@ Authorization: Bearer {{accessToken}}
 # }
 
 ### student courses
-GET {{baseUrl}}/users/{{userId}}/courses
+GET {{baseUrl}}/users/{{userId}}/courses/enrolled
 Authorization: Bearer {{accessToken}}
 
 
 GET {{baseUrl}}
 
-# 'HTTP/1.1 200 
-# ETag: "8pOJJfXydAdd7hO9XJpMix2NunDvVlG5g2RUPr+ZU0umD5w2l1A6VbZFbxWpkP+lRwmJsUUN0KGyr2O2sXFZ6g=="
-# Content-Type: application/json
-# Transfer-Encoding: chunked
-# Date: Sun, 05 Apr 2026 09:27:21 GMT
-# Connection: close
+'HTTP/1.1 200 
+ETag: "8pOJJfXydAdd7hO9XJpMix2NunDvVlG5g2RUPr+ZU0umD5w2l1A6VbZFbxWpkP+lRwmJsUUN0KGyr2O2sXFZ6g=="
+Content-Type: application/json
+Transfer-Encoding: chunked
+Date: Sun, 05 Apr 2026 09:27:21 GMT
+Connection: close
 
-# {
-#   "items": [
-#     {
-#       "id": 381,
-#       "course_id": 204,
-#       "user_id": 539,
-#       "group_id": null,
-#       "created_by": 0,
-#       "created_on": "2025-11-29T14:17:55.881743Z",
-#       "updated_by": 0,
-#       "updated_on": "2026-03-21T18:07:23.726257Z",
-#       "payment_status_id": 1,
-#       "payment_amount": null,
-#       "payment_due_date": null,
-#       "course": {
-#         "id": 204,
-#         "school_id": 2,
-#         "category_id": 200,
-#         "name": "Веб систем ба технологи",
-#         "picture": "no-image.jpg",
-#         "description": "MERN stack буюу MongoDB, ExpressJS, ReactJS, NodeJS технологиудыг ашиглан клиент сервер архитектуртай бүрэн хэмжээний веб систем хөгжүүлэх мэдлэг, чадвар олгоно.",
-#         "cloned_course_id": 200,
-#         "start_on": "2026-01-26T07:00:00",
-#         "end_on": "2026-05-31T07:00:00"
-#       },
-#       "group": {
-#         "id": null,
-#         "name": null
-#       }
-#     }
-#   ],
-#   "hasMore": false,
-#   "limit": 25,
-#   "offset": 0,
-#   "count": 1,
-#   "links": [
-#     {
-#       "rel": "self",
-#       "href": "https://todu.mn/bs/lms/v1/users/539/courses"
-#     },
-#     {
-#       "rel": "describedby",
-#       "href": "https://todu.mn/bs/lms/metadata-catalog/v1/users/539/item"
-#     },
-#     {
-#       "rel": "first",
-#       "href": "https://todu.mn/bs/lms/v1/users/539/courses"
-#     }
-#   ]
-# }
+{
+  "items": [
+    {
+      "id": 381,
+      "course_id": 204,
+      "user_id": 539,
+      "group_id": null,
+      "created_by": 0,
+      "created_on": "2025-11-29T14:17:55.881743Z",
+      "updated_by": 0,
+      "updated_on": "2026-03-21T18:07:23.726257Z",
+      "payment_status_id": 1,
+      "payment_amount": null,
+      "payment_due_date": null,
+      "course": {
+        "id": 204,
+        "school_id": 2,
+        "category_id": 200,
+        "name": "Веб систем ба технологи",
+        "picture": "no-image.jpg",
+        "description": "MERN stack буюу MongoDB, ExpressJS, ReactJS, NodeJS технологиудыг ашиглан клиент сервер архитектуртай бүрэн хэмжээний веб систем хөгжүүлэх мэдлэг, чадвар олгоно.",
+        "cloned_course_id": 200,
+        "start_on": "2026-01-26T07:00:00",
+        "end_on": "2026-05-31T07:00:00"
+      },
+      "group": {
+        "id": null,
+        "name": null
+      }
+    }
+  ],
+  "hasMore": false,
+  "limit": 25,
+  "offset": 0,
+  "count": 1,
+  "links": [
+    {
+      "rel": "self",
+      "href": "https://todu.mn/bs/lms/v1/users/539/courses"
+    },
+    {
+      "rel": "describedby",
+      "href": "https://todu.mn/bs/lms/metadata-catalog/v1/users/539/item"
+    },
+    {
+      "rel": "first",
+      "href": "https://todu.mn/bs/lms/v1/users/539/courses"
+    }
+  ]
+}
 
 
 
