@@ -73,15 +73,15 @@ export default function AdminDashboard() {
         setLoading(true);
         setError("");
 
-        const schoolUsersRes = await apiGet(`/schools/${schoolId}/users`);
+        const schoolUsersRes = await apiGet(`/schools/${schoolId}/users?limit=10000`);
         const schoolUsers = schoolUsersRes?.items ?? [];
         setUsers(schoolUsers);
 
-        const schoolCoursesRes = await apiGet(`/schools/${schoolId}/courses`);
+        const schoolCoursesRes = await apiGet(`/schools/${schoolId}/courses?limit=10000`);
         setCourseCount(schoolCoursesRes?.items?.length ?? 0);
 
         const membershipResults = await Promise.allSettled(
-          schoolUsers.map((u) => apiGet(`/users/${u.id}/schools`))
+          schoolUsers.map((u) => apiGet(`/users/${u.id}/schools?limit=10000`))
         );
 
         let admins = 0;

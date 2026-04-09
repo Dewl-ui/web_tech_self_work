@@ -67,7 +67,7 @@ export default function UserList() {
       try {
         setLoading(true);
         setError("");
-        const schoolUsersRes = await apiGet(`/schools/${schoolId}/users`);
+        const schoolUsersRes = await apiGet(`/schools/${schoolId}/users?limit=10000`);
         const schoolUsers = schoolUsersRes?.items ?? [];
         const detailResults = await Promise.allSettled(
           schoolUsers.map((u) => apiGet(`/users/${u.id}`)),
