@@ -36,6 +36,13 @@ const schoolNavItems = [
 ];
 
 const manageNavItems = [
+    {
+    to: "/team4",
+    label: "Нүүр",
+    icon: FiBookOpen,
+    end: true,
+    roles: [STUDENT],
+  },
   {
     to: "/team4/student",
     label: "Сургалтууд",
