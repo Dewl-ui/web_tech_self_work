@@ -1,12 +1,3 @@
-// ============================================================
-// STUDENT ROUTES — Member C OWNS this file
-// All student-specific pages are registered here.
-//
-// To add a new student page:
-//   1. Create YourPage.jsx in this folder  (pages/student/)
-//   2. Import it below
-//   3. Add a <Route> entry — do NOT edit any other routes file
-// ============================================================
 import { Route } from "react-router-dom";
 import { ProtectedRoute } from "../../utils/AuthContext";
 import { ROLES } from "../../utils/constants";

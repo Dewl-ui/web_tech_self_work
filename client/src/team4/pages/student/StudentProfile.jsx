@@ -22,7 +22,7 @@ import {
   getMyProfile,
   getUserById,
   updateMyProfile,
-  uploadMyProfilePicture,
+  // uploadMyProfilePicture,
 } from "./api/studentProfileApi";
 import { useToast } from "../../components/ui/Toast";
 
@@ -242,9 +242,6 @@ export default function StudentProfile() {
     <div className="mx-auto max-w-5xl space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-zinc-900">Оюутны профайл</h1>
-        <p className="text-sm text-zinc-500">
-          Өөрийн мэдээллээ энэ хуудсаас шууд шинэчлээрэй.
-        </p>
       </div>
 
       {errorMessage && (

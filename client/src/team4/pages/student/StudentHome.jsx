@@ -1,31 +1,10 @@
-// Member C OWNS this file.
-// This is the student section shown on the home dashboard (/team4).
-// Add quick links, stats, or widgets for student here.
-// Do NOT edit Home.jsx — edit this file instead.
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { FiBook } from "react-icons/fi";
-import { studentGet, parseField } from "./api/studentCourseApi";
-
-function StatCard({ title, value, icon, loading }) {
-  return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-sm font-medium text-zinc-500">{title}</p>
-          {loading ? (
-            <div className="mt-2 h-8 w-16 animate-pulse rounded-md bg-zinc-100" />
-          ) : (
-            <p className="mt-1 text-3xl font-bold text-zinc-900">{value ?? "—"}</p>
-          )}
-        </div>
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-100 text-zinc-500">
-          {icon}
-        </div>
-      </div>
-    </div>
-  );
-}
+import { FiBook, FiCalendar, FiFileText, FiClipboard } from "react-icons/fi";
+import { parseField } from "./api/studentCourseApi";
+import { getStudentDashboardData } from "./api/studentDashboard";
+import { StatCard } from "../../components/ui/StatCard";
+import { useToast } from "../../components/ui/Toast";
 
 function QuickLink({ to, label }) {
   return (
@@ -40,21 +19,75 @@ function QuickLink({ to, label }) {
 }
 
 export default function StudentHome({ userId }) {
+  const toast = useToast();
+  const [dashboard, setDashboard] = useState({
+    courses: [],
+    exams: [],
+    lessonsByCourse: {},
+    stats: {
+      enrolledCourses: 0,
+      activeCourses: 0,
+      totalLessons: 0,
+      openExams: 0,
+      totalExams: 0,
+      submissionLessons: 0,
+    },
+  });
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!userId) return;
-    studentGet(`/users/${userId}/courses`)
-      .then((data) => setCourses(data?.items ?? []))
-      .catch(() => setCourses([]))
+    setLoading(true);
+    getStudentDashboardData({ userId })
+      .then((data) => {
+        setDashboard(data);
+        setCourses(data.courses ?? []);
+      })
+      .catch((err) => {
+        const message = err?.message || "Оюутны dashboard мэдээлэл ачааллахад алдаа гарлаа.";
+        setError(message);
+        toast.error(message);
+        setDashboard((prev) => ({ ...prev, courses: [], exams: [] }));
+        setCourses([]);
+      })
       .finally(() => setLoading(false));
   }, [userId]);
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <StatCard title="Миний хичээлүүд" value={courses.length} icon={<FiBook className="h-5 w-5" />} loading={loading} />
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          title="Миний хичээлүүд"
+          value={loading ? "..." : dashboard.stats.enrolledCourses}
+          icon={<FiBook className="h-5 w-5" />}
+          description={loading ? "" : `${dashboard.stats.activeCourses} идэвхтэй`}
+        />
+        <StatCard
+          title="Нийт хичээлийн контент"
+          value={loading ? "..." : dashboard.stats.totalLessons}
+          icon={<FiFileText className="h-5 w-5" />}
+          description={loading ? "" : `Лаб/даалгавар: ${dashboard.stats.submissionLessons}`}
+        />
+        <StatCard
+          title="Нээлттэй шалгалт"
+          value={loading ? "..." : dashboard.stats.openExams}
+          icon={<FiClipboard className="h-5 w-5" />}
+          description={loading ? "" : `Нийт шалгалт: ${dashboard.stats.totalExams}`}
+        />
+        <StatCard
+          title="Хуанлийн хуудас"
+          value={loading ? "..." : dashboard.stats.submissionLessons}
+          icon={<FiCalendar className="h-5 w-5" />}
+          description="Илгээхтэй контент"
+        />
       </div>
 
       <div className="rounded-xl border border-zinc-200 bg-white p-5">
@@ -72,6 +105,11 @@ export default function StudentHome({ userId }) {
               const courseId = course.id ?? item.id ?? item.course_id;
               const courseName = course.name ?? course.title ?? `Хичээл #${courseId}`;
               const group = parseField(item, "group");
+              const lessonCount = (dashboard.lessonsByCourse?.[courseId] ?? []).length;
+              const submissionCount = (dashboard.lessonsByCourse?.[courseId] ?? []).filter(
+                (lesson) => Number(lesson?.has_submission) === 1
+              ).length;
+
               return (
                 <div key={courseId ?? i} className="flex items-center justify-between rounded-lg border border-zinc-100 px-4 py-3">
                   <div>
@@ -79,7 +117,16 @@ export default function StudentHome({ userId }) {
                     {group?.name && (
                       <p className="text-xs text-zinc-400">Бүлэг: {group.name}</p>
                     )}
+                    <p className="mt-0.5 text-xs text-zinc-400">
+                      Контент: {lessonCount} • Илгээхтэй: {submissionCount}
+                    </p>
                   </div>
+                  <Link
+                    to={`/team4/student/courses/${courseId}`}
+                    className="shrink-0 rounded-md border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-50"
+                  >
+                    Дэлгэрэнгүй
+                  </Link>
                 </div>
               );
             })}
@@ -87,15 +134,17 @@ export default function StudentHome({ userId }) {
         )}
       </div>
 
-      <div className="rounded-xl border border-zinc-200 bg-white p-5">
+      {/* <div className="rounded-xl border border-zinc-200 bg-white p-5">
         <h2 className="mb-3 font-semibold text-zinc-800">Хурдан холбоосууд</h2>
         <div className="space-y-2">
+          <QuickLink to="/team4/student"                  label="Миний хичээлүүд" />
+          <QuickLink to="/team4/student/groups"           label="Миний баг" />
+          <QuickLink to="/team4/student/calendar"         label="Миний хуанли" />
           <QuickLink to="/team4/profile"                  label="Миний профайл" />
           <QuickLink to="/team4/profile/change-password"  label="Нууц үг солих" />
           <QuickLink to="/team4/schools/current"          label="Сургууль солих" />
-          {/* Member C: add more QuickLink entries here */}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

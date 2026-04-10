@@ -61,3 +61,42 @@ export const getStudentCourses = (userId) =>
 
 export const getCourseDetail = (courseId) =>
   studentGet(`/courses/${courseId}`);
+
+export const getCourseLessons = (courseId, query = "") =>
+  studentGet(`/courses/${courseId}/lessons${query}`);
+
+export async function getAllCourseLessons(courseId, pageSize = 50) {
+  let offset = 0;
+  let hasMore = true;
+  let pageGuard = 0;
+  const all = [];
+  const seen = new Set();
+
+  while (hasMore && pageGuard < 100) {
+    const query = `?offset=${offset}&limit=${pageSize}`;
+    const data = await getCourseLessons(courseId, query);
+    const items = Array.isArray(data?.items) ? data.items : [];
+
+    for (const item of items) {
+      const key = item?.id ?? `${item?.course_id}-${item?.name}-${item?.priority}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      all.push(item);
+    }
+
+    hasMore = Boolean(data?.hasMore);
+    if (!hasMore || items.length === 0) break;
+
+    const nextOffset = Number(data?.offset);
+    const nextLimit = Number(data?.limit);
+    if (Number.isFinite(nextOffset) && Number.isFinite(nextLimit) && nextLimit > 0) {
+      offset = nextOffset + nextLimit;
+    } else {
+      offset += pageSize;
+    }
+
+    pageGuard += 1;
+  }
+
+  return all;
+}

@@ -1,0 +1,1299 @@
+
+@baseUrl = https://todu.mn/bs/lms/v1
+@email = schoolstudent@must.edu.mn
+@password = 123
+@token = PuxhtFlmiZkZTr0ZREGfOA
+@refresh_token = c2Nob29sc3R1ZGVudDQ4ODdnM3ZiNnd3Z2gzNzR4ZzB3MjAyNjA0MTAwNzIyMjU=
+
+@user_id = 539
+@school_id = 2
+@course_id = 204
+@lesson_id = 228
+@exam_id = 301
+@submission_id = 1
+@timetable_id = 1
+@payment_id = 1
+
+
+### ============================================================
+### 1. AUTH - Login with Email
+### ============================================================
+
+# @name login
+POST {{baseUrl}}/token/email
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}",
+  "push_token": ""
+}
+
+
+###
+
+### Get My Profile
+GET {{baseUrl}}/users/me
+Authorization: Bearer {{token}}
+
+{
+  "id": 539,
+  "first_name": "Оюутан",
+  "last_name": "Smart1",
+  "family_name": "-",
+  "picture": "https://png.pngtree.com/png-clipart/20230927/original/pngtree-man-avatar-image-for-profile-png-image_13001882.png",
+  "username": "schoolstudent",
+  "email": "schoolstudent@must.edu.mn",
+  "phone": "96068185",
+  "facebook_id": null,
+  "schools": [
+    {
+      "id": 0,
+      "name": "Humuun.edu.mn Нээлттэй орчин",
+      "roles": [
+        {
+          "id": 30,
+          "name": "Суралцагч"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Мэдээлэл, Холбооны Технологийн Сургууль",
+      "roles": [
+        {
+          "id": 30,
+          "name": "Суралцагч"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "rel": "collection",
+      "href": "https://todu.mn/bs/lms/v1/users/"
+    }
+  ]
+}
+
+### Get My Schools (with roles)
+GET {{baseUrl}}/users/{{user_id}}/schools
+Authorization: Bearer {{token}}
+
+{
+  "items": [
+    {
+      "id": 2,
+      "name": "Мэдээлэл, Холбооны Технологийн Сургууль",
+      "picture": "https://scea.must.edu.mn/static/assets/img/logo/bas.png",
+      "approved_by": 1,
+      "approved_on": "2024-12-08T16:04:34.932583Z",
+      "created_by": 1,
+      "created_on": "2024-12-08T16:04:34.932583Z",
+      "updated_by": 0,
+      "updated_on": "2026-03-21T15:17:24.561164Z",
+      "priority": 2,
+      "max_debt": 0,
+      "payment_due_days": 0,
+      "restriction_policy_id": 1,
+      "payment_policy_id": 1,
+      "bank_account_info": null,
+      "role": {
+        "id": 30,
+        "name": "Суралцагч"
+      }
+    }
+  ],
+  "hasMore": false,
+  "limit": 25,
+  "offset": 0,
+  "count": 1,
+  "links": [
+    {
+      "rel": "self",
+      "href": "https://todu.mn/bs/lms/v1/users/539/schools"
+    },
+    {
+      "rel": "describedby",
+      "href": "https://todu.mn/bs/lms/metadata-catalog/v1/users/539/item"
+    },
+    {
+      "rel": "first",
+      "href": "https://todu.mn/bs/lms/v1/users/539/schools"
+    }
+  ]
+}
+
+### Get Enrolled Courses
+GET {{baseUrl}}/users/{{user_id}}/courses/enrolled
+Authorization: Bearer {{token}}
+
+{
+  "items": [
+    {
+      "id": 634,
+      "course_id": 200,
+      "user_id": 539,
+      "group_id": null,
+      "created_by": 0,
+      "created_on": "2026-04-09T10:45:55.18317Z",
+      "updated_by": 0,
+      "updated_on": "2026-04-09T10:45:55.18317Z",
+      "payment_status_id": 1,
+      "payment_amount": null,
+      "payment_due_date": null,
+      "course": {
+        "id": 200,
+        "school_id": 2,
+        "category_id": 200,
+        "name": "Веб систем ба технологи",
+        "picture": "no-image.jpg",
+        "description": "MERN stack буюу MongoDB, ExpressJS, ReactJS, NodeJS технологиудыг ашиглан клиент сервер архитектуртай бүрэн хэмжээний веб систем хөгжүүлэх мэдлэг, чадвар олгоно.",
+        "cloned_course_id": null,
+        "start_on": "2024-12-07T07:00:00",
+        "end_on": "2024-12-07T07:00:00"
+      },
+      "group": {
+        "id": null,
+        "name": null
+      }
+    },
+    {
+      "id": 381,
+      "course_id": 204,
+      "user_id": 539,
+      "group_id": null,
+      "created_by": 0,
+      "created_on": "2025-11-29T14:17:55.881743Z",
+      "updated_by": 0,
+      "updated_on": "2026-03-21T18:07:23.726257Z",
+      "payment_status_id": 1,
+      "payment_amount": null,
+      "payment_due_date": null,
+      "course": {
+        "id": 204,
+        "school_id": 2,
+        "category_id": 200,
+        "name": "Веб систем ба технологи",
+        "picture": "no-image.jpg",
+        "description": "MERN stack буюу MongoDB, ExpressJS, ReactJS, NodeJS технологиудыг ашиглан клиент сервер архитектуртай бүрэн хэмжээний веб систем хөгжүүлэх мэдлэг, чадвар олгоно.",
+        "cloned_course_id": 200,
+        "start_on": "2026-01-26T07:00:00",
+        "end_on": "2026-05-31T07:00:00"
+      },
+      "group": {
+        "id": null,
+        "name": null
+      }
+    }
+  ],
+  "hasMore": false,
+  "limit": 25,
+  "offset": 0,
+  "count": 2,
+  "links": [
+    {
+      "rel": "self",
+      "href": "https://todu.mn/bs/lms/v1/users/539/courses/enrolled"
+    },
+    {
+      "rel": "describedby",
+      "href": "https://todu.mn/bs/lms/metadata-catalog/v1/users/539/courses/item"
+    },
+    {
+      "rel": "first",
+      "href": "https://todu.mn/bs/lms/v1/users/539/courses/enrolled"
+    }
+  ]
+}
+
+### Get School's Course List
+GET {{baseUrl}}/schools/{{school_id}}/courses
+Authorization: Bearer {{token}}
+
+{
+  "items": [
+    {
+      "id": 565,
+      "name": "test hicheel edit",
+      "picture": null,
+      "cloned_course_id": null,
+      "created_by": 0,
+      "created_on": "2026-04-05T13:14:57.188091Z",
+      "updated_by": 0,
+      "updated_on": "2026-04-05T13:16:10.407987Z",
+      "category_id": 103,
+      "school_id": 2,
+      "priority": 1,
+      "start_on": "2005-10-28T00:00:00Z",
+      "end_on": "2026-10-28T00:00:00Z",
+      "description": "hicheel tailbar",
+      "access_type_id": 0,
+      "price": null,
+      "credits": null
+    },
+    {
+      "id": 382,
+      "name": "test",
+      "picture": null,
+      "cloned_course_id": null,
+      "created_by": 0,
+      "created_on": "2026-04-03T02:37:02.656956Z",
+      "updated_by": 0,
+      "updated_on": "2026-04-05T07:18:44.583686Z",
+      "category_id": 3,
+      "school_id": 2,
+      "priority": 1,
+      "start_on": "2026-06-07T00:00:00Z",
+      "end_on": "2026-06-07T00:00:00Z",
+      "description": "asdfasdf",
+      "access_type_id": 0,
+      "price": null,
+      "credits": null
+    },
+    {
+      "id": 425,
+      "name": "Web Programming 2026",
+      "picture": "https://via.placeholder.com/300",
+      "cloned_course_id": null,
+      "created_by": 0,
+      "created_on": "2026-04-03T03:13:08.253142Z",
+      "updated_by": 0,
+      "updated_on": "2026-04-03T03:13:08.253142Z",
+      "category_id": 1,
+      "school_id": 2,
+      "priority": 1,
+      "start_on": "2026-04-01T00:00:00Z",
+      "end_on": "2026-06-01T00:00:00Z",
+      "description": "Web programming course for beginners",
+      "access_type_id": 0,
+      "price": null,
+      "credits": null
+    },
+    {
+      "id": 441,
+      "name": "Туршилт",
+      "picture": null,
+      "cloned_course_id": null,
+      "created_by": 0,
+      "created_on": "2026-04-03T08:16:41.559549Z",
+      "updated_by": 0,
+      "updated_on": "2026-04-05T09:09:40.867271Z",
+      "category_id": 3,
+      "school_id": 2,
+      "priority": 1,
+      "start_on": "2026-04-03T00:00:00Z",
+      "end_on": "2026-06-03T00:00:00Z",
+      "description": "<p>123</p>",
+      "access_type_id": 0,
+      "price": null,
+      "credits": null
+    },
+    {
+      "id": 200,
+      "name": "Веб систем ба технологи",
+      "picture": "no-image.jpg",
+      "cloned_course_id": null,
+      "created_by": 1,
+      "created_on": "2024-12-08T16:04:34.932583Z",
+      "updated_by": 0,
+      "updated_on": "2025-05-08T07:08:39.837809Z",
+      "category_id": 200,
+      "school_id": 2,
+      "priority": 1,
+      "start_on": "2024-12-07T00:00:00Z",
+      "end_on": "2024-12-07T00:00:00Z",
+      "description": "MERN stack буюу MongoDB, ExpressJS, ReactJS, NodeJS технологиудыг ашиглан клиент сервер архитектуртай бүрэн хэмжээний веб систем хөгжүүлэх мэдлэг, чадвар олгоно.",
+      "access_type_id": 0,
+      "price": null,
+      "credits": null
+    },
+    {
+      "id": 108,
+      "name": "Веб зохиомж",
+      "picture": "https://res.cloudinary.com/dvnbdfajd/image/upload/v1761056723/ubmap/ljcnhcqlyeuy9j5mexa1.avif",
+      "cloned_course_id": null,
+      "created_by": 0,
+      "created_on": "2025-11-28T07:21:38.320002Z",
+      "updated_by": 0,
+      "updated_on": "2026-01-24T03:37:13.92641Z",
+      "category_id": 1,
+      "school_id": 2,
+      "priority": 123,
+      "start_on": "2026-08-25T00:00:00Z",
+      "end_on": "2026-12-31T00:00:00Z",
+      "description": "Веб зохиомж",
+      "access_type_id": 0,
+      "price": null,
+      "credits": null
+    },
+    {
+      "id": 204,
+      "name": "Веб систем ба технологи",
+      "picture": "no-image.jpg",
+      "cloned_course_id": 200,
+      "created_by": 0,
+      "created_on": "2025-08-24T17:00:00Z",
+      "updated_by": 0,
+      "updated_on": "2026-01-24T03:36:01.695274Z",
+      "category_id": 200,
+      "school_id": 2,
+      "priority": 2,
+      "start_on": "2026-01-26T00:00:00Z",
+      "end_on": "2026-05-31T00:00:00Z",
+      "description": "MERN stack буюу MongoDB, ExpressJS, ReactJS, NodeJS технологиудыг ашиглан клиент сервер архитектуртай бүрэн хэмжээний веб систем хөгжүүлэх мэдлэг, чадвар олгоно.",
+      "access_type_id": 0,
+      "price": null,
+      "credits": null
+    },
+    {
+      "id": 221,
+      "name": "Мэдээллийн системийн хөгжүүлэлт",
+      "picture": "1",
+      "cloned_course_id": null,
+      "created_by": 0,
+      "created_on": "2025-12-04T04:29:12.946455Z",
+      "updated_by": 0,
+      "updated_on": "2026-01-24T03:36:57.340305Z",
+      "category_id": 1,
+      "school_id": 2,
+      "priority": 12,
+      "start_on": "2026-08-25T00:00:00Z",
+      "end_on": "2026-12-31T00:00:00Z",
+      "description": "Мэдээллийн системийн хөгжүүлэлт",
+      "access_type_id": 0,
+      "price": null,
+      "credits": null
+    }
+  ],
+  "hasMore": false,
+  "limit": 25,
+  "offset": 0,
+  "count": 8,
+  "links": [
+    {
+      "rel": "self",
+      "href": "https://todu.mn/bs/lms/v1/schools/2/courses"
+    },
+    {
+      "rel": "edit",
+      "href": "https://todu.mn/bs/lms/v1/schools/2/courses"
+    },
+    {
+      "rel": "describedby",
+      "href": "https://todu.mn/bs/lms/metadata-catalog/v1/schools/2/item"
+    },
+    {
+      "rel": "first",
+      "href": "https://todu.mn/bs/lms/v1/schools/2/courses"
+    }
+  ]
+}
+
+### Get Course Details
+GET {{baseUrl}}/courses/{{course_id}}
+Authorization: Bearer {{token}}
+
+{
+  "id": 204,
+  "name": "Веб систем ба технологи",
+  "picture": "no-image.jpg",
+  "cloned_course_id": 200,
+  "created_by": 0,
+  "created_on": "2025-08-24T17:00:00Z",
+  "updated_by": 0,
+  "updated_on": "2026-01-24T03:36:01.695274Z",
+  "category_id": 200,
+  "school_id": 2,
+  "priority": 2,
+  "start_on": "2026-01-26T00:00:00Z",
+  "end_on": "2026-05-31T00:00:00Z",
+  "description": "MERN stack буюу MongoDB, ExpressJS, ReactJS, NodeJS технологиудыг ашиглан клиент сервер архитектуртай бүрэн хэмжээний веб систем хөгжүүлэх мэдлэг, чадвар олгоно.",
+  "access_type_id": 0,
+  "price": null,
+  "credits": null,
+  "teachers": null,
+  "links": [
+    {
+      "rel": "collection",
+      "href": "https://todu.mn/bs/lms/v1/courses/"
+    }
+  ]
+}
+
+### Get Lessons for a Course
+GET {{baseUrl}}/courses/{{course_id}}/lessons
+Authorization: Bearer {{token}}
+
+{
+  "items": [
+    {
+      "id": 409,
+      "course_id": 204,
+      "name": "HTML үндэс",
+      "parent_id": null,
+      "priority": 1,
+      "type_id": 20,
+      "content": null,
+      "has_submission": 0,
+      "point": 0,
+      "open_on": null,
+      "close_on": null,
+      "end_on": null,
+      "type": {
+        "id": 20,
+        "name": "Лекц"
+      }
+    },
+    {
+      "id": 396,
+      "course_id": 204,
+      "name": "Rechart ашиглах",
+      "parent_id": null,
+      "priority": 15,
+      "type_id": 20,
+      "content": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/QBDf3YPuT-M?si=kMF3RI3NQ-Z74IsS\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>",
+      "has_submission": 0,
+      "point": 0,
+      "open_on": null,
+      "close_on": null,
+      "end_on": null,
+      "type": {
+        "id": 20,
+        "name": "Лекц"
+      }
+    },
+    {
+      "id": 395,
+      "course_id": 204,
+      "name": "ExpressJS JWT үүсгэх",
+      "parent_id": null,
+      "priority": 14,
+      "type_id": 20,
+      "content": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/QBDf3YPuT-M?si=kMF3RI3NQ-Z74IsS\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>",
+      "has_submission": 0,
+      "point": 0,
+      "open_on": null,
+      "close_on": null,
+      "end_on": null,
+      "type": {
+        "id": 20,
+        "name": "Лекц"
+      }
+    },
+    {
+      "id": 393,
+      "course_id": 204,
+      "name": "Mongoose",
+      "parent_id": null,
+      "priority": 12,
+      "type_id": 20,
+      "content": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/9WTNSFoWeOg?si=ohuJ8xehWKIO-pug\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>",
+      "has_submission": 0,
+      "point": 0,
+      "open_on": null,
+      "close_on": null,
+      "end_on": null,
+      "type": {
+        "id": 20,
+        "name": "Лекц"
+      }
+    },
+    {
+      "id": 391,
+      "course_id": 204,
+      "name": "ExpressJS template engine",
+      "parent_id": null,
+      "priority": 10,
+      "type_id": 20,
+      "content": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/3BDjF_prLHE?si=aeQiJkyml751LJQj\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n\n<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/HgNqA8ySlOI?si=Hq7bk0T4wpRWADI5\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>",
+      "has_submission": 0,
+      "point": 0,
+      "open_on": null,
+      "close_on": null,
+      "end_on": null,
+      "type": {
+        "id": 20,
+        "name": "Лекц"
+      }
+    },
+    {
+      "id": 394,
+      "course_id": 204,
+      "name": "ExpressJS сешин, күүкийтэй ажиллах",
+      "parent_id": null,
+      "priority": 13,
+      "type_id": 20,
+      "content": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/QBDf3YPuT-M?si=kMF3RI3NQ-Z74IsS\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>",
+      "has_submission": 0,
+      "point": 0,
+      "open_on": null,
+      "close_on": null,
+      "end_on": null,
+      "type": {
+        "id": 20,
+        "name": "Лекц"
+      }
+    },
+    {
+      "id": 390,
+      "course_id": 204,
+      "name": "ExpressJS middleware",
+      "parent_id": null,
+      "priority": 9,
+      "type_id": 20,
+      "content": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/3BDjF_prLHE?si=aeQiJkyml751LJQj\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n\n<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/HgNqA8ySlOI?si=Hq7bk0T4wpRWADI5\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>",
+      "has_submission": 0,
+      "point": 0,
+      "open_on": null,
+      "close_on": null,
+      "end_on": null,
+      "type": {
+        "id": 20,
+        "name": "Лекц"
+      }
+    },
+    {
+      "id": 397,
+      "course_id": 204,
+      "name": "NGNIX ашиглах веб системээ байршуулах",
+      "parent_id": null,
+      "priority": 16,
+      "type_id": 20,
+      "content": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/QBDf3YPuT-M?si=kMF3RI3NQ-Z74IsS\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>",
+      "has_submission": 0,
+      "point": 0,
+      "open_on": null,
+      "close_on": null,
+      "end_on": null,
+      "type": {
+        "id": 20,
+        "name": "Лекц"
+      }
+    },
+    {
+      "id": 392,
+      "course_id": 204,
+      "name": "MongoDB",
+      "parent_id": null,
+      "priority": 11,
+      "type_id": 20,
+      "content": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/9WTNSFoWeOg?si=ohuJ8xehWKIO-pug\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>",
+      "has_submission": 0,
+      "point": 0,
+      "open_on": null,
+      "close_on": null,
+      "end_on": null,
+      "type": {
+        "id": 20,
+        "name": "Лекц"
+      }
+    },
+    {
+      "id": 389,
+      "course_id": 204,
+      "name": "ExpressJS замчлал",
+      "parent_id": null,
+      "priority": 8,
+      "type_id": 20,
+      "content": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/Ona8Aujv5FY?si=1O8GswtC7Jp7Ojd3\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>",
+      "has_submission": 0,
+      "point": 0,
+      "open_on": null,
+      "close_on": null,
+      "end_on": null,
+      "type": {
+        "id": 20,
+        "name": "Лекц"
+      }
+    },
+    {
+      "id": 388,
+      "course_id": 204,
+      "name": "Бие даасан Frontend хөгжүүлэх",
+      "parent_id": null,
+      "priority": 7,
+      "type_id": 20,
+      "content": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/0B7eRfugad0?si=QKbVEq2LW55mfaSt\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>",
+      "has_submission": 0,
+      "point": 0,
+      "open_on": null,
+      "close_on": null,
+      "end_on": null,
+      "type": {
+        "id": 20,
+        "name": "Лекц"
+      }
+    },
+    {
+      "id": 387,
+      "course_id": 204,
+      "name": "ReactJS замчлал",
+      "parent_id": null,
+      "priority": 6,
+      "type_id": 20,
+      "content": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/sN_xJWeDblo?si=VWesBfvmcNTaroFc\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>",
+      "has_submission": 0,
+      "point": 0,
+      "open_on": null,
+      "close_on": null,
+      "end_on": null,
+      "type": {
+        "id": 20,
+        "name": "Лекц"
+      }
+    },
+    {
+      "id": 386,
+      "course_id": 204,
+      "name": "ReactJS маягттай ажиллах, сервертэй харьцах",
+      "parent_id": null,
+      "priority": 5,
+      "type_id": 20,
+      "content": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/gknXho4aPHA?si=Byp87Yv1DARYBd-d\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>",
+      "has_submission": 0,
+      "point": 0,
+      "open_on": null,
+      "close_on": null,
+      "end_on": null,
+      "type": {
+        "id": 20,
+        "name": "Лекц"
+      }
+    },
+    {
+      "id": 385,
+      "course_id": 204,
+      "name": "ReactJS-ийн нэмэлт ойлголт",
+      "parent_id": null,
+      "priority": 4,
+      "type_id": 20,
+      "content": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/8gMCSOjy_H8?si=gMWPHtZLvlFBsEPw\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>",
+      "has_submission": 0,
+      "point": 0,
+      "open_on": null,
+      "close_on": null,
+      "end_on": null,
+      "type": {
+        "id": 20,
+        "name": "Лекц"
+      }
+    },
+    {
+      "id": 384,
+      "course_id": 204,
+      "name": "ReactJS-ийн үндсэн ойлголт",
+      "parent_id": null,
+      "priority": 3,
+      "type_id": 20,
+      "content": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/SbVNSIYpeqU?si=osvEgfbpIwIrLkf3\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n\n<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/Y0wBJqMX4TI?si=TSXGRwk4ry_KrSWt\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>",
+      "has_submission": 0,
+      "point": 0,
+      "open_on": null,
+      "close_on": null,
+      "end_on": null,
+      "type": {
+        "id": 20,
+        "name": "Лекц"
+      }
+    },
+    {
+      "id": 383,
+      "course_id": 204,
+      "name": "MERN stack-ийн зарчим",
+      "parent_id": null,
+      "priority": 2,
+      "type_id": 20,
+      "content": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/vDfR1qjONW0?si=ZeOPB7SgtT38JmTn\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>",
+      "has_submission": 0,
+      "point": 0,
+      "open_on": null,
+      "close_on": null,
+      "end_on": null,
+      "type": {
+        "id": 20,
+        "name": "Лекц"
+      }
+    },
+    {
+      "id": 382,
+      "course_id": 204,
+      "name": "MERN stack-ийн тухай",
+      "parent_id": null,
+      "priority": 1,
+      "type_id": 20,
+      "content": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/2sGf4uAfiYQ?si=sVGAhgZEJR4zaDgY\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>",
+      "has_submission": 0,
+      "point": 0,
+      "open_on": null,
+      "close_on": null,
+      "end_on": null,
+      "type": {
+        "id": 20,
+        "name": "Лекц"
+      }
+    },
+    {
+      "id": 410,
+      "course_id": 204,
+      "name": "HTML үндэс",
+      "parent_id": null,
+      "priority": 1,
+      "type_id": 20,
+      "content": null,
+      "has_submission": 0,
+      "point": 0,
+      "open_on": null,
+      "close_on": null,
+      "end_on": null,
+      "type": {
+        "id": 20,
+        "name": "Лекц"
+      }
+    },
+    {
+      "id": 381,
+      "course_id": 204,
+      "name": "ReactJS Hello World",
+      "parent_id": 383,
+      "priority": 1,
+      "type_id": 40,
+      "content": "<iframe src=\"https://mustedumn-my.sharepoint.com/personal/t_zolboo_must_edu_mn/_layouts/15/Doc.aspx?sourcedoc={20d473c6-b0bc-4e76-beb2-44047b3e817d}&amp;action=embedview\" width=\"476px\" height=\"288px\" frameborder=\"0\">This is an embedded <a target=\"_blank\" href=\"https://office.com\">Microsoft Office</a> document, powered by <a target=\"_blank\" href=\"https://office.com/webapps\">Office</a>.</iframe>",
+      "has_submission": 1,
+      "point": 3,
+      "open_on": null,
+      "close_on": null,
+      "end_on": null,
+      "type": {
+        "id": 40,
+        "name": "Лаборатори"
+      }
+    },
+    {
+      "id": 399,
+      "course_id": 204,
+      "name": "ReactJS контекст ба замчлал",
+      "parent_id": 389,
+      "priority": 1,
+      "type_id": 40,
+      "content": "<iframe src=\"https://mustedumn-my.sharepoint.com/personal/t_zolboo_must_edu_mn/_layouts/15/Doc.aspx?sourcedoc={b061139a-ee2e-40e0-839c-28479a4c1e32}&amp;action=embedview\" width=\"476px\" height=\"288px\" frameborder=\"0\">This is an embedded <a target=\"_blank\" href=\"https://office.com\">Microsoft Office</a> document, powered by <a target=\"_blank\" href=\"https://office.com/webapps\">Office</a>.</iframe>",
+      "has_submission": 1,
+      "point": 3,
+      "open_on": null,
+      "close_on": null,
+      "end_on": null,
+      "type": {
+        "id": 40,
+        "name": "Лаборатори"
+      }
+    },
+    {
+      "id": 398,
+      "course_id": 204,
+      "name": "ReactJS Fetch",
+      "parent_id": 387,
+      "priority": 1,
+      "type_id": 40,
+      "content": "<iframe src=\"https://mustedumn-my.sharepoint.com/personal/t_zolboo_must_edu_mn/_layouts/15/Doc.aspx?sourcedoc={b061139a-ee2e-40e0-839c-28479a4c1e32}&amp;action=embedview\" width=\"476px\" height=\"288px\" frameborder=\"0\">This is an embedded <a target=\"_blank\" href=\"https://office.com\">Microsoft Office</a> document, powered by <a target=\"_blank\" href=\"https://office.com/webapps\">Office</a>.</iframe>",
+      "has_submission": 1,
+      "point": 3,
+      "open_on": null,
+      "close_on": null,
+      "end_on": null,
+      "type": {
+        "id": 40,
+        "name": "Лаборатори"
+      }
+    },
+    {
+      "id": 228,
+      "course_id": 204,
+      "name": "Session болон validation ашиглах",
+      "parent_id": 395,
+      "priority": 1,
+      "type_id": 40,
+      "content": "<iframe src=\"https://mustedumn-my.sharepoint.com/personal/t_zolboo_must_edu_mn/_layouts/15/Doc.aspx?sourcedoc={b061139a-ee2e-40e0-839c-28479a4c1e32}&amp;action=embedview\" width=\"476px\" height=\"288px\" frameborder=\"0\">This is an embedded <a target=\"_blank\" href=\"https://office.com\">Microsoft Office</a> document, powered by <a target=\"_blank\" href=\"https://office.com/webapps\">Office</a>.</iframe>",
+      "has_submission": 1,
+      "point": 3,
+      "open_on": null,
+      "close_on": null,
+      "end_on": null,
+      "type": {
+        "id": 40,
+        "name": "Лаборатори"
+      }
+    },
+    {
+      "id": 4,
+      "course_id": 204,
+      "name": "JWT ашиглах",
+      "parent_id": 397,
+      "priority": 1,
+      "type_id": 40,
+      "content": "<iframe src=\"https://mustedumn-my.sharepoint.com/personal/t_zolboo_must_edu_mn/_layouts/15/Doc.aspx?sourcedoc={b061139a-ee2e-40e0-839c-28479a4c1e32}&amp;action=embedview\" width=\"476px\" height=\"288px\" frameborder=\"0\">This is an embedded <a target=\"_blank\" href=\"https://office.com\">Microsoft Office</a> document, powered by <a target=\"_blank\" href=\"https://office.com/webapps\">Office</a>.</iframe>",
+      "has_submission": 1,
+      "point": 3,
+      "open_on": null,
+      "close_on": null,
+      "end_on": null,
+      "type": {
+        "id": 40,
+        "name": "Лаборатори"
+      }
+    },
+    {
+      "id": 400,
+      "course_id": 204,
+      "name": "ReactJS Component",
+      "parent_id": 385,
+      "priority": 1,
+      "type_id": 40,
+      "content": "<iframe src=\"https://mustedumn-my.sharepoint.com/personal/t_zolboo_must_edu_mn/_layouts/15/Doc.aspx?sourcedoc={b061139a-ee2e-40e0-839c-28479a4c1e32}&amp;action=embedview\" width=\"476px\" height=\"288px\" frameborder=\"0\">This is an embedded <a target=\"_blank\" href=\"https://office.com\">Microsoft Office</a> document, powered by <a target=\"_blank\" href=\"https://office.com/webapps\">Office</a>.</iframe>",
+      "has_submission": 1,
+      "point": 3,
+      "open_on": null,
+      "close_on": null,
+      "end_on": null,
+      "type": {
+        "id": 40,
+        "name": "Лаборатори"
+      }
+    },
+    {
+      "id": 401,
+      "course_id": 204,
+      "name": "ReactJS ба API хөгжүүлэлт",
+      "parent_id": 391,
+      "priority": 1,
+      "type_id": 40,
+      "content": "<iframe src=\"https://mustedumn-my.sharepoint.com/personal/t_zolboo_must_edu_mn/_layouts/15/Doc.aspx?sourcedoc={b061139a-ee2e-40e0-839c-28479a4c1e32}&amp;action=embedview\" width=\"476px\" height=\"288px\" frameborder=\"0\">This is an embedded <a target=\"_blank\" href=\"https://office.com\">Microsoft Office</a> document, powered by <a target=\"_blank\" href=\"https://office.com/webapps\">Office</a>.</iframe>",
+      "has_submission": 1,
+      "point": 3,
+      "open_on": null,
+      "close_on": null,
+      "end_on": null,
+      "type": {
+        "id": 40,
+        "name": "Лаборатори"
+      }
+    }
+  ],
+  "hasMore": true,
+  "limit": 25,
+  "offset": 0,
+  "count": 25,
+  "links": [
+    {
+      "rel": "self",
+      "href": "https://todu.mn/bs/lms/v1/courses/204/lessons"
+    },
+    {
+      "rel": "edit",
+      "href": "https://todu.mn/bs/lms/v1/courses/204/lessons"
+    },
+    {
+      "rel": "describedby",
+      "href": "https://todu.mn/bs/lms/metadata-catalog/v1/courses/204/item"
+    },
+    {
+      "rel": "first",
+      "href": "https://todu.mn/bs/lms/v1/courses/204/lessons"
+    },
+    {
+      "rel": "next",
+      "href": "https://todu.mn/bs/lms/v1/courses/204/lessons?offset=25"
+    }
+  ]
+}
+
+### Get Lesson Details
+GET {{baseUrl}}/lessons/{{lesson_id}}
+Authorization: Bearer {{token}}
+
+{
+  "id": 228,
+  "course_id": 204,
+  "name": "Session болон validation ашиглах",
+  "parent_id": 395,
+  "priority": 1,
+  "type_id": 40,
+  "content": "<iframe src=\"https://mustedumn-my.sharepoint.com/personal/t_zolboo_must_edu_mn/_layouts/15/Doc.aspx?sourcedoc={b061139a-ee2e-40e0-839c-28479a4c1e32}&amp;action=embedview\" width=\"476px\" height=\"288px\" frameborder=\"0\">This is an embedded <a target=\"_blank\" href=\"https://office.com\">Microsoft Office</a> document, powered by <a target=\"_blank\" href=\"https://office.com/webapps\">Office</a>.</iframe>",
+  "has_submission": 1,
+  "point": 3,
+  "open_on": null,
+  "close_on": null,
+  "end_on": null,
+  "type": {
+    "id": 40,
+    "name": "Лаборатори"
+  },
+  "items": null,
+  "links": [
+    {
+      "rel": "collection",
+      "href": "https://todu.mn/bs/lms/v1/lessons/"
+    }
+  ]
+}
+
+
+### ============================================================
+### 6. MY EXAMS
+### ============================================================
+
+### Get My Exams
+GET {{baseUrl}}/users/me/exams
+Authorization: Bearer {{token}}
+
+{
+  "items": [
+    {
+      "id": 301,
+      "course_id": 200,
+      "name": "Сорил 1",
+      "description": null,
+      "total_point": 30,
+      "grade_point": 10,
+      "max_attempt": 1,
+      "open_on": "2026-04-09T11:10:00Z",
+      "close_on": "2026-04-09T12:15:00Z",
+      "end_on": "2026-04-09T12:15:00Z",
+      "duration": 65,
+      "course": {
+        "id": 200,
+        "name": "Веб систем ба технологи"
+      }
+    },
+    {
+      "id": 361,
+      "course_id": 200,
+      "name": "Medeelliin technology",
+      "description": null,
+      "total_point": 50,
+      "grade_point": 10,
+      "max_attempt": 1,
+      "open_on": "2026-04-09T11:10:00Z",
+      "close_on": "2026-04-09T12:15:00Z",
+      "end_on": "2026-04-09T12:15:00Z",
+      "duration": 65,
+      "course": {
+        "id": 200,
+        "name": "Веб систем ба технологи"
+      }
+    },
+    {
+      "id": 322,
+      "course_id": 200,
+      "name": "Soril2",
+      "description": null,
+      "total_point": 40,
+      "grade_point": 10,
+      "max_attempt": 1,
+      "open_on": "2026-04-09T11:10:00Z",
+      "close_on": "2026-04-09T12:15:00Z",
+      "end_on": "2026-04-09T12:15:00Z",
+      "duration": 65,
+      "course": {
+        "id": 200,
+        "name": "Веб систем ба технологи"
+      }
+    },
+    {
+      "id": 341,
+      "course_id": 200,
+      "name": "Yvtsiin shalgalt",
+      "description": null,
+      "total_point": 20,
+      "grade_point": 10,
+      "max_attempt": 1,
+      "open_on": "2026-04-09T11:10:00Z",
+      "close_on": "2026-04-09T12:15:00Z",
+      "end_on": "2026-04-09T12:15:00Z",
+      "duration": 65,
+      "course": {
+        "id": 200,
+        "name": "Веб систем ба технологи"
+      }
+    },
+    {
+      "id": 41,
+      "course_id": 204,
+      "name": "Сорил 1",
+      "description": "Frontend хөгжүүлэх мэдлэгийг шалгана.",
+      "total_point": 10,
+      "grade_point": 10,
+      "max_attempt": 1,
+      "open_on": "2026-03-25T08:00:00Z",
+      "close_on": "2026-03-28T00:30:00Z",
+      "end_on": "2026-03-28T00:30:00Z",
+      "duration": 60,
+      "course": {
+        "id": 204,
+        "name": "Веб систем ба технологи"
+      }
+    },
+    {
+      "id": 42,
+      "course_id": 204,
+      "name": "Сорил 2",
+      "description": "Backend хөгжүүлэх мэдлэгийг шалгана.",
+      "total_point": 100,
+      "grade_point": 10,
+      "max_attempt": 1,
+      "open_on": "2025-12-04T08:15:00Z",
+      "close_on": "2025-12-01T08:15:00Z",
+      "end_on": "2025-12-01T08:15:00Z",
+      "duration": 60,
+      "course": {
+        "id": 204,
+        "name": "Веб систем ба технологи"
+      }
+    },
+    {
+      "id": 3,
+      "course_id": 204,
+      "name": "30 онооны шалгалт",
+      "description": null,
+      "total_point": 100,
+      "grade_point": 30,
+      "max_attempt": 1,
+      "open_on": "2025-12-19T10:00:00Z",
+      "close_on": "2025-12-23T17:30:00Z",
+      "end_on": "2025-12-23T17:30:00Z",
+      "duration": 60,
+      "course": {
+        "id": 204,
+        "name": "Веб систем ба технологи"
+      }
+    }
+  ],
+  "hasMore": false,
+  "limit": 25,
+  "offset": 0,
+  "count": 7,
+  "links": [
+    {
+      "rel": "self",
+      "href": "https://todu.mn/bs/lms/v1/users/me/exams"
+    },
+    {
+      "rel": "describedby",
+      "href": "https://todu.mn/bs/lms/metadata-catalog/v1/users/me/item"
+    },
+    {
+      "rel": "first",
+      "href": "https://todu.mn/bs/lms/v1/users/me/exams"
+    }
+  ]
+}
+
+###
+
+### Get My Exam Details (latest sheet/attempt)
+GET {{baseUrl}}/users/me/exams/{{exam_id}}
+Authorization: Bearer {{token}}
+
+{
+  "id": 311,
+  "exam_id": 301,
+  "variant_id": 6,
+  "attempt_no": 1,
+  "duration": 0,
+  "total_point": 0,
+  "grade_point": 0,
+  "start_on": "2026-04-10T00:34:08.338754Z",
+  "links": [
+    {
+      "rel": "collection",
+      "href": "https://todu.mn/bs/lms/v1/users/me/exams/"
+    }
+  ]
+}
+
+### Get Full Gradebook for a Course
+GET {{baseUrl}}/courses/{{course_id}}/gradebook
+Authorization: Bearer {{token}}
+
+### Get Attendance Grades
+GET {{baseUrl}}/courses/{{course_id}}/gradebook/attendances
+Authorization: Bearer {{token}}
+
+### Get Exam Grades
+GET {{baseUrl}}/courses/{{course_id}}/gradebook/exams
+Authorization: Bearer {{token}}
+
+
+###
+
+### Get Assignment/Submission Grades
+GET {{baseUrl}}/courses/{{course_id}}/gradebook/submissions
+Authorization: Bearer {{token}}
+
+
+### ============================================================
+### 8. ATTENDANCE
+### ============================================================
+
+### Get Attendance Records for a Course
+GET {{baseUrl}}/courses/{{course_id}}/attendances
+Authorization: Bearer {{token}}
+
+
+###
+
+### Get Attendance Records for a Lesson
+GET {{baseUrl}}/lessons/{{lesson_id}}/attendances
+Authorization: Bearer {{token}}
+
+
+### ============================================================
+### 9. ASSIGNMENTS / SUBMISSIONS
+### ============================================================
+
+### Get Submissions for a Lesson
+GET {{baseUrl}}/lessons/{{lesson_id}}/submissions
+Authorization: Bearer {{token}}
+
+
+###
+
+### Submit an Assignment
+POST {{baseUrl}}/lessons/{{lesson_id}}/submissions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "content": "<your submission content>",
+  "user_id": "{{user_id}}",
+  "parent_id": "",
+  "sibling_id": "",
+  "grade_point": ""
+}
+
+
+###
+
+### Get a Specific Submission
+GET {{baseUrl}}/submissions/{{submission_id}}
+Authorization: Bearer {{token}}
+
+
+###
+
+### Update a Submission
+PUT {{baseUrl}}/submissions/{{submission_id}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "content": "<updated content>",
+  "lesson_id": "{{lesson_id}}",
+  "user_id": "{{user_id}}"
+}
+
+
+### ============================================================
+### 10. TIMETABLE (My Schedule)
+### ============================================================
+
+### Get My Selected Timetable Rows for a Course
+GET {{baseUrl}}/courses/{{course_id}}/timetables/my
+Authorization: Bearer {{token}}
+
+
+###
+
+### Get All Available Timetable Options for a Course
+GET {{baseUrl}}/courses/{{course_id}}/timetables
+Authorization: Bearer {{token}}
+
+
+###
+
+### Select a Timetable Row
+POST {{baseUrl}}/courses/{{course_id}}/timetables/my
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "timetable_id": "{{timetable_id}}"
+}
+
+
+###
+
+### Cancel a Selected Timetable Row
+DELETE {{baseUrl}}/courses/{{course_id}}/timetables/my/{{timetable_id}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{}
+
+
+###
+
+### Get Lesson Timetable (exact dates/times for a lesson)
+GET {{baseUrl}}/lessons/{{lesson_id}}/timetables
+Authorization: Bearer {{token}}
+
+
+### ============================================================
+### 11. PAYMENT & DEBT
+### ============================================================
+
+### Get My Debt Info
+GET {{baseUrl}}/schools/{{school_id}}/users/{{user_id}}/debt
+Authorization: Bearer {{token}}
+
+
+###
+
+### Get My Payment History
+GET {{baseUrl}}/schools/{{school_id}}/users/{{user_id}}/payments
+Authorization: Bearer {{token}}
+
+
+###
+
+### Submit a Payment Record (receipt, bank, amount, date)
+POST {{baseUrl}}/schools/{{school_id}}/users/{{user_id}}/payments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "amount": "0",
+  "bank_receipt": "<receipt_number>",
+  "payment_date": "2026-04-10T00:00:00Z",
+  "payment_type": "bank_transfer",
+  "status": "pending"
+}
+
+
+###
+
+### Get School Bank Account Info (payment instructions)
+GET {{baseUrl}}/schools/{{school_id}}/bank-info
+Authorization: Bearer {{token}}
+
+
+### ============================================================
+### 12. SCHOOL MEMBERSHIP REQUEST
+### ============================================================
+
+### Request to Join a School (send role request)
+POST {{baseUrl}}/schools/{{school_id}}/requests
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "role_id": "1",
+  "description": "I am a student requesting access."
+}
+
+
+###
+
+### Get My School Membership Requests
+GET {{baseUrl}}/schools/{{school_id}}/requests
+Authorization: Bearer {{token}}
+
