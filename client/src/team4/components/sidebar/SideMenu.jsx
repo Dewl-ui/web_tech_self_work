@@ -37,11 +37,11 @@ const schoolNavItems = [
 
 const manageNavItems = [
     {
-    to: "/team4",
+    to: "/team4/",
     label: "Нүүр",
     icon: FiBookOpen,
     end: true,
-    roles: [STUDENT],
+    roles: [STUDENT, ADMIN, TEACHER],
   },
   {
     to: "/team4/student",
