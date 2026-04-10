@@ -1,9 +1,7 @@
-// Member C OWNS this file — reusable course card for the student courses grid
 import { Link } from "react-router-dom";
 import { FiBookOpen, FiMoreVertical, FiCalendar } from "react-icons/fi";
 import { parseField } from "../api/studentCourseApi";
 
-/** Format ISO date → YYYY.MM.DD */
 function fmt(dateStr) {
   if (!dateStr) return "—";
   const d = new Date(dateStr);
@@ -13,7 +11,6 @@ function fmt(dateStr) {
   return `${y}.${m}.${day}`;
 }
 
-/** Derive a status label from course dates */
 function courseStatus(startOn, endOn) {
   const now = Date.now();
   const start = startOn ? new Date(startOn).getTime() : null;
@@ -23,7 +20,6 @@ function courseStatus(startOn, endOn) {
   return { label: "Явагдаж байна", color: "bg-green-100 text-green-700" };
 }
 
-/** Placeholder when course has no image */
 function ImagePlaceholder() {
   return (
     <div className="flex items-center justify-center h-32 bg-zinc-100 rounded-b-xl">
@@ -43,13 +39,6 @@ function ImagePlaceholder() {
   );
 }
 
-/**
- * CourseCard
- *
- * Props:
- *   enrollment — one item from GET /users/{id}/courses
- *   schoolName — school name string from useAuth().school.name (for top label)
- */
 export default function CourseCard({ enrollment, schoolName }) {
   const course   = parseField(enrollment, "course") ?? {};
   const group    = parseField(enrollment, "group")  ?? {};
@@ -60,7 +49,6 @@ export default function CourseCard({ enrollment, schoolName }) {
   const startOn    = course.start_on;
   const endOn      = course.end_on;
 
-  // Top label: school abbreviation + group name (mirrors "F.CSB - B.AMARTUVSHIN" pattern)
   const schoolAbbr = schoolName
     ? schoolName.split(/[\s,]+/).map((w) => w[0]).join("").toUpperCase().slice(0, 5)
     : "—";
@@ -76,10 +64,8 @@ export default function CourseCard({ enrollment, schoolName }) {
       className="group flex flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white
         shadow-sm transition-all hover:shadow-md hover:border-zinc-300"
     >
-      {/* ── Card body ─────────────────────────────────────── */}
       <div className="flex flex-col gap-2 p-4 flex-1">
 
-        {/* Top row: label + ⋮ */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5 min-w-0">
             <FiBookOpen className="h-3.5 w-3.5 shrink-0 text-zinc-400" />
@@ -87,7 +73,6 @@ export default function CourseCard({ enrollment, schoolName }) {
               {topLabel}
             </span>
           </div>
-          {/* Prevent the link from firing when clicking the menu button */}
           <button
             onClick={(e) => e.preventDefault()}
             className="shrink-0 rounded-md p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"

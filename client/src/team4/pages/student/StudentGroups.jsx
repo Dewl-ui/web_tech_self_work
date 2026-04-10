@@ -1,4 +1,3 @@
-// /team4/student/groups — Member C
 export default function StudentGroups() {
   return (
     <div className="space-y-2">

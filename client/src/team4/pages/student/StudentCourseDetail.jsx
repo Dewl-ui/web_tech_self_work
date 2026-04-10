@@ -1,4 +1,3 @@
-// Member C OWNS this file — /team4/student/courses/:courseId
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { FiArrowLeft, FiCalendar, FiBook, FiTag, FiInfo } from "react-icons/fi";
@@ -20,8 +19,9 @@ function courseStatus(startOn, endOn) {
   return                           { label: "Явагдаж байна",  color: "bg-green-100 text-green-700" };
 }
 
-function DetailRow({ icon: Icon, label, value }) {
-  if (!value) return null;
+function DetailRow({ icon, label, value }) {
+  if (!value || !icon) return null;
+  const Icon = icon;
   return (
     <div className="flex items-start gap-3 py-3 border-b border-zinc-100 last:border-0">
       <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-zinc-100">
@@ -97,7 +97,7 @@ export default function StudentCourseDetail() {
         toast.error(msg);
       })
       .finally(() => setLoading(false));
-  }, [courseId]);
+  }, [courseId, toast]);
 
   const status = course ? courseStatus(course.start_on, course.end_on) : null;
   const hasImage = course?.picture && course.picture !== "no-image.jpg";

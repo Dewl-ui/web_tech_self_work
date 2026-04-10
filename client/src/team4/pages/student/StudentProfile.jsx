@@ -38,7 +38,6 @@ function toAvatarSource(picture) {
   if (!picture || picture === "no-image.jpg") return "";
   if (/^(https?:)?\/\//i.test(picture)) return picture;
   if (picture.startsWith("data:image/")) return picture;
-  // Relative path from API (e.g. "users/539_20260409.jpg")
   if (picture.length > 0) return `https://todu.mn/bs/lms/v1/${picture}`;
   return "";
 }

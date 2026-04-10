@@ -1,4 +1,3 @@
-// Member C OWNS this file — /team4/student
 import { useEffect, useState } from "react";
 import { FiBook } from "react-icons/fi";
 import { useAuth } from "../../utils/AuthContext";

@@ -1,4 +1,3 @@
-// /team4/student/calendar — Member C
 export default function StudentCalendar() {
   return (
     <div className="space-y-2">
