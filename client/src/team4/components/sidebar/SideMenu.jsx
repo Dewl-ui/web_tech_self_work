@@ -11,7 +11,7 @@ const { ADMIN, TEACHER, STUDENT } = ROLES;
 
 const systemNavItems = [
   {
-    to: "/team4",
+    to: "/team4/",
     label: "Нүүр хуудас",
     icon: FiHome,
     roles: [ADMIN, TEACHER, STUDENT],
@@ -36,13 +36,13 @@ const schoolNavItems = [
 ];
 
 const manageNavItems = [
-    {
-    to: "/team4/",
-    label: "Нүүр",
-    icon: FiBookOpen,
-    end: true,
-    roles: [STUDENT, ADMIN, TEACHER],
-  },
+  //   {
+  //   to: "/team4/",
+  //   label: "Нүүр",
+  //   icon: FiBookOpen,
+  //   end: true,
+  //   roles: [STUDENT, ADMIN, TEACHER],
+  // },
   {
     to: "/team4/student",
     label: "Сургалтууд",
@@ -101,8 +101,7 @@ export default function SideMenu({ collapsed, onToggle, onClose }) {
   const { user, role, school } = useAuth();
   const roleLabel = parseField(school, "role")?.name ?? null;
 
-  const isSystemSchool = school?.id === 0;
-  const systemVisible = isSystemSchool ? filterItems(systemNavItems, role) : [];
+  const systemVisible = filterItems(systemNavItems, role);
   const schoolVisible = filterItems(schoolNavItems, role);
   const manageVisible = filterItems(manageNavItems, role);
   const bottomVisible = filterItems(bottomNavItems, role);
@@ -139,11 +138,11 @@ export default function SideMenu({ collapsed, onToggle, onClose }) {
         {/* System section */}
         {systemVisible.length > 0 && (
           <div className="space-y-0.5">
-            {!collapsed && (
+            {/* {!collapsed && (
               <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
                 Систем
               </p>
-            )}
+            )} */}
             {systemVisible.map((item) => (
               <SideNavLink key={`${item.to}-${item.label}`} item={item} collapsed={collapsed} onClose={onClose} />
             ))}

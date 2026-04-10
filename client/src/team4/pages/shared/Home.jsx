@@ -1,12 +1,3 @@
-// ============================================================
-// Home.jsx — SHARED, owned by the infra/lead member.
-//
-// DO NOT add role-specific content here.
-// Each member updates their own summary file instead:
-//   Admin   → pages/admin/AdminHomeSummary.jsx    (Member A)
-//   Teacher → pages/teacher/TeacherHomeSummary.jsx (Member B)
-//   Student → pages/student/studentHome.jsx (Member C)
-// ============================================================
 import { Link } from "react-router-dom";
 import { useAuth } from "../../utils/AuthContext";
 import AdminHomeSummary   from "../admin/AdminHomeSummary";
