@@ -73,7 +73,8 @@ export default function TeacherHomeSummary({ userId }) {
 
         const enriched = await Promise.all(
           filtered.map(async (item) => {
-            const course = parseField(item, "course") ?? item;
+            const parsedCourse = parseField(item, "course");
+            const course = item?.name ? item : (parsedCourse ?? item);
             const courseId = course.id ?? item.course_id ?? item.id;
             let userCount = 0;
 
@@ -86,7 +87,7 @@ export default function TeacherHomeSummary({ userId }) {
 
             return {
               courseId,
-              name: course.name ?? course.title ?? `Хичээл #${courseId}`,
+              name: item.name ?? course.name ?? course.title ?? `Хичээл #${courseId}`,
               userCount,
             };
           })

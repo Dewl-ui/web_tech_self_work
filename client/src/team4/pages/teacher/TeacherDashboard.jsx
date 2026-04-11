@@ -475,7 +475,8 @@ export default function TeacherDashboard() {
 
       const enrichedCourses = await Promise.all(
         items.map(async (item) => {
-          const course = parseField(item, "course") ?? item;
+          const parsedCourse = parseField(item, "course");
+          const course = item?.name ? item : (parsedCourse ?? item);
           const courseId = course.id ?? item.course_id ?? item.id;
           let userCount = 0;
 
@@ -488,7 +489,7 @@ export default function TeacherDashboard() {
 
           return {
             courseId,
-            name: course.name ?? course.title ?? `Хичээл #${courseId}`,
+            name: item.name ?? course.name ?? course.title ?? `Хичээл #${courseId}`,
             userCount,
           };
         })
@@ -498,9 +499,10 @@ export default function TeacherDashboard() {
 
       const allEvents = [];
       for (const item of items) {
-        const c   = parseField(item, "course") ?? item;
+        const parsedCourse = parseField(item, "course");
+        const c   = item?.name ? item : (parsedCourse ?? item);
         const cId = c.id ?? item.course_id;
-        const name = c.name ?? `Хичээл #${cId}`;
+        const name = item.name ?? c.name ?? c.title ?? `Хичээл #${cId}`;
         try {
           const ttData = await apiGet(`/courses/${cId}/timetables`);
           (ttData?.items ?? []).forEach((tt, idx) => {

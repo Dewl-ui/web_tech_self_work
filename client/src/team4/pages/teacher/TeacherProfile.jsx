@@ -1,10 +1,10 @@
 // Member B OWNS this file — Teacher profile page at /team4/profile
 import { useEffect, useState } from "react";
+import { FiBookOpen, FiChevronRight, FiLock, FiSave } from "react-icons/fi";
 import { Link } from "react-router-dom";
-import { FiBookOpen, FiChevronRight, FiSave, FiLock } from "react-icons/fi";
+import { useToast } from "../../components/ui/Toast";
 import { apiGet, apiPut, parseField, withCurrentUser } from "../../utils/api";
 import { useAuth } from "../../utils/AuthContext";
-import { useToast } from "../../components/ui/Toast";
 
 function Field({ label, value, onChange, type = "text", readOnly = false }) {
   return (
@@ -88,6 +88,7 @@ export default function TeacherProfile() {
 
       setProfile((prev) => ({ ...prev, ...form }));
       await refreshUser();
+
       toast.success("Амжилттай хадгалагдлаа.");
     } catch (err) {
       toast.error(err.message || "Хадгалахад алдаа гарлаа.");
@@ -260,9 +261,10 @@ export default function TeacherProfile() {
         ) : (
           <div className="space-y-2">
             {courses.map((item, i) => {
-              const course = parseField(item, "course") ?? {};
+              const parsedCourse = parseField(item, "course");
+              const course = item?.name ? item : (parsedCourse ?? {});
               const courseId = course.id ?? item.id ?? item.course_id;
-              const courseName = course.name ?? course.title ?? `Хичээл #${courseId}`;
+              const courseName = item.name ?? course.name ?? course.title ?? `Хичээл #${courseId}`;
               return (
                 <Link
                   key={courseId ?? i}
