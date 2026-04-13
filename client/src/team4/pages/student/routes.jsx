@@ -6,6 +6,7 @@ import StudentCourses      from "./StudentCourses";
 import StudentCourseDetail from "./StudentCourseDetail";
 import StudentGroups       from "./StudentGroups";
 import StudentCalendar     from "./StudentCalendar";
+import StudentProfile      from "./StudentProfile";
 
 const studentRoutes = [
   <Route key="student-courses" path="student"
@@ -19,6 +20,9 @@ const studentRoutes = [
 
   <Route key="student-calendar" path="student/calendar"
     element={<ProtectedRoute role={ROLES.STUDENT}><StudentCalendar /></ProtectedRoute>} />,
+
+  <Route key="student-profile" path="student/profile"
+    element={<ProtectedRoute role={ROLES.STUDENT}><StudentProfile /></ProtectedRoute>} />,
 
 ];
 

@@ -1,4 +1,4 @@
-import { STORAGE_KEYS } from "../../../../utils/constants";
+import { STORAGE_KEYS } from "../../../utils/constants";
 
 const BASE_URL = "https://todu.mn/bs/lms/v1";
 

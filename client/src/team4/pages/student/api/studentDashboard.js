@@ -13,30 +13,47 @@ function isDateInRange(startOn, endOn, nowTs = Date.now()) {
 	return true;
 }
 
-export async function getStudentDashboardData({ userId }) {
-	if (!userId) {
-		return {
-			courses: [],
-			exams: [],
-			lessonsByCourse: {},
-			stats: {
-				enrolledCourses: 0,
-				activeCourses: 0,
-				totalLessons: 0,
-				openExams: 0,
-				totalExams: 0,
-				submissionLessons: 0,
-			},
-		};
-	}
+const EMPTY_DASHBOARD = {
+	courses: [],
+	exams: [],
+	schools: [],
+	catalog: [],
+	categories: [],
+	paymentPolicy: null,
+	lessonsByCourse: {},
+	stats: {
+		enrolledCourses: 0,
+		activeCourses: 0,
+		totalLessons: 0,
+		openExams: 0,
+		totalExams: 0,
+		submissionLessons: 0,
+		schoolCount: 0,
+	},
+};
 
-	const [coursesRes, examsRes] = await Promise.all([
-		studentGet(`/users/${userId}/courses/enrolled`),
-		studentGet("/users/me/exams").catch(() => ({ items: [] })),
-	]);
+export async function getStudentDashboardData({ userId, schoolId }) {
+	if (!userId) return { ...EMPTY_DASHBOARD };
+
+	const catalogPath = schoolId ? `/schools/${schoolId}/courses` : null;
+	const categoriesPath = schoolId ? `/schools/${schoolId}/categories` : null;
+	const policyPath = schoolId ? `/schools/${schoolId}/payment-policy` : null;
+
+	const [coursesRes, examsRes, schoolsRes, catalogRes, categoriesRes, policyRes] =
+		await Promise.all([
+			studentGet(`/users/${userId}/courses/enrolled`).catch(() => ({ items: [] })),
+			studentGet("/users/me/exams").catch(() => ({ items: [] })),
+			studentGet(`/users/${userId}/schools`).catch(() => ({ items: [] })),
+			catalogPath ? studentGet(catalogPath).catch(() => ({ items: [] })) : Promise.resolve({ items: [] }),
+			categoriesPath ? studentGet(categoriesPath).catch(() => ({ items: [] })) : Promise.resolve({ items: [] }),
+			policyPath ? studentGet(policyPath).catch(() => null) : Promise.resolve(null),
+		]);
 
 	const courses = toArray(coursesRes?.items);
 	const exams = toArray(examsRes?.items);
+	const schools = toArray(schoolsRes?.items);
+	const catalog = toArray(catalogRes?.items);
+	const categories = toArray(categoriesRes?.items);
 
 	const lessonResults = await Promise.allSettled(
 		courses.map((item) => {
@@ -79,6 +96,10 @@ export async function getStudentDashboardData({ userId }) {
 	return {
 		courses,
 		exams,
+		schools,
+		catalog,
+		categories,
+		paymentPolicy: policyRes ?? null,
 		lessonsByCourse,
 		stats: {
 			enrolledCourses: courses.length,
@@ -87,7 +108,7 @@ export async function getStudentDashboardData({ userId }) {
 			openExams,
 			totalExams: exams.length,
 			submissionLessons,
+			schoolCount: schools.length,
 		},
 	};
 }
-

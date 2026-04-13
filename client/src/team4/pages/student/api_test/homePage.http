@@ -1,0 +1,68 @@
+### Student Home Page APIs
+### Overview widgets: profile, enrolled courses, upcoming exams, schools
+
+@baseUrl = https://todu.mn/bs/lms/v1
+@email = schoolstudent@must.edu.mn
+@password = 123
+@accessToken = p7vXn3LH7JGiL543jqmNTA
+
+@userId = 539
+@schoolId = 2
+@courseId = 204
+
+
+### 1. Login - get token
+# @name login
+POST {{baseUrl}}/token/email
+Content-Type: application/json
+
+{
+  "email": {{email}},
+  "password": {{password}},
+  "push_token": ""
+}
+
+
+### 2. Get own profile (header widget)
+GET {{baseUrl}}/users/me
+Authorization: Bearer {{accessToken}}
+
+
+### 3. Get schools the student belongs to (school switcher)
+GET {{baseUrl}}/users/{{userId}}/schools
+Authorization: Bearer {{accessToken}}
+
+
+### 4. Get enrolled courses (home: "My Courses" card)
+GET {{baseUrl}}/users/{{userId}}/courses/enrolled
+Authorization: Bearer {{accessToken}}
+
+
+### 5. Get all school courses (home: "Explore more" / catalog)
+GET {{baseUrl}}/schools/{{schoolId}}/courses
+Authorization: Bearer {{accessToken}}
+
+
+### 6. Get school categories (home: category filter)
+GET {{baseUrl}}/schools/{{schoolId}}/categories
+Authorization: Bearer {{accessToken}}
+
+
+### 7. Get my upcoming exams (home: exam reminder widget)
+GET {{baseUrl}}/users/me/exams
+Authorization: Bearer {{accessToken}}
+
+
+### 8. Get school bank info (home: payment tile)
+GET {{baseUrl}}/schools/{{schoolId}}/bank-info
+Authorization: Bearer {{accessToken}}
+
+
+### 9. Get my debt at school (home: debt indicator)
+GET {{baseUrl}}/schools/{{schoolId}}/users/{{userId}}/debt
+Authorization: Bearer {{accessToken}}
+
+
+### 10. Get school payment policy (home: policy info)
+GET {{baseUrl}}/schools/{{schoolId}}/payment-policy
+Authorization: Bearer {{accessToken}}
