@@ -5,6 +5,7 @@ import { getStudentCourses, getMyExams } from "./api/studentCourseApi";
 import { getCourseTimetables } from "./api/studentCalendarApi";
 import { useStudentData } from "./hooks";
 import { fmtDateTime } from "./utils";
+import PageHeader from "./components/PageHeader";
 
 const WEEKDAYS = [
   { id: 1, label: "Да" },
@@ -99,16 +100,12 @@ export default function StudentCalendar() {
   }, [exams]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-100">
-          <FiCalendar className="h-5 w-5 text-zinc-600" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold text-zinc-900">Хуанли</h1>
-          <p className="text-sm text-zinc-500">Долоо хоногийн хуваарь ба шалгалтын мэдээлэл</p>
-        </div>
-      </div>
+    <div className="mx-auto max-w-6xl space-y-6">
+      <PageHeader
+        icon={FiCalendar}
+        title="Хуанли"
+        subtitle="Долоо хоногийн хуваарь ба шалгалтын мэдээлэл"
+      />
 
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -127,13 +124,13 @@ export default function StudentCalendar() {
       )}
 
       {loading ? (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7">
           {[1, 2, 3, 4, 5, 6, 7].map((i) => (
             <div key={i} className="h-40 animate-pulse rounded-xl bg-zinc-100" />
           ))}
         </div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7">
           {WEEKDAYS.map((day) => (
             <div key={day.id} className="rounded-xl border border-zinc-200 bg-white p-3">
               <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">

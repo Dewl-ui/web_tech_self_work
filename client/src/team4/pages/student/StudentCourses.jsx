@@ -3,6 +3,7 @@ import { useAuth } from "../../utils/AuthContext";
 import { getStudentCourses } from "./api/studentCourseApi";
 import { useStudentData } from "./hooks";
 import CourseCard from "./components/CourseCard";
+import PageHeader from "./components/PageHeader";
 
 function SkeletonCard() {
   return (
@@ -27,23 +28,15 @@ export default function StudentCourses() {
 
   const enrollments = data?.items ?? [];
 
+  const subtitle = loading
+    ? ""
+    : enrollments.length > 0
+    ? `${enrollments.length} хичээлд бүртгэлтэй`
+    : "Бүртгэлтэй хичээл байхгүй байна";
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-100">
-          <FiBook className="h-5 w-5 text-zinc-600" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold text-zinc-900">Миний хичээлүүд</h1>
-          {!loading && (
-            <p className="text-sm text-zinc-500">
-              {enrollments.length > 0
-                ? `${enrollments.length} хичээлд бүртгэлтэй`
-                : "Бүртгэлтэй хичээл байхгүй байна"}
-            </p>
-          )}
-        </div>
-      </div>
+    <div className="mx-auto max-w-6xl space-y-6">
+      <PageHeader icon={FiBook} title="Миний хичээлүүд" subtitle={subtitle} />
 
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">

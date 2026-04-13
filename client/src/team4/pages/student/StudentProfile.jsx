@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { FiUser } from "react-icons/fi";
 import {
   Alert,
   AlertDescription,
@@ -15,6 +16,7 @@ import {
   Label,
   Skeleton,
 } from "../../components/ui";
+import PageHeader from "./components/PageHeader";
 import { useAuth } from "../../utils/AuthContext";
 import {
   changeMyPassword,
@@ -238,10 +240,12 @@ export default function StudentProfile() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-zinc-900">Оюутны профайл</h1>
-      </div>
+    <div className="mx-auto max-w-6xl space-y-6">
+      <PageHeader
+        icon={FiUser}
+        title="Оюутны профайл"
+        subtitle="Хувийн мэдээлэл, нууц үг, бүртгэлийн тохиргоо"
+      />
 
       {errorMessage && (
         <Alert variant="destructive">

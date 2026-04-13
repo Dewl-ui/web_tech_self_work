@@ -1,10 +1,13 @@
 import { Link } from "react-router-dom";
-import { FiBook, FiCalendar, FiClipboard, FiClock, FiCompass } from "react-icons/fi";
+import { FiBook, FiCalendar, FiClipboard, FiClock, FiCompass, FiHome } from "react-icons/fi";
 import { useAuth } from "../../utils/AuthContext";
 import { getStudentDashboardData } from "./api/studentDashboard";
 import { StatCard } from "../../components/ui/StatCard";
 import { useStudentData } from "./hooks";
 import { fmt, fmtTime } from "./utils";
+import PageHeader from "./components/PageHeader";
+
+const CARD = "rounded-xl border border-zinc-200 bg-white p-5";
 
 export default function StudentHome({ userId: userIdProp }) {
   const { user, school } = useAuth();
@@ -31,14 +34,16 @@ export default function StudentHome({ userId: userIdProp }) {
   const exploreCourses = catalog.filter((c) => !enrolledIds.has(c.id)).slice(0, 4);
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-6xl space-y-6">
+      <PageHeader icon={FiHome} title="Нүүр хуудас" subtitle="Таны хичээл, шалгалт, мэдээллийн товчлол" />
+
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard
           title="Миний хичээлүүд"
           value={loading ? "..." : stats.enrolledCourses}
@@ -59,8 +64,8 @@ export default function StudentHome({ userId: userIdProp }) {
         />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 rounded-xl border border-zinc-200 bg-white p-5">
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className={`lg:col-span-2 ${CARD}`}>
           <h2 className="mb-3 font-semibold text-zinc-800">Бүртгэлтэй хичээлүүд</h2>
           {loading ? (
             <SkeletonRows count={2} />
@@ -95,7 +100,7 @@ export default function StudentHome({ userId: userIdProp }) {
           )}
         </div>
 
-        <div className="rounded-xl border border-zinc-200 bg-white p-5">
+        <div className={CARD}>
           <div className="mb-3 flex items-center gap-2">
             <FiClock className="h-4 w-4 text-zinc-500" />
             <h2 className="font-semibold text-zinc-800">Ирэх шалгалтууд</h2>
@@ -122,7 +127,7 @@ export default function StudentHome({ userId: userIdProp }) {
         </div>
       </div>
 
-      <div className="rounded-xl border border-zinc-200 bg-white p-5">
+      <div className={CARD}>
         <div className="mb-3 flex items-center gap-2">
           <FiCompass className="h-4 w-4 text-zinc-500" />
           <h2 className="font-semibold text-zinc-800">Сургуулийн бусад хичээлүүд</h2>
