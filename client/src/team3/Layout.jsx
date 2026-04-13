@@ -1,11 +1,5 @@
-import { Outlet } from 'react-router-dom';
-import SideMenu from "./SideMenu";
+import { Outlet } from "react-router-dom";
 
-const Layout = () => {
-  return <div className='w-full flex-row gap-4 md:flex'>
-    <SideMenu />
-    <Outlet />
-  </div>
-};
-
-export default Layout;
+export default function Layout() {
+  return <Outlet />;
+}
