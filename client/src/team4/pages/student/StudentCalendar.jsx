@@ -1,16 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { FiCalendar, FiClock, FiClipboard } from "react-icons/fi";
 import { useAuth } from "../../utils/AuthContext";
-import {
-  getStudentCourses,
-  getMyExams,
-  parseField,
-} from "./api/studentCourseApi";
-import {
-  getCourseTimetables,
-  getLessonTypes,
-} from "./api/studentCalendarApi";
-import { useToast } from "../../components/ui/Toast";
+import { getStudentCourses, getMyExams } from "./api/studentCourseApi";
+import { getCourseTimetables } from "./api/studentCalendarApi";
+import { useStudentData } from "./hooks";
+import { fmtDateTime } from "./utils";
 
 const WEEKDAYS = [
   { id: 1, label: "Да" },
@@ -31,65 +25,47 @@ const TYPE_COLORS = [
   "bg-cyan-100 text-cyan-700 border-cyan-200",
 ];
 
-function fmtDateTime(dateStr) {
-  if (!dateStr) return "—";
-  const d = new Date(dateStr);
-  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+async function loadCalendarData(userId) {
+  if (!userId) return { rows: [], exams: [] };
+
+  const [enrolled, examsRes] = await Promise.all([
+    getStudentCourses(userId),
+    getMyExams().catch(() => ({ items: [] })),
+  ]);
+
+  const courses = enrolled?.items ?? [];
+
+  const timetableResults = await Promise.allSettled(
+    courses.map(async (enrollment) => {
+      const course = enrollment.course ?? {};
+      const courseId = course.id ?? enrollment.course_id;
+      if (!courseId) return [];
+      const res = await getCourseTimetables(courseId);
+      return (res?.items ?? []).map((slot) => ({
+        ...slot,
+        courseId,
+        courseName: course.name ?? `Хичээл #${courseId}`,
+      }));
+    })
+  );
+
+  const rows = [];
+  for (const r of timetableResults) {
+    if (r.status === "fulfilled") rows.push(...r.value);
+  }
+
+  return { rows, exams: examsRes?.items ?? [] };
 }
 
 export default function StudentCalendar() {
   const { user } = useAuth();
-  const toast = useToast();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [rows, setRows] = useState([]);
-  const [exams, setExams] = useState([]);
-  const [lessonTypes, setLessonTypes] = useState([]);
+  const { data, loading, error } = useStudentData(
+    () => loadCalendarData(user?.id),
+    [user?.id]
+  );
 
-  useEffect(() => {
-    if (!user?.id) return;
-    setLoading(true);
-
-    (async () => {
-      try {
-        const [enrolled, myExams, types] = await Promise.all([
-          getStudentCourses(user.id),
-          getMyExams().catch(() => ({ items: [] })),
-          getLessonTypes().catch(() => ({ items: [] })),
-        ]);
-
-        const courses = enrolled?.items ?? [];
-        setExams(myExams?.items ?? []);
-        setLessonTypes(types?.items ?? []);
-
-        const timetableResults = await Promise.allSettled(
-          courses.map(async (enrollment) => {
-            const course = parseField(enrollment, "course") ?? {};
-            const courseId = course.id ?? enrollment.course_id;
-            if (!courseId) return [];
-            const res = await getCourseTimetables(courseId);
-            return (res?.items ?? []).map((slot) => ({
-              ...slot,
-              courseId,
-              courseName: course.name ?? `Хичээл #${courseId}`,
-            }));
-          })
-        );
-
-        const allRows = [];
-        for (const result of timetableResults) {
-          if (result.status === "fulfilled") allRows.push(...result.value);
-        }
-        setRows(allRows);
-      } catch (err) {
-        const msg = err.message || "Хуанли ачааллахад алдаа гарлаа.";
-        setError(msg);
-        toast.error(msg);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [user?.id]);
+  const rows = data?.rows ?? [];
+  const exams = data?.exams ?? [];
 
   const typeColorByName = useMemo(() => {
     const map = {};
@@ -116,9 +92,9 @@ export default function StudentCalendar() {
   }, [rows]);
 
   const upcomingExams = useMemo(() => {
-    const now = Date.now();
+    const cutoff = Date.now() - 24 * 3600 * 1000;
     return exams
-      .filter((e) => !e.open_on || new Date(e.open_on).getTime() >= now - 24 * 3600 * 1000)
+      .filter((e) => !e.open_on || new Date(e.open_on).getTime() >= cutoff)
       .sort((a, b) => new Date(a.open_on || 0) - new Date(b.open_on || 0));
   }, [exams]);
 
@@ -140,7 +116,6 @@ export default function StudentCalendar() {
         </div>
       )}
 
-      {/* Legend */}
       {!loading && Object.keys(typeColorByName).length > 0 && (
         <div className="flex flex-wrap gap-2">
           {Object.entries(typeColorByName).map(([name, cls]) => (
@@ -171,10 +146,7 @@ export default function StudentCalendar() {
                   {rowsByWeekday[day.id].map((slot) => {
                     const cls = typeColorByName[slot.lesson_type?.name] || TYPE_COLORS[0];
                     return (
-                      <div
-                        key={slot.id}
-                        className={`rounded-md border px-2 py-1.5 text-xs ${cls}`}
-                      >
+                      <div key={slot.id} className={`rounded-md border px-2 py-1.5 text-xs ${cls}`}>
                         <p className="font-semibold">
                           {slot.period?.start_time?.slice(0, 5) || "—"}
                           {slot.period?.end_time ? ` – ${slot.period.end_time.slice(0, 5)}` : ""}
@@ -194,7 +166,6 @@ export default function StudentCalendar() {
         </div>
       )}
 
-      {/* Upcoming exams */}
       <div className="rounded-xl border border-zinc-200 bg-white p-5">
         <div className="mb-3 flex items-center gap-2">
           <FiClipboard className="h-4 w-4 text-zinc-500" />
