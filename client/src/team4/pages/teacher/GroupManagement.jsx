@@ -20,6 +20,7 @@ export default function GroupManagement() {
   const toast = useToast();
 
   const [groups, setGroups] = useState([]);
+  const [courseName, setCourseName] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -36,8 +37,12 @@ export default function GroupManagement() {
   async function loadGroups() {
     try {
       setLoading(true);
-      const data = await apiGet(`/courses/${course_id}/groups`);
-      setGroups(data?.items ?? (Array.isArray(data) ? data : []));
+      const [courseData, groupData] = await Promise.all([
+        apiGet(`/courses/${course_id}`).catch(() => null),
+        apiGet(`/courses/${course_id}/groups`),
+      ]);
+      setCourseName(courseData?.name ?? courseData?.title ?? "");
+      setGroups(groupData?.items ?? (Array.isArray(groupData) ? groupData : []));
     } catch (err) {
       const msg = err.message || "Бүлгүүдийг ачааллахад алдаа гарлаа.";
       setError(msg);
@@ -132,7 +137,9 @@ export default function GroupManagement() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-zinc-900">Бүлэг удирдах</h1>
-            <p className="text-sm text-zinc-500">Хичээл ID: {course_id}</p>
+            <p className="text-sm text-zinc-500">
+              Хичээл: {courseName || `Хичээл #${course_id}`}
+            </p>
           </div>
         </div>
         <Button onClick={openCreate}>
