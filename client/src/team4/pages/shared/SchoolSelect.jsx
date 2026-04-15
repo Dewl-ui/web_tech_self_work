@@ -150,7 +150,9 @@ export default function SchoolSelect() {
           <>
             <div className="space-y-3">
               {schools.map((school) => {
-                const roleObj = parseField(school, "role");
+                const roleObj =
+                  parseField(school, "role") ??
+                  (isSystemAdmin ? { id: ROLES.ADMIN, name: "Админ" } : null);
                 const roleLabel = roleObj?.name;
                 const roleColor =
                   ROLE_COLORS[roleObj?.id] ?? "bg-zinc-100 text-zinc-600";
