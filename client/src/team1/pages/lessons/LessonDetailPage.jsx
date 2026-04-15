@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import LessonMaterial from "../../components/lesson/LessonMaterial";
 import { getCourse } from "../../services/courseService";
 import { getLessonsByCourse } from "../../services/lessonService";
 import { inferLessonKindFromTypeName } from "../../utils/lessonType";
 import {
-  getCompletedLessonIds,
   getCurrentCourse,
   getCurrentLesson,
   getErrorMessage,
@@ -90,6 +90,7 @@ export default function LessonDetailPage() {
 
   const [courseName, setCourseName] = useState(fallbackCourse?.name || "Хичээл");
   const [lesson, setLesson] = useState(fallbackLesson);
+  const [courseLessons, setCourseLessons] = useState(fallbackLesson ? [fallbackLesson] : []);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [completed, setCompleted] = useState(
@@ -116,6 +117,7 @@ export default function LessonDetailPage() {
         }
 
         setCourseName(course?.name || "Хичээл");
+        setCourseLessons(lessonItems || []);
         setLesson(lessonItem);
         setCurrentLesson(lessonItem);
       })
@@ -134,13 +136,32 @@ export default function LessonDetailPage() {
     setCompleted(isLessonCompleted(currentCourseId, currentLessonId));
   }, [currentCourseId, currentLessonId, lesson]);
 
-  const lessonKind = useMemo(() => getLessonKind(lesson), [lesson]);
-  const videoUrl = useMemo(() => normalizeVideoUrl(getLessonVideoUrl(lesson)), [lesson]);
-  const assignmentStatus = useMemo(() => getAssignmentStatus(lesson), [lesson]);
-  const completedCount = useMemo(
-    () => (currentCourseId ? getCompletedLessonIds(currentCourseId).length : 0),
-    [currentCourseId, completed]
+  const lessonKind = getLessonKind(lesson);
+  const rawVideoUrl = getLessonVideoUrl(lesson);
+  const videoUrl = normalizeVideoUrl(rawVideoUrl);
+  const assignmentStatus = getAssignmentStatus(lesson);
+  const contentText = lesson?.content || "";
+  const lessonOrder = (item) =>
+    Number(item?.week || item?.week_number || item?.order_week || item?.priority || 0);
+  const sortedLessons = [...courseLessons].sort(
+    (left, right) =>
+      lessonOrder(left) - lessonOrder(right)
   );
+  const currentLessonIndex = sortedLessons.findIndex(
+    (item) => Number(item?.id) === Number(currentLessonId)
+  );
+  const previousLesson = currentLessonIndex > 0 ? sortedLessons[currentLessonIndex - 1] : null;
+  const nextLesson =
+    currentLessonIndex >= 0 && currentLessonIndex < sortedLessons.length - 1
+      ? sortedLessons[currentLessonIndex + 1]
+      : null;
+  const openLesson = (lessonItem) => {
+    if (!lessonItem?.id) return;
+    setCurrentLesson(lessonItem);
+    navigate(`/team1/lessons/${lessonItem.id}`, {
+      state: { courseId: currentCourseId, lesson: lessonItem },
+    });
+  };
 
   const handleToggleCompleted = () => {
     const nextValue = !completed;
@@ -186,32 +207,16 @@ export default function LessonDetailPage() {
           <h1 className="text-2xl font-bold text-gray-800">
             {lesson.name || lesson.title}
           </h1>
-          <p className="mt-2 text-gray-600">
-            {lesson.description || lesson.content || "Тайлбар алга."}
-          </p>
-
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <button
               type="button"
               onClick={handleToggleCompleted}
               className={`rounded-xl px-4 py-2 text-sm font-semibold ${
-                completed
-                  ? "bg-emerald-100 text-emerald-700"
-                  : "bg-indigo-600 text-white"
+                completed ? "bg-emerald-100 text-emerald-700" : "bg-indigo-600 text-white"
               }`}
             >
               {completed ? "Хийснийг цуцлах" : "Хийсэн гэж тэмдэглэх"}
             </button>
-            <span
-              className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                completed ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-500"
-              }`}
-            >
-              {completed ? "Хийсэн" : "Хийж амжаагүй"}
-            </span>
-            <span className="text-xs text-slate-400">
-              Хийсэн хичээлийн тоо: {completedCount}
-            </span>
           </div>
         </div>
 
@@ -240,69 +245,77 @@ export default function LessonDetailPage() {
           </div>
         ) : null}
 
-        {lessonKind === "text" ? (
-          <div className="rounded-2xl border border-gray-100 bg-slate-50 p-6 text-gray-700">
-            {lesson.content || "Контент алга."}
+        {lessonKind !== "assignment" ? (
+          <div>
+            <p className="mb-2 font-semibold text-slate-600">Агуулга</p>
+            <LessonMaterial
+              content={contentText}
+              fileUrl={lessonKind === "file" ? lesson.file_url : ""}
+              title={lesson.name || lesson.title || "Материал"}
+            />
           </div>
         ) : null}
 
         {lessonKind === "assignment" ? (
-          <div className="space-y-5">
-            <div className="grid gap-4 md:grid-cols-3">
+          <div className="space-y-4">
+            <div className="grid gap-3 md:grid-cols-3">
               <div className="rounded-xl bg-slate-50 p-4">
                 <p className="text-xs text-slate-400">Нээгдсэн огноо</p>
-                <p className="mt-2 font-semibold text-slate-700">
-                  {lesson.open_on || "—"}
-                </p>
+                <p className="mt-1 font-semibold text-slate-700">{lesson.open_on || "—"}</p>
               </div>
               <div className="rounded-xl bg-slate-50 p-4">
                 <p className="text-xs text-slate-400">Хаагдах огноо</p>
-                <p className="mt-2 font-semibold text-slate-700">
-                  {lesson.close_on || "—"}
-                </p>
+                <p className="mt-1 font-semibold text-slate-700">{lesson.close_on || "—"}</p>
               </div>
               <div className="rounded-xl bg-slate-50 p-4">
                 <p className="text-xs text-slate-400">Төлөв</p>
                 <span
-                  className={`mt-2 inline-flex rounded-full px-3 py-1 text-sm font-semibold ${assignmentStatus.color}`}
+                  className={`mt-2 inline-block rounded-full px-3 py-1 text-sm font-semibold ${assignmentStatus.color}`}
                 >
                   {assignmentStatus.label}
                 </span>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-gray-100 bg-slate-50 p-6 text-gray-700">
-              {lesson.content || "Даалгаврын тайлбар алга."}
-            </div>
+            <LessonMaterial
+              content={contentText || "Даалгаврын тайлбар алга."}
+              fileUrl={lesson.file_url || ""}
+              title={lesson.name || lesson.title || "Даалгавар"}
+            />
 
-            <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center">
-              <p className="font-semibold text-slate-700">Файл оруулах</p>
-              <p className="mt-2 text-sm text-slate-400">
-                Энд файл чирж оруулах эсвэл товч ашиглан сонгоно.
-              </p>
-              <div className="mt-4 flex justify-center gap-3">
-                <button
-                  type="button"
-                  className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white"
-                >
-                  Даалгавар илгээх
-                </button>
-                <button
-                  type="button"
-                  className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600"
-                >
-                  Засах
-                </button>
-                <button
-                  type="button"
-                  className="rounded-xl border border-red-200 px-4 py-2 text-sm font-semibold text-red-500"
-                >
-                  Устгах
-                </button>
-              </div>
-            </div>
           </div>
         ) : null}
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <button
+            type="button"
+            disabled={!previousLesson}
+            onClick={() => openLesson(previousLesson)}
+            className="flex min-h-16 items-center rounded-lg bg-indigo-600 px-5 py-3 text-left text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none"
+          >
+            <span className="mr-3 text-xl" aria-hidden="true">
+              ←
+            </span>
+            <span>
+              <span className="block text-xs font-medium text-indigo-100">Өмнөх хичээл</span>
+              <span className="block">{previousLesson?.name || previousLesson?.title || "Байхгүй"}</span>
+            </span>
+          </button>
+          <button
+            type="button"
+            disabled={!nextLesson}
+            onClick={() => openLesson(nextLesson)}
+            className="flex min-h-16 items-center justify-between rounded-lg bg-indigo-600 px-5 py-3 text-left text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none"
+          >
+            <span>
+              <span className="block text-xs font-medium text-indigo-100">Дараагийн хичээл</span>
+              <span className="block">{nextLesson?.name || nextLesson?.title || "Байхгүй"}</span>
+            </span>
+            <span className="ml-3 text-xl" aria-hidden="true">
+              →
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   );
