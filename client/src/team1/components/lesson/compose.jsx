@@ -8,12 +8,29 @@ export default function Compose({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm"
+      style={{ animation: "lessonConfirmFade 140ms ease-out" }}
+    >
+      <style>
+        {`
+          @keyframes lessonConfirmFade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+
+          @keyframes lessonConfirmPop {
+            from { opacity: 0; transform: translateY(10px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+          }
+        `}
+      </style>
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="lesson-delete-title"
-        className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
+        className="w-full max-w-md rounded-lg bg-white p-6 shadow-2xl"
+        style={{ animation: "lessonConfirmPop 160ms ease-out" }}
       >
         <h2 id="lesson-delete-title" className="text-lg font-bold text-slate-900">
           Хичээл устгах
