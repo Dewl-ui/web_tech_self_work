@@ -229,6 +229,11 @@ export default function CourseUserEdit() {
           <div className="p-4">
             {loading ? (
               <StudentTableSkeleton />
+            ) : searchAvailable.trim().length === 0 ? (
+              <EmptyState
+                icon={<FiSearch className="h-6 w-6" />}
+                title="Оюутан хайх"
+              />
             ) : filteredAvailable.length === 0 ? (
               <EmptyState
                 icon={<FiUsers className="h-6 w-6" />}
