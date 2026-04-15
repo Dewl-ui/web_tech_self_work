@@ -214,7 +214,6 @@ export default function GroupManagement() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
                   <TableHead>Нэр</TableHead>
                   <TableHead>Эрэмбэ</TableHead>
                   <TableHead className="text-right">Үйлдэл</TableHead>
@@ -223,7 +222,6 @@ export default function GroupManagement() {
               <TableBody>
                 {groups.map((g) => (
                   <TableRow key={g.id}>
-                    <TableCell>{g.id}</TableCell>
                     <TableCell>
                       <Badge variant="secondary">{g.name}</Badge>
                     </TableCell>
