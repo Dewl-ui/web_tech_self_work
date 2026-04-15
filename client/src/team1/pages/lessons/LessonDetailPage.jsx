@@ -15,13 +15,19 @@ import {
 
 function getLessonVideoUrl(lesson) {
   const candidates = [lesson?.video_url, lesson?.content, lesson?.description];
-  return (
-    candidates.find(
-      (value) =>
-        typeof value === "string" &&
-        (value.includes("youtube.com/") || value.includes("youtu.be/"))
-    ) || ""
-  );
+
+  for (const value of candidates) {
+    if (typeof value !== "string") continue;
+    const youtubeUrl = value
+      .split(/\s+/)
+      .find((word) => word.includes("youtube.com/") || word.includes("youtu.be/"));
+
+    if (youtubeUrl) {
+      return youtubeUrl.replace(/[),.;]+$/g, "");
+    }
+  }
+
+  return "";
 }
 
 function normalizeVideoUrl(url = "") {

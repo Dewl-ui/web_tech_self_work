@@ -29,7 +29,6 @@ export default function LessonCreatePage() {
     has_submission: false,
     point: "0",
     content: "",
-    video_url: "",
     open_on: "",
     close_on: "",
     end_on: "",
@@ -81,7 +80,7 @@ export default function LessonCreatePage() {
         parent_id: form.parent_id || "",
         priority: form.priority || "1",
         type_id: form.type_id || getFallbackLessonTypeId(sortedLessonTypes),
-        content: selectedKind === "video" && form.video_url ? form.video_url : form.content,
+        content: form.content,
         has_submission: form.has_submission ? "1" : "0",
         point: form.point || "0",
         open_on: form.open_on ? toApiIsoString(form.open_on) : "",
@@ -216,19 +215,6 @@ export default function LessonCreatePage() {
               className="w-full resize-none rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none"
             />
           </div>
-
-          {selectedKind === "video" ? (
-            <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-semibold text-slate-700">Видео холбоос</label>
-              <input
-                type="url"
-                value={form.video_url}
-                onChange={(event) => setForm((prev) => ({ ...prev, video_url: event.target.value }))}
-                placeholder="https://www.youtube.com/watch?v=..."
-                className="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none"
-              />
-            </div>
-          ) : null}
 
           <div className="space-y-2">
             <label className="text-sm font-semibold text-slate-700">Нээх огноо</label>
