@@ -1,12 +1,3 @@
-// ============================================================
-// Profile.jsx — SHARED shell, owned by the infra/lead member.
-//
-// DO NOT add role-specific content here.
-// Each member updates their own profile file:
-//   Admin   → pages/admin/AdminProfile.jsx    (Member A)
-//   Teacher → pages/teacher/TeacherProfile.jsx (Member B)
-//   Student → pages/student/StudentProfile.jsx (Member C)
-// ============================================================
 import { useAuth } from "../../utils/AuthContext";
 import { ROLES } from "../../utils/constants";
 import AdminProfile   from "../admin/AdminProfile";
