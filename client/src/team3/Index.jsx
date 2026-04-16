@@ -22,7 +22,6 @@ import TeacherHome from "./pages/teacher/Home";
 import TeacherJournal from "./pages/teacher/Journal";
 import TeacherCourseSummary from "./pages/teacher/CourseSummary";
 import TeacherCourseStudents from "./pages/teacher/CourseStudents";
-import TeacherCourseBreakdown from "./pages/teacher/CourseBreakdown";
 import TeacherCourseTeacherInfo from "./pages/teacher/CourseTeacherInfo";
 import TeacherAttendanceIndex from "./pages/teacher/AttendanceIndex";
 import TeacherAttendanceLesson from "./pages/teacher/AttendanceLesson";
@@ -37,6 +36,7 @@ import TeacherRequestDetail from "./pages/teacher/RequestDetail";
 import TeacherRejectRequest from "./pages/teacher/RejectRequest";
 import TeacherApproveRequest from "./pages/teacher/ApproveRequest";
 import TeacherSettings from "./pages/teacher/Settings";
+import { TeacherCourseBreakdown, TeacherStudentGradeDetail, TeacherAssignmentGrade,TeacherStudentAttendanceDetail } from './pages/teacher';
 
 export default function Index() {
   return (
@@ -101,6 +101,9 @@ export default function Index() {
           />
           <Route path="grades" element={<StudentGrades />} />
           <Route path="attendance" element={<TeacherAttendanceIndex />} />
+          <Route path="journal/:courseId/student/:studentId" element={<TeacherStudentGradeDetail />} />
+          <Route path="journal/:courseId/assignment/:id" element={<TeacherAssignmentGrade />} />
+          <Route path="journal/:courseId/student/:studentId/attendance" element={<TeacherStudentAttendanceDetail />} />
           <Route
             path="attendance/lesson-1-4"
             element={<TeacherAttendanceLesson />}

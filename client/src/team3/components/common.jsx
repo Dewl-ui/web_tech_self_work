@@ -168,23 +168,23 @@ export function CourseActionTabs({ base }) {
     },
     {
       to: `${base}/breakdown`,
-      label: "Дүнгийн мэдээлэл →",
+      label: "Хичээлийн явц (Журнал) →",
       tone: "from-violet-100 to-fuchsia-100 text-violet-900",
     },
     {
       to: `/team3/teacher/attendance/stats`,
-      label: "Хичээлийн явц →",
+      label: "Ирцийн статистик →",
       tone: "from-amber-100 to-orange-100 text-orange-900",
     },
   ];
 
   return (
-    <div className="mb-5 flex flex-wrap gap-3">
+    <div className="mb-6 grid gap-4 md:grid-cols-3">
       {items.map((item) => (
         <Link
           key={item.to}
           to={item.to}
-          className={`rounded-2xl bg-gradient-to-r ${item.tone} px-4 py-2.5 text-sm font-semibold shadow-sm transition hover:-translate-y-0.5`}
+          className={`flex items-center justify-between rounded-2xl bg-gradient-to-br px-6 py-5 font-bold shadow-sm transition hover:-translate-y-0.5 ${item.tone}`}
         >
           {item.label}
         </Link>

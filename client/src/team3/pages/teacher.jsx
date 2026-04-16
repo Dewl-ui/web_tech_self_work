@@ -216,10 +216,10 @@ export function TeacherJournal() {
               </div>
               <div className="text-slate-500">{course.group}</div>
               <Link
-                to={`${course.id}/summary`}
-                className="text-right font-semibold text-indigo-600"
+                to={`${course.id}/detail`}
+                className="text-right font-bold text-indigo-600 hover:underline"
               >
-                Дэлгэрэнгүй
+                Журнал руу орох
               </Link>
             </div>
           ))}
@@ -244,16 +244,13 @@ export function TeacherCourseSummary() {
               to={`${base}/students`}
               className="font-semibold text-indigo-600"
             >
-              Бүх сурагчдыг харах →
+              Бүх сурагчдыг харах
             </Link>
           </div>
         }
       />
       <CourseActionTabs base={base} />
       <JournalSubTabs active="summary" base={base} />
-      <Panel className="min-h-[360px] bg-[linear-gradient(135deg,#ffffff,#eef6ff)] text-lg text-slate-600">
-        Удиртгал
-      </Panel>
     </Shell>
   );
 }
@@ -303,32 +300,6 @@ export function TeacherCourseStudents() {
             </tbody>
           </table>
         </div>
-      </Panel>
-    </Shell>
-  );
-}
-
-export function TeacherCourseBreakdown() {
-  const { courseId } = useParams();
-  const base = `/team3/teacher/journal/${courseId}`;
-
-  return (
-    <Shell role="teacher">
-      <PageTitle
-        title="S.MTM121 Математик"
-        right={
-          <div className="flex flex-wrap items-center gap-4 rounded-2xl bg-white px-5 py-3 font-semibold text-slate-700 shadow-sm">
-            <span>Нийт сурагчдын тоо : 100</span>
-            <Link to={`${base}/students`} className="text-indigo-600">
-              Бүх сурагчдыг харах →
-            </Link>
-          </div>
-        }
-      />
-      <CourseActionTabs base={base} />
-      <JournalSubTabs active="detail" base={base} />
-      <Panel className="min-h-[360px] bg-[linear-gradient(135deg,#ffffff,#f8fbff)]">
-        <h3 className="text-xl font-bold text-slate-800">Онооны задаргаа</h3>
       </Panel>
     </Shell>
   );
@@ -974,3 +945,8 @@ export function TeacherSettings() {
     </Shell>
   );
 }
+
+export { default as TeacherCourseBreakdown } from './teacher/CourseBreakdown';
+export { default as TeacherStudentGradeDetail } from './teacher/StudentGradeDetail';
+export { default as TeacherAssignmentGrade } from './teacher/AssignmentGradeDetail';
+export { default as TeacherStudentAttendanceDetail } from './teacher/StudentAttendanceDetail';
