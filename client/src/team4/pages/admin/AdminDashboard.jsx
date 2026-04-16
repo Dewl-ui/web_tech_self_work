@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { FiUsers, FiBookOpen, FiUser } from "react-icons/fi";
+import { FiUsers, FiBookOpen, FiUser, FiShield } from "react-icons/fi";
 import {
   ResponsiveContainer,
   PieChart,
@@ -15,7 +15,7 @@ import {
 } from "recharts";
 
 import { useAuth } from "../../utils/AuthContext";
-import { apiGet, parseField } from "../../utils/api";
+import { apiGet } from "../../utils/api";
 import { useToast } from "../../components/ui/Toast";
 import { StatCard } from "../../components/ui/StatCard";
 import {
@@ -30,23 +30,13 @@ function getSchoolId(school) {
   return school?.id ?? school?.school_id ?? school?.SCHOOL_ID ?? school?.ID ?? null;
 }
 
-function getRoleIdFromSchoolMembership(userSchools, currentSchoolId) {
-  const matchedSchool = (userSchools || []).find((s) => {
-    const sid = s?.id ?? s?.school_id ?? s?.SCHOOL_ID ?? s?.ID ?? null;
-    return String(sid) === String(currentSchoolId);
-  });
-
-  if (!matchedSchool) return null;
-
-  const roleObj = parseField(matchedSchool, "role");
-  return roleObj?.id != null ? Number(roleObj.id) : null;
-}
-
 export default function AdminDashboard() {
   const { school, isAdmin } = useAuth();
   const toast = useToast();
 
   const [users, setUsers] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [courseStudentData, setCourseStudentData] = useState([]);
   const [courseCount, setCourseCount] = useState(0);
   const [roleCounts, setRoleCounts] = useState({
     admins: 0,
@@ -54,6 +44,7 @@ export default function AdminDashboard() {
     students: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [graphLoading, setGraphLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -73,28 +64,62 @@ export default function AdminDashboard() {
         setLoading(true);
         setError("");
 
-        const schoolUsersRes = await apiGet(`/schools/${schoolId}/users?limit=10000`);
-        const schoolUsers = schoolUsersRes?.items ?? [];
-        setUsers(schoolUsers);
+        const [schoolUsersRes, schoolCoursesRes] = await Promise.all([
+          apiGet(`/schools/${schoolId}/users?limit=10000`),
+          apiGet(`/schools/${schoolId}/courses?limit=10000`),
+        ]);
 
-        const schoolCoursesRes = await apiGet(`/schools/${schoolId}/courses?limit=10000`);
-        setCourseCount(schoolCoursesRes?.items?.length ?? 0);
+        const schoolUsers = schoolUsersRes?.items ?? [];
+        const schoolCourses = schoolCoursesRes?.items ?? [];
+
+        setUsers(schoolUsers);
+        setCourses(schoolCourses);
+        setCourseCount(schoolCourses.length);
 
         let admins = 0;
         let teachers = 0;
         let students = 0;
 
         schoolUsers.forEach((u) => {
-          const matchedSchool = (u.schools || []).find(
-            (s) => String(s.id) === String(schoolId)
+          const matchedSchool = (u?.schools || []).find(
+            (s) => String(s?.id) === String(schoolId)
           );
+
           const roleId = matchedSchool?.roles?.[0]?.id;
+
           if (roleId === 10) admins += 1;
           else if (roleId === 20) teachers += 1;
           else if (roleId === 30) students += 1;
         });
 
         setRoleCounts({ admins, teachers, students });
+
+        setGraphLoading(true);
+
+        const perCourse = await Promise.all(
+          schoolCourses.map(async (course) => {
+            try {
+              const res = await apiGet(`/courses/${course.id}/users?limit=10000`);
+              const studentCount = res?.count ?? res?.items?.length ?? 0;
+
+              return {
+                name: course?.name ?? `Хичээл #${course.id}`,
+                students: studentCount,
+              };
+            } catch {
+              return {
+                name: course?.name ?? `Хичээл #${course.id}`,
+                students: 0,
+              };
+            }
+          })
+        );
+
+        const sorted = perCourse
+          .sort((a, b) => b.students - a.students)
+          .slice(0, 10);
+
+        setCourseStudentData(sorted);
       } catch (err) {
         console.error(err);
         const msg = err.message || "Сургуулийн мэдээлэл авахад алдаа гарлаа.";
@@ -102,11 +127,12 @@ export default function AdminDashboard() {
         toast.error(msg);
       } finally {
         setLoading(false);
+        setGraphLoading(false);
       }
     }
 
     loadDashboard();
-  }, [school, isAdmin]);
+  }, [school, isAdmin, toast]);
 
   const stats = useMemo(() => {
     return {
@@ -150,7 +176,9 @@ export default function AdminDashboard() {
     return (
       <div className="space-y-2">
         <h1 className="text-2xl font-bold text-zinc-900">Админ самбар</h1>
-        <p className="text-sm text-zinc-500">Энэ хэсгийг зөвхөн админ хэрэглэгч үзнэ.</p>
+        <p className="text-sm text-zinc-500">
+          Энэ хэсгийг зөвхөн админ хэрэглэгч үзнэ.
+        </p>
       </div>
     );
   }
@@ -181,12 +209,18 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <StatCard
           title="Нийт хэрэглэгч"
           value={loading ? "..." : stats.totalUsers}
           icon={<FiUsers className="h-5 w-5" />}
           description="Сонгосон сургуулийн бүх хэрэглэгч"
+        />
+        <StatCard
+          title="Нийт админ"
+          value={loading ? "..." : stats.totalAdmins}
+          icon={<FiShield className="h-5 w-5" />}
+          description="Админ эрхтэй хэрэглэгч"
         />
         <StatCard
           title="Нийт багш"
@@ -230,7 +264,10 @@ export default function AdminDashboard() {
                     label
                   >
                     {pieData.map((entry, index) => (
-                      <Cell key={entry.name} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                      <Cell
+                        key={entry.name}
+                        fill={PIE_COLORS[index % PIE_COLORS.length]}
+                      />
                     ))}
                   </Pie>
                   <Tooltip />
@@ -257,13 +294,63 @@ export default function AdminDashboard() {
                   <YAxis allowDecimals={false} />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="count" name="Хэрэглэгчийн тоо" radius={[8, 8, 0, 0]} />
+                  <Bar
+                    dataKey="count"
+                    name="Хэрэглэгчийн тоо"
+                    radius={[8, 8, 0, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Хичээлүүдийн суралцагчийн тоо</CardTitle>
+          <CardDescription>
+            Сонгосон сургуулийн хичээл тус бүрийн суралцагчийн тоог харьцуулсан график
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[420px]">
+            {graphLoading ? (
+              <div className="flex h-full items-center justify-center text-sm text-zinc-500">
+                График ачаалж байна...
+              </div>
+            ) : courseStudentData.length === 0 ? (
+              <div className="flex h-full items-center justify-center text-sm text-zinc-500">
+                Хичээлийн суралцагчийн мэдээлэл олдсонгүй.
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={courseStudentData}
+                  layout="vertical"
+                  margin={{ top: 8, right: 24, left: 24, bottom: 8 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" allowDecimals={false} />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    width={170}
+                    tick={{ fontSize: 12 }}
+                  />
+                  <Tooltip />
+                  <Legend />
+                  <Bar
+                    dataKey="students"
+                    name="Суралцагчийн тоо"
+                    radius={[0, 8, 8, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
