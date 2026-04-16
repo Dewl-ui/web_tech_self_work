@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FiUser } from "react-icons/fi";
+import { FiCalendar, FiUser } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { EmptyState, Skeleton } from "../../components/ui";
 import { useAuth } from "../../utils/AuthContext";
@@ -455,6 +455,11 @@ export default function TeacherDashboard() {
     else if (view === "сар") setMonthOffset(o => o + 1);
     else if (canGoNext) setSemWeek(w => w + 1);
   }
+  function handleToday() {
+    setDayOffset(0);
+    setMonthOffset(0);
+    setSemWeek(getCurrentSemesterWeek());
+  }
 
   // Label for toolbar
   const toolbarLabel = (() => {
@@ -561,7 +566,7 @@ export default function TeacherDashboard() {
 
       <div className="rounded-2xl border border-zinc-200 bg-white shadow-sm overflow-hidden">
         {/* Toolbar */}
-        <div className="flex items-center justify-between px-5 py-3 border-b border-zinc-100">
+        <div className="flex flex-col gap-3 px-5 py-3 border-b border-zinc-100 lg:flex-row lg:items-center lg:justify-between">
           {/* Nav arrows + label */}
           <div className="flex items-center gap-2">
             <button
@@ -570,7 +575,7 @@ export default function TeacherDashboard() {
               className={`h-7 w-7 rounded-full flex items-center justify-center text-lg transition-colors
                 ${(canGoPrev || view === "сар") ? "hover:bg-zinc-100 text-zinc-500" : "text-zinc-200 cursor-not-allowed"}`}
             >‹</button>
-            <div className="text-center min-w-[220px]">
+            <div className="min-w-[180px] text-center sm:min-w-[220px]">
               <p className="text-sm font-semibold text-zinc-700">{toolbarLabel}</p>
             </div>
             <button
@@ -579,10 +584,18 @@ export default function TeacherDashboard() {
               className={`h-7 w-7 rounded-full flex items-center justify-center text-lg transition-colors
                 ${(canGoNext || view === "сар") ? "hover:bg-zinc-100 text-zinc-500" : "text-zinc-200 cursor-not-allowed"}`}
             >›</button>
+            <button
+              type="button"
+              onClick={handleToday}
+              className="ml-1 inline-flex h-8 items-center gap-1 rounded-full border border-zinc-200 px-3 text-xs font-medium text-zinc-600 transition-colors hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-900"
+            >
+              <FiCalendar className="h-3.5 w-3.5" />
+              Өнөөдөр
+            </button>
           </div>
 
           {/* View switcher — жил хасагдлаа */}
-          <div className="flex items-center gap-0.5 bg-zinc-100 rounded-full p-1">
+          <div className="flex items-center gap-0.5 self-start rounded-full bg-zinc-100 p-1 lg:self-auto">
             {["өдөр", "7 хоног", "сар"].map(v => (
               <button
                 key={v}
