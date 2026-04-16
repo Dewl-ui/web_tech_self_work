@@ -15,16 +15,6 @@ export default function Home() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-zinc-900">
-          {ROLE_TITLES[role] ?? "Dashboard"}
-        </h1>
-        {/* {school?.name && (
-          <p className="mt-0.5 text-sm text-zinc-500">{school.name}</p>
-        )} */}
-        <p className="mt-0.5 text-sm text-zinc-500">Цахим шалгалтын системийн удирдах хэсэг</p>
-      </div>
-
       {isAdmin   && <AdminHomeSummary   userId={user?.id} />}
       {isTeacher && <TeacherHomeSummary userId={user?.id} />}
       {isStudent && <StudentHome userId={user?.id} />}

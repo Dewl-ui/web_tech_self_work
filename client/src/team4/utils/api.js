@@ -160,7 +160,6 @@ export async function logout() {
   try {
     await apiDelete("/token", { current_user: userId });
   } catch {
-    // ignore — clear local state regardless
   }
   Object.values(STORAGE_KEYS).forEach((key) => localStorage.removeItem(key));
 }
