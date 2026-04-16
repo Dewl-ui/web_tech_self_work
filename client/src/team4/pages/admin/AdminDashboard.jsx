@@ -27,7 +27,9 @@ import {
 } from "../../components/ui/Card";
 
 function getSchoolId(school) {
-  return school?.id ?? school?.school_id ?? school?.SCHOOL_ID ?? school?.ID ?? null;
+  return (
+    school?.id ?? school?.school_id ?? school?.SCHOOL_ID ?? school?.ID ?? null
+  );
 }
 
 export default function AdminDashboard() {
@@ -82,7 +84,7 @@ export default function AdminDashboard() {
 
         schoolUsers.forEach((u) => {
           const matchedSchool = (u?.schools || []).find(
-            (s) => String(s?.id) === String(schoolId)
+            (s) => String(s?.id) === String(schoolId),
           );
 
           const roleId = matchedSchool?.roles?.[0]?.id;
@@ -95,11 +97,15 @@ export default function AdminDashboard() {
         setRoleCounts({ admins, teachers, students });
 
         setGraphLoading(true);
-
+        const originalCourses = schoolCourses.filter(
+          (course) => !course.cloned_course_id,
+        );
         const perCourse = await Promise.all(
-          schoolCourses.map(async (course) => {
+          originalCourses.map(async (course) => {
             try {
-              const res = await apiGet(`/courses/${course.id}/users?limit=10000`);
+              const res = await apiGet(
+                `/courses/${course.id}/users?limit=10000`,
+              );
               const studentCount = res?.count ?? res?.items?.length ?? 0;
 
               return {
@@ -112,7 +118,7 @@ export default function AdminDashboard() {
                 students: 0,
               };
             }
-          })
+          }),
         );
 
         const sorted = perCourse
@@ -145,12 +151,12 @@ export default function AdminDashboard() {
 
   const activeCount = useMemo(
     () => users.filter((u) => Number(u.is_active) === 1).length,
-    [users]
+    [users],
   );
 
   const inactiveCount = useMemo(
     () => users.length - activeCount,
-    [users, activeCount]
+    [users, activeCount],
   );
 
   const pieData = useMemo(
@@ -159,7 +165,7 @@ export default function AdminDashboard() {
       { name: "Багш", value: stats.totalTeachers },
       { name: "Оюутан", value: stats.totalStudents },
     ],
-    [stats]
+    [stats],
   );
 
   const barData = useMemo(
@@ -167,7 +173,7 @@ export default function AdminDashboard() {
       { name: "Идэвхтэй", count: activeCount },
       { name: "Идэвхгүй", count: inactiveCount },
     ],
-    [activeCount, inactiveCount]
+    [activeCount, inactiveCount],
   );
 
   const PIE_COLORS = ["#8b5cf6", "#3b82f6", "#10b981"];
@@ -310,7 +316,8 @@ export default function AdminDashboard() {
         <CardHeader>
           <CardTitle>Хичээлүүдийн суралцагчийн тоо</CardTitle>
           <CardDescription>
-            Сонгосон сургуулийн хичээл тус бүрийн суралцагчийн тоог харьцуулсан график
+            Сонгосон сургуулийн хичээл тус бүрийн суралцагчийн тоог харьцуулсан
+            график
           </CardDescription>
         </CardHeader>
         <CardContent>
