@@ -153,7 +153,10 @@ export default function RequestAccessDialog({
     apiGet("/schools?limit=10000")
       .then((data) => {
         const items = data?.items ?? [];
-        setAllSchools(items.filter((s) => Number(getSchoolId(s)) !== 0));
+        const filteredAndSorted = items
+          .filter((s) => Number(getSchoolId(s)) !== 0)
+          .sort((a, b) => Number(getSchoolId(a)) - Number(getSchoolId(b)));
+        setAllSchools(filteredAndSorted);
       })
       .catch((err) => {
         toast.error(err.message || "Сургуулийн жагсаалт авахад алдаа гарлаа.");

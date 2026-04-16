@@ -243,7 +243,7 @@ export default function UserEdit() {
         </Card>
       )}
 
-      {!loading && !error && !canResetPassword && (
+      {/* {!loading && !error && !canResetPassword && (
         <Card className="border-zinc-200">
           <CardContent className="py-4">
             <p className="text-sm text-zinc-500">
@@ -251,7 +251,7 @@ export default function UserEdit() {
             </p>
           </CardContent>
         </Card>
-      )}
+      )} */}
     </div>
   );
 }
