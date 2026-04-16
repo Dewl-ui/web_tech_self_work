@@ -19,8 +19,8 @@ POST {{baseUrl}}/token/email
 Content-Type: application/json
 
 {
-  "email": "{{email}}",
-  "password": "{{password}}",
+  "email": {{email}},
+  "password": {{password}},
   "push_token": ""
 }
 

@@ -101,11 +101,11 @@ export default function StudentCalendar() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <PageHeader
+      {/* <PageHeader
         icon={FiCalendar}
         title="Хуанли"
         subtitle="Долоо хоногийн хуваарь ба шалгалтын мэдээлэл"
-      />
+      /> */}
 
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">

@@ -1141,7 +1141,24 @@
                       "items": {
                         "type": "object",
                         "properties": {
-
+                          "course_id": {
+                            "$ref": "#/components/schemas/NUMBER"
+                          },
+                          "grade_point": {
+                            "$ref": "#/components/schemas/NUMBER"
+                          },
+                          "group_id": {
+                            "$ref": "#/components/schemas/NUMBER"
+                          },
+                          "user_id": {
+                            "$ref": "#/components/schemas/NUMBER"
+                          },
+                          "{}group": {
+                            "$ref": "#/components/schemas/VARCHAR2"
+                          },
+                          "{}user": {
+                            "$ref": "#/components/schemas/VARCHAR2"
+                          }
                         }
                       }
                     }

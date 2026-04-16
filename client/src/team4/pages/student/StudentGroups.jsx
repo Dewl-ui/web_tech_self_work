@@ -41,16 +41,21 @@ async function loadStudentGroups(userId) {
         getCourseMembers(courseId).catch(() => ({ items: [] })),
       ]);
 
-      const classmates = (members?.items ?? []).filter((m) => m.group_id === groupId);
+      const classmates = (members?.items ?? []).filter(
+        (m) => m.group_id === groupId,
+      );
 
       return {
         courseId,
         courseName: course.name ?? `Хичээл #${courseId}`,
         groupId,
-        groupDetail: groupDetail ?? { id: groupId, name: enrollment.group?.name },
+        groupDetail: groupDetail ?? {
+          id: groupId,
+          name: enrollment.group?.name,
+        },
         classmates,
       };
-    })
+    }),
   );
 }
 
@@ -93,7 +98,7 @@ export default function StudentGroups() {
   const { user } = useAuth();
   const { data, loading, error } = useStudentData(
     () => loadStudentGroups(user?.id),
-    [user?.id]
+    [user?.id],
   );
 
   const groups = data ?? [];
@@ -118,30 +123,27 @@ export default function StudentGroups() {
     );
   }
 
-  const filtered = filter === "all" ? groups : groups.filter((g) => g.courseId === filter);
+  const filtered =
+    filter === "all" ? groups : groups.filter((g) => g.courseId === filter);
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
-  const pageItems = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const pageItems = filtered.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <PageHeader
-        icon={FiUsers}
-        title="Миний багууд"
-        subtitle="Хичээл тус бүрт хуваарилагдсан бүлгүүд"
-        right={
-          !loading && groups.length > 0 ? (
-            <FilterTabs
-              groups={groups}
-              active={filter}
-              onChange={(v) => {
-                setFilter(v);
-                setPage(1);
-              }}
-            />
-          ) : null
-        }
-      />
+      {!loading && groups.length > 0 ? (
+        <FilterTabs
+          groups={groups}
+          active={filter}
+          onChange={(v) => {
+            setFilter(v);
+            setPage(1);
+          }}
+        />
+      ) : null}
 
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -151,7 +153,12 @@ export default function StudentGroups() {
 
       {loading && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3].map((i) => <div key={i} className="h-40 animate-pulse rounded-xl bg-zinc-100" />)}
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="h-40 animate-pulse rounded-xl bg-zinc-100"
+            />
+          ))}
         </div>
       )}
 
@@ -159,7 +166,9 @@ export default function StudentGroups() {
         <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-white py-16 text-center">
           <FiUsers className="mb-3 h-10 w-10 text-zinc-300" />
           <p className="font-medium text-zinc-700">Баг олдсонгүй</p>
-          <p className="mt-1 text-sm text-zinc-400">Та ямар нэг хичээлд багд хуваарилагдаагүй байна.</p>
+          <p className="mt-1 text-sm text-zinc-400">
+            Та ямар нэг хичээлд багд хуваарилагдаагүй байна.
+          </p>
         </div>
       )}
 
@@ -176,7 +185,11 @@ export default function StudentGroups() {
           </div>
 
           {pageCount > 1 && (
-            <Pagination page={currentPage} pageCount={pageCount} onChange={setPage} />
+            <Pagination
+              page={currentPage}
+              pageCount={pageCount}
+              onChange={setPage}
+            />
           )}
         </>
       )}

@@ -35,7 +35,7 @@ export default function StudentHome({ userId: userIdProp }) {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <PageHeader icon={FiHome} title="Нүүр хуудас" subtitle="Таны хичээл, шалгалт, мэдээллийн товчлол" />
+      {/* <PageHeader icon={FiHome} title="Нүүр хуудас" subtitle="Таны хичээл, шалгалт, мэдээллийн товчлол" /> */}
 
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
