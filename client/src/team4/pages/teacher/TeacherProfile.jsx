@@ -1,6 +1,6 @@
 // Member B OWNS this file — Teacher profile page at /team4/profile
 import { useEffect, useState } from "react";
-import { FiBookOpen, FiChevronRight, FiEdit2, FiLock, FiSave } from "react-icons/fi";
+import { FiBookOpen, FiChevronRight, FiEdit2, FiHash, FiLock, FiMail, FiPhone, FiSave, FiUser } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { useToast } from "../../components/ui/Toast";
 import { apiGet, apiPut, parseField, withCurrentUser } from "../../utils/api";
@@ -21,6 +21,22 @@ function Field({ label, value, onChange, type = "text", readOnly = false }) {
             ? "border-zinc-100 bg-zinc-50 text-zinc-400 cursor-default"
             : "border-zinc-200 bg-white text-zinc-900 placeholder:text-zinc-400"}`}
       />
+    </div>
+  );
+}
+
+function InfoCard({ icon, label, value }) {
+  return (
+    <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
+      <div className="flex items-start gap-3">
+        <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-zinc-500 shadow-sm">
+          {icon}
+        </div>
+        <div className="min-w-0">
+          <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">{label}</p>
+          <p className="mt-1 break-words text-sm font-semibold text-zinc-900">{value || "—"}</p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -189,30 +205,23 @@ export default function TeacherProfile() {
 
         {!isEditing ? (
           <>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-lg border border-zinc-100 bg-zinc-50 px-4 py-3">
-                <p className="text-xs text-zinc-500">Багшийн ID</p>
-                <p className="text-sm font-semibold text-zinc-900">{profile?.id ?? "—"}</p>
+            <div className="space-y-4">
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-400">Бүртгэлийн мэдээлэл</p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <InfoCard icon={<FiHash className="h-4 w-4" />} label="Багшийн ID" value={profile?.id ?? "—"} />
+                  <InfoCard icon={<FiUser className="h-4 w-4" />} label="Хэрэглэгчийн нэр" value={profile?.username ?? "—"} />
+                  <InfoCard icon={<FiMail className="h-4 w-4" />} label="И-мэйл" value={profile?.email ?? "—"} />
+                  <InfoCard icon={<FiPhone className="h-4 w-4" />} label="Утас" value={profile?.phone || "Бүртгэгдээгүй"} />
+                </div>
               </div>
-              <div className="rounded-lg border border-zinc-100 bg-zinc-50 px-4 py-3">
-                <p className="text-xs text-zinc-500">Хэрэглэгчийн нэр</p>
-                <p className="text-sm font-semibold text-zinc-900">{profile?.username ?? "—"}</p>
-              </div>
-              <div className="rounded-lg border border-zinc-100 bg-zinc-50 px-4 py-3">
-                <p className="text-xs text-zinc-500">И-мэйл</p>
-                <p className="text-sm font-semibold text-zinc-900">{profile?.email ?? "—"}</p>
-              </div>
-              <div className="rounded-lg border border-zinc-100 bg-zinc-50 px-4 py-3">
-                <p className="text-xs text-zinc-500">Утас</p>
-                <p className="text-sm font-semibold text-zinc-900">{profile?.phone || "Бүртгэгдээгүй"}</p>
-              </div>
-              <div className="rounded-lg border border-zinc-100 bg-zinc-50 px-4 py-3">
-                <p className="text-xs text-zinc-500">Овог</p>
-                <p className="text-sm font-semibold text-zinc-900">{profile?.last_name ?? "—"}</p>
-              </div>
-              <div className="rounded-lg border border-zinc-100 bg-zinc-50 px-4 py-3">
-                <p className="text-xs text-zinc-500">Нэр</p>
-                <p className="text-sm font-semibold text-zinc-900">{profile?.first_name ?? "—"}</p>
+
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-400">Хувийн мэдээлэл</p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <InfoCard icon={<FiUser className="h-4 w-4" />} label="Овог" value={profile?.last_name ?? "—"} />
+                  <InfoCard icon={<FiUser className="h-4 w-4" />} label="Нэр" value={profile?.first_name ?? "—"} />
+                </div>
               </div>
             </div>
             <div className="pt-1">
