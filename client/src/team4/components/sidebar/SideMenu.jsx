@@ -209,8 +209,8 @@ function SideNavLink({ item, collapsed, onClose }) {
         return `group relative flex items-center gap-3 rounded-lg text-sm font-medium transition-colors
         ${collapsed ? "justify-center px-2 py-2.5" : "px-3 py-2"}
         ${active
-          ? "bg-zinc-900 text-white shadow-sm"
-          : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900"
+          ? "bg-zinc-200 border border-zinc-300/30 text-zinc-900"
+          : "text-zinc-500 hover:bg-zinc-100 border border-white hover:text-zinc-900"
         }`;
       }}
     >
