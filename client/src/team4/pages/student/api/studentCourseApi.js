@@ -104,6 +104,12 @@ export const getGradebookSubmissions = (courseId) =>
 export const getGradebookAttendances = (courseId) =>
   studentGet(`/courses/${courseId}/gradebook/attendances`);
 
+export const getGradebook = (courseId) =>
+  studentGet(`/courses/${courseId}/gradebook`);
+
+export const getSubmissionDetail = (submissionId) =>
+  studentGet(`/submissions/${submissionId}`);
+
 export const getLessonDetail = (lessonId) =>
   studentGet(`/lessons/${lessonId}`);
 

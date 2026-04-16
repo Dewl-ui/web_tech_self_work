@@ -1,0 +1,54 @@
+### Student Exam Results & Attempts Page APIs
+### Shows past exam attempts, scores/evaluation, and question review
+
+@baseUrl = https://todu.mn/bs/lms/v1
+@email = schoolstudent@must.edu.mn
+@password = 123
+@accessToken = p7vXn3LH7JGiL543jqmNTA
+
+@userId = 539
+@courseId = 204
+@examId = 301
+@attempt = 1
+
+
+### 1. Login
+# @name login
+POST {{baseUrl}}/token/email
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}",
+  "push_token": ""
+}
+
+
+### 2. Get my exams list (all exams assigned to me)
+GET {{baseUrl}}/users/me/exams
+Authorization: Bearer {{accessToken}}
+
+
+### 3. Get my exam sheet (latest attempt info)
+GET {{baseUrl}}/users/me/exams/{{examId}}
+Authorization: Bearer {{accessToken}}
+
+
+### 4. Get all my attempts for an exam
+GET {{baseUrl}}/exams/{{examId}}/users/{{userId}}/attempts
+Authorization: Bearer {{accessToken}}
+
+
+### 5. Get a specific attempt detail
+GET {{baseUrl}}/exams/{{examId}}/users/{{userId}}/attempts/{{attempt}}
+Authorization: Bearer {{accessToken}}
+
+
+### 6. Get attempt evaluation (score, grade)
+GET {{baseUrl}}/exams/{{examId}}/users/{{userId}}/attempts/{{attempt}}/evaluation
+Authorization: Bearer {{accessToken}}
+
+
+### 7. Get attempt questions (review answers after finish)
+GET {{baseUrl}}/exams/{{examId}}/users/{{userId}}/attempts/{{attempt}}/questions
+Authorization: Bearer {{accessToken}}

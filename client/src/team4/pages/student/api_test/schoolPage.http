@@ -1,0 +1,63 @@
+### Student School Page APIs
+### Shows school info, teachers, categories, and membership requests
+
+@baseUrl = https://todu.mn/bs/lms/v1
+@email = schoolstudent@must.edu.mn
+@password = 123
+@accessToken = p7vXn3LH7JGiL543jqmNTA
+
+@userId = 539
+@schoolId = 2
+
+
+### 1. Login
+# @name login
+POST {{baseUrl}}/token/email
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}",
+  "push_token": ""
+}
+
+
+### 2. Get my schools
+GET {{baseUrl}}/users/{{userId}}/schools
+Authorization: Bearer {{accessToken}}
+
+
+### 3. Get school detail
+GET {{baseUrl}}/schools/{{schoolId}}
+Authorization: Bearer {{accessToken}}
+
+
+### 4. Get school teachers
+GET {{baseUrl}}/schools/{{schoolId}}/teachers
+Authorization: Bearer {{accessToken}}
+
+
+### 5. Get school categories
+GET {{baseUrl}}/schools/{{schoolId}}/categories
+Authorization: Bearer {{accessToken}}
+
+
+### 6. Get school course catalog
+GET {{baseUrl}}/schools/{{schoolId}}/courses
+Authorization: Bearer {{accessToken}}
+
+
+### 7. Request to join a school
+POST {{baseUrl}}/schools/{{schoolId}}/requests
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "role_id": "30",
+  "description": "I am a student requesting access."
+}
+
+
+### 8. Get my school membership requests
+GET {{baseUrl}}/schools/{{schoolId}}/requests
+Authorization: Bearer {{accessToken}}
