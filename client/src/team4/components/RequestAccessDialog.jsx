@@ -416,13 +416,19 @@ export default function RequestAccessDialog({
                   {filteredSchools.map((school) => {
                     const schoolId = getSchoolId(school);
                     const roleObj = getMembershipRole(userSchools, schoolId);
+                    const isMember = !!roleObj;
 
                     return (
                       <button
                         key={schoolId}
                         type="button"
+                        disabled={isMember}
                         onClick={() => handleSelectSchool(school)}
-                        className="group rounded-2xl border border-zinc-200 bg-white p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-md"
+                        className={`group rounded-2xl border border-zinc-200 bg-white p-4 text-left transition-all duration-200 ${
+                          isMember
+                            ? "opacity-50 cursor-not-allowed grayscale-[0.3] bg-zinc-900/10"
+                            : "hover:border-zinc-300 hover:shadow-md"
+                        }`}
                       >
                         <div className="flex items-start gap-4">
                           <div className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50 shadow-sm">
