@@ -4,27 +4,23 @@ const SideMenu = () => {
   const { pathname } = useLocation();
 
   const menus = [
-    { name: "Хяналтын самбар", path: "/team6/dashboard" },
-    { name: "Хичээл", path: "/team6/courses" },
+    { name: "Багш", path: "/team6/teacher" },
+    { name: "Сурагч", path: "/team6/student" },
   ];
 
   return (
     <aside className="w-[220px] min-h-screen bg-white border-r flex flex-col p-4">
       <div className="mb-8">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold">
-            E
-          </div>
-          <div>
-            <h1 className="text-xl font-bold leading-tight">ExamMN</h1>
-            <p className="text-sm text-gray-500">Багш</p>
-          </div>
-        </div>
+        <h1 className="text-2xl font-bold">ExamMN</h1>
+        <p className="text-sm text-gray-500">Team 6</p>
       </div>
 
       <nav className="space-y-2">
         {menus.map((item) => {
-          const active = pathname.startsWith(item.path);
+          const active =
+            item.path === "/"
+              ? pathname === "/"
+              : pathname.startsWith(item.path);
           return (
             <Link
               key={item.path}
@@ -40,10 +36,6 @@ const SideMenu = () => {
           );
         })}
       </nav>
-
-      <button className="mt-auto pt-10 text-left text-red-500 font-medium">
-        Гарах
-      </button>
     </aside>
   );
 };

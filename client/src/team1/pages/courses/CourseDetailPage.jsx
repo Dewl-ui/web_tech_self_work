@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import Compose from "../../components/lesson/compose";
 import useTeam1Role from "../../hooks/useTeam1Role";
 import { getCourse } from "../../services/courseService";
 import { createRequest } from "../../services/requestService";
@@ -108,6 +109,8 @@ export default function CourseDetailPage() {
   const [error, setError] = useState("");
   const [requestMessage, setRequestMessage] = useState("");
   const [completionVersion, setCompletionVersion] = useState(0);
+  const [lessonToDelete, setLessonToDelete] = useState(null);
+  const [deletingLesson, setDeletingLesson] = useState(false);
 
   useEffect(() => {
     const handleCompletionChange = () => setCompletionVersion((value) => value + 1);
@@ -207,12 +210,18 @@ export default function CourseDetailPage() {
     }
   };
 
-  const handleDeleteLesson = async (lessonId) => {
+  const handleDeleteLesson = async () => {
+    if (!lessonToDelete?.id) return;
+
     try {
-      await deleteLesson(course_id, lessonId);
+      setDeletingLesson(true);
+      await deleteLesson(course_id, lessonToDelete.id);
+      setLessonToDelete(null);
       await loadData();
     } catch (deleteError) {
       setError(getErrorMessage(deleteError, "Хичээлийн хэсгийг устгаж чадсангүй."));
+    } finally {
+      setDeletingLesson(false);
     }
   };
 
@@ -473,7 +482,7 @@ export default function CourseDetailPage() {
                             {canDeleteLesson(role) ? (
                               <button
                                 type="button"
-                                onClick={() => handleDeleteLesson(lesson.id)}
+                                onClick={() => setLessonToDelete(lesson)}
                                 className="rounded-lg border border-red-200 px-3 py-1 text-sm text-red-500 hover:bg-red-50"
                               >
                                 Устгах
@@ -495,6 +504,13 @@ export default function CourseDetailPage() {
           ))}
         </div>
       </div>
+      <Compose
+        open={Boolean(lessonToDelete)}
+        lessonName={lessonToDelete?.name || lessonToDelete?.title}
+        loading={deletingLesson}
+        onCancel={() => setLessonToDelete(null)}
+        onConfirm={handleDeleteLesson}
+      />
     </div>
   );
 }
