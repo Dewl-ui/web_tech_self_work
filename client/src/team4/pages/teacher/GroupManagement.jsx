@@ -1,19 +1,27 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { FiPlus, FiEdit2, FiTrash2, FiUsers, FiSave, FiX, FiLayers, FiChevronLeft} from "react-icons/fi";
-import { apiGet, apiPost, apiPut, apiDelete, withCurrentUser } from "../../utils/api";
-import { useToast } from "../../components/ui/Toast";
+import { FiChevronLeft, FiEdit2, FiLayers, FiPlus, FiSave, FiTrash2, FiUsers, FiX } from "react-icons/fi";
+import { Link, useParams } from "react-router-dom";
+import { Badge } from "../../components/ui/Badge";
+import { Button } from "../../components/ui/Button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader, CardTitle,
+} from "../../components/ui/Card";
+import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { Input } from "../../components/ui/Input";
 import { Label } from "../../components/ui/Label";
-import { Button } from "../../components/ui/Button";
-import { Badge } from "../../components/ui/Badge";
-import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import {
-  Card, CardHeader, CardTitle, CardDescription, CardContent,
-} from "../../components/ui/Card";
-import {
-  Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "../../components/ui/Table";
+import { useToast } from "../../components/ui/Toast";
+import { apiDelete, apiGet, apiPost, apiPut, withCurrentUser } from "../../utils/api";
 
 export default function GroupManagement() {
   const { course_id } = useParams();
@@ -138,7 +146,7 @@ export default function GroupManagement() {
           <div>
             <h1 className="text-2xl font-bold text-zinc-900">Бүлэг удирдах</h1>
             <p className="text-sm text-zinc-500">
-              Хичээл: {courseName || `Хичээл #${course_id}`}
+              {courseName || `Хичээл #${course_id}`}
             </p>
           </div>
         </div>
