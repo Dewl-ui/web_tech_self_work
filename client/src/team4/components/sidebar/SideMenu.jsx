@@ -51,7 +51,7 @@ const manageNavItems = [
   },
   {
     to: "/team4/student/calendar",
-    label: "Хуанли",
+    label: "Хуваарь",
     icon: FiCalendar,
     roles: [STUDENT],
   },
