@@ -1,6 +1,6 @@
 // Member B OWNS this file — Teacher profile page at /team4/profile
 import { useEffect, useState } from "react";
-import { FiBookOpen, FiChevronRight, FiLock, FiSave } from "react-icons/fi";
+import { FiBookOpen, FiChevronRight, FiEdit2, FiLock, FiSave } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { useToast } from "../../components/ui/Toast";
 import { apiGet, apiPut, parseField, withCurrentUser } from "../../utils/api";
@@ -34,6 +34,7 @@ export default function TeacherProfile() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving]   = useState(false);
   const [error, setError]     = useState("");
+  const [isEditing, setIsEditing] = useState(false);
 
   const [pwForm, setPwForm] = useState({ password: "", new_password: "", confirm_password: "" });
   const [savingPw, setSavingPw] = useState(false);
@@ -87,6 +88,7 @@ export default function TeacherProfile() {
       }));
 
       setProfile((prev) => ({ ...prev, ...form }));
+      setIsEditing(false);
       await refreshUser();
 
       toast.success("Амжилттай хадгалагдлаа.");
@@ -172,9 +174,12 @@ export default function TeacherProfile() {
         </div>
       )}
 
-      {/* Edit form */}
-      <form onSubmit={handleSave} className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4">
-        <h2 className="font-semibold text-zinc-800">Мэдээлэл засах</h2>
+      <div className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="font-semibold text-zinc-800">
+            {isEditing ? "Мэдээлэл засах" : "Багшийн мэдээлэл"}
+          </h2>
+        </div>
 
         {error && (
           <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -182,26 +187,88 @@ export default function TeacherProfile() {
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Овог" value={form.last_name}  onChange={(v) => setForm((f) => ({ ...f, last_name: v }))} />
-          <Field label="Нэр"  value={form.first_name} onChange={(v) => setForm((f) => ({ ...f, first_name: v }))} />
-        </div>
-        <Field label="И-мэйл"   value={profile?.email}    readOnly />
-        <Field label="Хэрэглэгчийн нэр" value={profile?.username} readOnly />
-        <Field label="Утас"      value={form.phone}  type="tel" onChange={(v) => setForm((f) => ({ ...f, phone: v }))} />
-        <Field label="Профайл зураг (URL)" value={form.picture} onChange={(v) => setForm((f) => ({ ...f, picture: v }))} />
+        {!isEditing ? (
+          <>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-lg border border-zinc-100 bg-zinc-50 px-4 py-3">
+                <p className="text-xs text-zinc-500">Багшийн ID</p>
+                <p className="text-sm font-semibold text-zinc-900">{profile?.id ?? "—"}</p>
+              </div>
+              <div className="rounded-lg border border-zinc-100 bg-zinc-50 px-4 py-3">
+                <p className="text-xs text-zinc-500">Хэрэглэгчийн нэр</p>
+                <p className="text-sm font-semibold text-zinc-900">{profile?.username ?? "—"}</p>
+              </div>
+              <div className="rounded-lg border border-zinc-100 bg-zinc-50 px-4 py-3">
+                <p className="text-xs text-zinc-500">И-мэйл</p>
+                <p className="text-sm font-semibold text-zinc-900">{profile?.email ?? "—"}</p>
+              </div>
+              <div className="rounded-lg border border-zinc-100 bg-zinc-50 px-4 py-3">
+                <p className="text-xs text-zinc-500">Утас</p>
+                <p className="text-sm font-semibold text-zinc-900">{profile?.phone || "Бүртгэгдээгүй"}</p>
+              </div>
+              <div className="rounded-lg border border-zinc-100 bg-zinc-50 px-4 py-3">
+                <p className="text-xs text-zinc-500">Овог</p>
+                <p className="text-sm font-semibold text-zinc-900">{profile?.last_name ?? "—"}</p>
+              </div>
+              <div className="rounded-lg border border-zinc-100 bg-zinc-50 px-4 py-3">
+                <p className="text-xs text-zinc-500">Нэр</p>
+                <p className="text-sm font-semibold text-zinc-900">{profile?.first_name ?? "—"}</p>
+              </div>
+            </div>
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => setIsEditing(true)}
+                className="flex h-10 items-center gap-2 rounded-lg bg-zinc-900 px-5 text-sm font-medium text-white transition-colors hover:bg-zinc-700"
+              >
+                <FiEdit2 className="h-4 w-4" />
+                Мэдээлэл засах
+              </button>
+            </div>
+          </>
+        ) : (
+          <form onSubmit={handleSave} className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Овог" value={form.last_name} onChange={(v) => setForm((f) => ({ ...f, last_name: v }))} />
+              <Field label="Нэр" value={form.first_name} onChange={(v) => setForm((f) => ({ ...f, first_name: v }))} />
+            </div>
+            <Field label="И-мэйл" value={profile?.email} readOnly />
+            <Field label="Хэрэглэгчийн нэр" value={profile?.username} readOnly />
+            <Field label="Утас" value={form.phone} type="tel" onChange={(v) => setForm((f) => ({ ...f, phone: v }))} />
+            <Field label="Профайл зураг (URL)" value={form.picture} onChange={(v) => setForm((f) => ({ ...f, picture: v }))} />
 
-        <button
-          type="submit"
-          disabled={saving || loading}
-          className="flex h-10 items-center gap-2 rounded-lg bg-zinc-900 px-5 text-sm font-medium
-            text-white transition-colors hover:bg-zinc-700 disabled:pointer-events-none disabled:opacity-60"
-        >
-          {saving && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />}
-          <FiSave className="h-4 w-4" />
-          Хадгалах
-        </button>
-      </form>
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                disabled={saving || loading}
+                className="flex h-10 items-center gap-2 rounded-lg bg-zinc-900 px-5 text-sm font-medium
+                  text-white transition-colors hover:bg-zinc-700 disabled:pointer-events-none disabled:opacity-60"
+              >
+                {saving && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />}
+                <FiSave className="h-4 w-4" />
+                Хадгалах
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsEditing(false);
+                  setForm({
+                    first_name:  profile?.first_name  ?? "",
+                    last_name:   profile?.last_name   ?? "",
+                    family_name: profile?.family_name ?? "",
+                    phone:       profile?.phone       ?? "",
+                    picture:     profile?.picture     ?? "",
+                  });
+                  setError("");
+                }}
+                className="flex h-10 items-center gap-2 rounded-lg border border-zinc-200 px-5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
+              >
+                Цуцлах
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
 
       {/* Change password */}
       <form onSubmit={handleChangePassword} className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4">
