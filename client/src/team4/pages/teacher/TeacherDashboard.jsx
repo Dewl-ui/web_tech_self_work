@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { EmptyState, Skeleton } from "../../components/ui";
 import { useAuth } from "../../utils/AuthContext";
 import { apiGet, parseField } from "../../utils/api";
+import useTeacherCoursesSummary from "./useTeacherCoursesSummary";
 
 const DAY_SHORT = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 const MONTH_MN  = ["1-р сар","2-р сар","3-р сар","4-р сар","5-р сар","6-р сар",
@@ -412,11 +413,14 @@ export default function TeacherDashboard() {
   const { user, school } = useAuth();
   const [semWeek, setSemWeek]   = useState(getCurrentSemesterWeek);
   const [timetable, setTimetable] = useState([]);
-  const [courses, setCourses]   = useState([]);
   const [periods, setPeriods]   = useState([]);
   const [view, setView]         = useState("өдөр");   // өдөр | 7 хоног | сар
-  const [loading, setLoading]   = useState(true);
+  const [timetableLoading, setTimetableLoading] = useState(false);
   const [dayOffset, setDayOffset] = useState(0);
+  const { courses, loading: coursesLoading } = useTeacherCoursesSummary({
+    userId: user?.id,
+    schoolId: school?.id,
+  });
 
   const today    = new Date();
   const dayDate  = new Date(today);
@@ -468,52 +472,22 @@ export default function TeacherDashboard() {
 
   // Load timetable from API
   useEffect(() => {
-    if (!user?.id || !school?.id) return;
+    if (!user?.id || !school?.id || coursesLoading) return;
 
-    setLoading(true);
+    setTimetableLoading(true);
 
     Promise.all([
       apiGet(`/schools/${school.id}/periods`).catch(() => ({ items: [] })),
-      apiGet(`/users/${user.id}/courses/teaching`).catch(() => ({ items: [] })),
-    ]).then(async ([periodsData, coursesData]) => {
+    ]).then(async ([periodsData]) => {
       const schoolPeriods = (periodsData?.items ?? [])
         .slice()
         .sort((a, b) => Number(a.no ?? a.priority ?? a.id) - Number(b.no ?? b.priority ?? b.id));
       setPeriods(schoolPeriods);
 
-      const items = (coursesData?.items ?? []).filter((item) => {
-        const course = parseField(item, "course") ?? item;
-        return String(course?.school_id ?? item?.school_id ?? "") === String(school.id);
-      });
-
-      const enrichedCourses = await Promise.all(
-        items.map(async (item) => {
-          const course = parseField(item, "course") ?? item;
-          const courseId = course.id ?? item.course_id ?? item.id;
-          let userCount = 0;
-
-          try {
-            const usersData = await apiGet(`/courses/${courseId}/users`);
-            userCount = usersData?.count ?? usersData?.items?.length ?? 0;
-          } catch {
-            userCount = 0;
-          }
-
-          return {
-            courseId,
-            name: course.name ?? course.title ?? `Хичээл #${courseId}`,
-            userCount,
-          };
-        })
-      );
-
-      setCourses(enrichedCourses);
-
       const allEvents = [];
-      for (const item of items) {
-        const c   = parseField(item, "course") ?? item;
-        const cId = c.id ?? item.course_id;
-        const name = c.name ?? `Хичээл #${cId}`;
+      for (const course of courses) {
+        const cId = course.courseId;
+        const name = course.name ?? `Хичээл #${cId}`;
         try {
           const ttData = await apiGet(`/courses/${cId}/timetables`);
           (ttData?.items ?? []).forEach((tt, idx) => {
@@ -533,16 +507,16 @@ export default function TeacherDashboard() {
       }
       setTimetable(allEvents);
     }).catch(() => {
-      setCourses([]);
       setTimetable([]);
       setPeriods([]);
-    }).finally(() => setLoading(false));
-  }, [user?.id, school?.id]);
+    }).finally(() => setTimetableLoading(false));
+  }, [user?.id, school?.id, courses, coursesLoading]);
 
   // Which dates to show in day/week view
   const displayDates = view === "өдөр"
     ? [dayDate]
     : weekDates;
+  const loading = coursesLoading || timetableLoading;
   const ghostCount = loading ? 0 : (3 - (courses.length % 3)) % 3;
 
   return (
