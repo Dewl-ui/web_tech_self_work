@@ -54,6 +54,26 @@ const EVENT_COLORS = [
   { bg: "bg-amber-100",  text: "text-amber-700",  border: "border-amber-200",  dot: "bg-amber-500"  },
 ];
 
+function getEventColorByType(typeName) {
+  const name = String(typeName ?? "").trim().toLowerCase();
+
+  if (name.includes("лек")) return EVENT_COLORS[0];
+  if (name.includes("лаб")) return EVENT_COLORS[1];
+  if (name.includes("сем")) return EVENT_COLORS[2];
+
+  return EVENT_COLORS[3];
+}
+
+function getCompactEventTypeLabel(typeName) {
+  const name = String(typeName ?? "").trim().toLowerCase();
+
+  if (name.includes("лаб")) return "Лаб";
+  if (name.includes("лек")) return "Лекц";
+  if (name.includes("сем")) return "Сем";
+
+  return typeName ?? "";
+}
+
 const COURSE_IMAGES = [
   "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&q=80",
   "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&q=80",
@@ -89,7 +109,7 @@ function CourseCard({ course, index, loading }) {
           onError={(e) => { e.target.style.display = "none"; }}
         />
       </div>
-      <div className="p-4">
+      <div className="flex min-h-[118px] flex-col p-4">
         <div className="flex items-start justify-between gap-3">
           <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-900">
             {course.name}
@@ -98,7 +118,7 @@ function CourseCard({ course, index, loading }) {
             {course.userCount ?? 0} оюутан
           </span>
         </div>
-        <div className="mt-4 flex items-center justify-between gap-2">
+        <div className="mt-auto flex items-center justify-between gap-2 pt-4">
           <div className="flex items-center gap-1.5 text-xs text-zinc-500">
             <FiUser className="h-3.5 w-3.5" />
             <span>Хичээлийн хэрэглэгчид</span>
@@ -206,10 +226,9 @@ function HourGrid({ dates, timetable, today, periods }) {
                   className={`min-w-0 overflow-hidden border-l border-zinc-50 px-0.5 py-0.5 ${isWknd ? "bg-zinc-50/50" : ""} ${isToday ? "bg-blue-50/30" : ""}`}
                 >
                   {evs.map((ev, ei) => {
-                    const col = EVENT_COLORS[ev.colorIdx];
-                    const h12 = ev.hour24 > 12 ? ev.hour24 - 12 : ev.hour24 || 12;
-                    const ampm = ev.hour24 >= 12 ? "PM" : "AM";
-                    const timeStr = ev.timeLabel ?? `${String(h12).padStart(2,"0")}:${String(ev.minute ?? 0).padStart(2,"0")} ${ampm}`;
+                    const col = getEventColorByType(ev.type);
+                    const typeLabel = getCompactEventTypeLabel(ev.type);
+                    const timeStr = ev.timeLabel ?? `${String(ev.hour24 ?? 0).padStart(2,"0")}:${String(ev.minute ?? 0).padStart(2,"0")}`;
                     return (
                       <button
                         type="button"
@@ -217,12 +236,14 @@ function HourGrid({ dates, timetable, today, periods }) {
                         onClick={() => setSelectedEvent({ ...ev, timeStr })}
                         className={`mb-0.5 block h-[44px] w-full min-w-0 overflow-hidden rounded-md border px-1.5 py-1 text-left transition-all hover:brightness-95 ${col.bg} ${col.border}`}
                       >
-                        <div className={`flex min-w-0 items-center justify-between gap-2 text-[9px] font-semibold ${col.text}`}>
-                          <p className="flex min-w-0 items-center gap-1 truncate whitespace-nowrap">
+                        <div className={`flex min-w-0 items-center gap-2 text-[9px] font-semibold ${col.text}`}>
+                          <p className="flex shrink-0 items-center gap-1 whitespace-nowrap">
                             <span className={`inline-block h-1.5 w-1.5 rounded-full ${col.dot}`} />
                             {timeStr}
                           </p>
-                          <span className="shrink-0 truncate whitespace-nowrap">{ev.type}</span>
+                          <span className="ml-auto shrink-0 whitespace-nowrap text-right">
+                            {typeLabel}
+                          </span>
                         </div>
                         <p className={`truncate whitespace-nowrap text-[10px] font-medium ${col.text}`}>
                           {ev.name}
@@ -325,7 +346,7 @@ function MonthGrid({ year, month, timetable, today }) {
                   </div>
                   <div className={isExpanded ? "max-h-28 overflow-y-auto pr-1" : ""}>
                     {visibleEvents.map((ev, ei) => {
-                      const col = EVENT_COLORS[ev.colorIdx];
+                      const col = getEventColorByType(ev.type);
                       return (
                         <button
                           type="button"
@@ -506,7 +527,6 @@ export default function TeacherDashboard() {
               minute: eventTime.minute,
               timeLabel: eventTime.timeLabel,
               type: lessonType?.name ?? "Лекц",
-              colorIdx: idx % 4,
             });
           });
         } catch {}
