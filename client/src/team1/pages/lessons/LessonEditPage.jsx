@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import Compose from "../../components/lesson/compose";
 import useTeam1Role from "../../hooks/useTeam1Role";
 import { deleteLesson, getLessonsByCourse, updateLesson } from "../../services/lessonService";
 import { getLessonTypes } from "../../services/lessonTypeService";
@@ -48,6 +49,8 @@ export default function LessonEditPage() {
   const [lessonTypes, setLessonTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState({
     name: "",
@@ -57,7 +60,6 @@ export default function LessonEditPage() {
     has_submission: false,
     point: "0",
     content: "",
-    video_url: "",
     open_on: "",
     close_on: "",
     end_on: "",
@@ -149,7 +151,7 @@ export default function LessonEditPage() {
         parent_id: form.parent_id || "",
         priority: form.priority || "1",
         type_id: form.type_id || getFallbackLessonTypeId(sortedLessonTypes),
-        content: selectedKind === "video" && form.video_url ? form.video_url : form.content,
+        content: form.content,
         has_submission: form.has_submission ? "1" : "0",
         point: form.point || "0",
         open_on: form.open_on ? toApiIsoString(form.open_on) : "",
@@ -165,10 +167,12 @@ export default function LessonEditPage() {
 
   const handleDelete = async () => {
     try {
+      setDeleting(true);
       await deleteLesson(currentCourseId, currentLessonId);
       navigate(`/team1/courses/${currentCourseId}`);
     } catch (deleteError) {
       setError(getErrorMessage(deleteError, "Устгаж чадсангүй."));
+      setDeleting(false);
     }
   };
 
@@ -296,18 +300,6 @@ export default function LessonEditPage() {
             />
           </div>
 
-          {selectedKind === "video" ? (
-            <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-semibold text-slate-700">Видео холбоос</label>
-              <input
-                type="url"
-                value={form.video_url}
-                onChange={(event) => setForm((prev) => ({ ...prev, video_url: event.target.value }))}
-                className="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none"
-              />
-            </div>
-          ) : null}
-
           <div className="space-y-2">
             <label className="text-sm font-semibold text-slate-700">Нээх огноо</label>
             <input
@@ -348,12 +340,19 @@ export default function LessonEditPage() {
         </button>
         <button
           type="button"
-          onClick={handleDelete}
+          onClick={() => setDeleteOpen(true)}
           className="ml-3 rounded-xl bg-red-50 px-5 py-2 font-semibold text-red-500"
         >
           Устгах
         </button>
       </form>
+      <Compose
+        open={deleteOpen}
+        lessonName={form.name}
+        loading={deleting}
+        onCancel={() => setDeleteOpen(false)}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }
