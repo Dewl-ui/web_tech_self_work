@@ -96,14 +96,14 @@ export default function UserCreate() {
 
     try {
       // 1. Create the user
-      await apiPost("/users", {
+      await apiPost("/users", withCurrentUser({
         first_name: form.first_name,
         last_name: form.last_name,
         email: form.email,
         username: form.username || form.email,
         phone: form.phone,
         password: form.password,
-      });
+      }));
 
       // 2. Add user to current school with selected role
       if (schoolId != null && form.role_id) {

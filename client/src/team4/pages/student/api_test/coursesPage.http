@@ -1,0 +1,31 @@
+@baseUrl = https://todu.mn/bs/lms/v1
+@schoolId = 2
+@userId = 539
+
+@courseId = 204
+
+@accessToken = p7vXn3LH7JGiL543jqmNTA
+
+### 1. user login
+POST {{baseUrl}}/token/email
+Content-Type: application/json
+
+{
+  "email": "schoolstudent@must.edu.mn",
+  "password": "123",
+  "push_token": "fcm_token_optional"
+}
+
+### Get own info
+GET {{baseUrl}}/users/me
+Authorization: Bearer {{accessToken}}
+
+
+### student courses
+GET {{baseUrl}}/users/{{userId}}/courses/enrolled
+Authorization: Bearer {{accessToken}}
+
+### course detail
+GET {{baseUrl}}/courses/{{courseId}}
+Authorization: Bearer {{accessToken}}
+

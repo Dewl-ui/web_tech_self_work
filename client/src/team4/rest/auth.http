@@ -43,18 +43,20 @@ Content-Type: application/json
 
 # -----------------------------------------------------------------------------
 ### Register a new user
-POST {{baseUrl}}/users
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
-  "first_name": "Амартувшин",
+  "first_name": "Амартүвшин",
   "last_name": "Бөхбат",
-  "email": "{{email}}",
+  "email": "amarak@must.edu.mn",
   "username": "amartuvshinn",
   "phone": "99001122",
   "password": "{{password}}"
 }
 
+
+# B231910004@must.edu.mn
 # -----------------------------------------------------------------------------
 ### Send OTP to email (forgot password / reset flow)
 POST {{baseUrl}}/otp/email

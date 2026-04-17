@@ -13,7 +13,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from "./components/ui/DropdownMenu";
-import { Separator } from "./components/ui/Separator";
 
 export default function Layout() {
   const { user, school, logout } = useAuth();
@@ -90,11 +89,11 @@ export default function Layout() {
       )}
 
       {/* ── Main content area (scrollable) ── */}
-      <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">
+      <div className="flex min-w-0 flex-1 flex-col overflow-y-auto ">
 
         {/* Floating top navbar */}
         <header className="shrink-0 px-4 pt-4 sm:px-6 sm:pt-4">
-          <div className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white px-4 py-2.5 shadow-sm">
+          <div className=" flex items-center justify-between rounded-xl border border-zinc-200 bg-white px-4 py-2.5 shadow-sm">
 
             {/* Left side */}
             <div className="flex items-center gap-2 sm:gap-3">
@@ -107,8 +106,6 @@ export default function Layout() {
                   <FiMenu className="h-5 w-5 text-zinc-600" />
                 </button>
               )}
-
-              {/* <Separator orientation="vertical" className="hidden sm:block !h-7" /> */}
 
               {school?.name ? (
                 <Link

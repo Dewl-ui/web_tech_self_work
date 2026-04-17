@@ -13,6 +13,8 @@ import {
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
 } from "../../components/ui/Table";
 
+const COURSE_USERS_LIMIT = 10000;
+
 export default function GroupUserList() {
   const { course_id, group_id } = useParams();
   const navigate = useNavigate();
@@ -29,17 +31,33 @@ export default function GroupUserList() {
       try {
         setLoading(true);
         const [usersRes, groupRes] = await Promise.all([
-          apiGet(`/courses/${course_id}/users`),
+          apiGet(`/courses/${course_id}/users?limit=${COURSE_USERS_LIMIT}`),
           apiGet(`/groups/${group_id}`).catch(() => null),
         ]);
 
-        const allUsers = usersRes?.items ?? (Array.isArray(usersRes) ? usersRes : []);
+        const allEnrollments = usersRes?.items ?? (Array.isArray(usersRes) ? usersRes : []);
 
-        // Filter users belonging to this group
-        const groupUsers = allUsers.filter((u) => {
-          const g = parseField(u, "group");
-          return String(g?.id ?? u.group_id) === String(group_id);
-        });
+        // Filter enrollments belonging to this group and extract user data
+        const groupUsers = allEnrollments
+          .filter((enrollment) => {
+            // Try multiple ways to get group_id from the enrollment object
+            const groupFromField = parseField(enrollment, "group");
+            const groupIdFromField = groupFromField?.id;
+            const groupIdDirect = enrollment.group_id;
+            
+            const enrollmentGroupId = groupIdFromField ?? groupIdDirect;
+            
+            return String(enrollmentGroupId) === String(group_id);
+          })
+          .map((enrollment) => {
+            // Extract the actual user object from the enrollment
+            const user = parseField(enrollment, "user") ?? enrollment.user ?? enrollment;
+            return {
+              ...user,
+              enrollmentId: enrollment.id,
+              group_id: enrollment.group_id || parseField(enrollment, "group")?.id,
+            };
+          });
 
         setUsers(groupUsers);
         setGroupInfo(groupRes);
@@ -76,7 +94,7 @@ export default function GroupUserList() {
           <div>
             <h1 className="text-2xl font-bold text-zinc-900">Бүлгийн гишүүд</h1>
             <p className="text-sm text-zinc-500">
-              {groupInfo?.name ? `${groupInfo.name} · ` : ""}Бүлэг ID: {group_id}
+              {groupInfo?.name || "—"}
             </p>
           </div>
         </div>
@@ -122,7 +140,6 @@ export default function GroupUserList() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
                   <TableHead>Нэр</TableHead>
                   <TableHead>Имэйл</TableHead>
                   <TableHead>Username</TableHead>
@@ -131,7 +148,6 @@ export default function GroupUserList() {
               <TableBody>
                 {filtered.map((u) => (
                   <TableRow key={u.id ?? u.user_id}>
-                    <TableCell>{u.id ?? u.user_id}</TableCell>
                     <TableCell className="font-medium text-zinc-900">
                       {[u.last_name, u.first_name].filter(Boolean).join(" ") || "—"}
                     </TableCell>

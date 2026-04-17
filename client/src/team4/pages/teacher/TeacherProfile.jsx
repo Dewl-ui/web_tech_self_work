@@ -1,10 +1,10 @@
 // Member B OWNS this file — Teacher profile page at /team4/profile
 import { useEffect, useState } from "react";
+import { FiBookOpen, FiChevronRight, FiEdit2, FiHash, FiLock, FiMail, FiPhone, FiSave, FiUser } from "react-icons/fi";
 import { Link } from "react-router-dom";
-import { FiBookOpen, FiChevronRight, FiSave } from "react-icons/fi";
+import { useToast } from "../../components/ui/Toast";
 import { apiGet, apiPut, parseField, withCurrentUser } from "../../utils/api";
 import { useAuth } from "../../utils/AuthContext";
-import { useToast } from "../../components/ui/Toast";
 
 function Field({ label, value, onChange, type = "text", readOnly = false }) {
   return (
@@ -25,6 +25,22 @@ function Field({ label, value, onChange, type = "text", readOnly = false }) {
   );
 }
 
+function InfoCard({ icon, label, value }) {
+  return (
+    <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
+      <div className="flex items-start gap-3">
+        <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-zinc-500 shadow-sm">
+          {icon}
+        </div>
+        <div className="min-w-0">
+          <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">{label}</p>
+          <p className="mt-1 break-words text-sm font-semibold text-zinc-900">{value || "—"}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function TeacherProfile() {
   const { school, refreshUser } = useAuth();
   const toast = useToast();
@@ -34,6 +50,11 @@ export default function TeacherProfile() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving]   = useState(false);
   const [error, setError]     = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+
+  const [pwForm, setPwForm] = useState({ password: "", new_password: "", confirm_password: "" });
+  const [savingPw, setSavingPw] = useState(false);
+  const [pwError, setPwError] = useState("");
 
   useEffect(() => {
     apiGet("/users/me")
@@ -83,12 +104,46 @@ export default function TeacherProfile() {
       }));
 
       setProfile((prev) => ({ ...prev, ...form }));
+      setIsEditing(false);
       await refreshUser();
+
       toast.success("Амжилттай хадгалагдлаа.");
     } catch (err) {
       toast.error(err.message || "Хадгалахад алдаа гарлаа.");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleChangePassword(e) {
+    e.preventDefault();
+    setPwError("");
+    if (!pwForm.password || !pwForm.new_password) {
+      setPwError("Бүх талбарыг бөглөнө үү.");
+      return;
+    }
+    if (pwForm.new_password.length < 3) {
+      setPwError("Шинэ нууц үг хамгийн багадаа 3 тэмдэгт байх ёстой.");
+      return;
+    }
+    if (pwForm.new_password !== pwForm.confirm_password) {
+      setPwError("Шинэ нууц үг таарахгүй байна.");
+      return;
+    }
+    setSavingPw(true);
+    try {
+      await apiPut("/users/me/password", withCurrentUser({
+        password: pwForm.password,
+        new_password: pwForm.new_password,
+      }));
+      toast.success("Нууц үг амжилттай солигдлоо.");
+      setPwForm({ password: "", new_password: "", confirm_password: "" });
+    } catch (err) {
+      const msg = err.message || "Нууц үг солиход алдаа гарлаа.";
+      setPwError(msg);
+      toast.error(msg);
+    } finally {
+      setSavingPw(false);
     }
   }
 
@@ -113,7 +168,7 @@ export default function TeacherProfile() {
       {loading ? (
         <div className="h-24 w-full animate-pulse rounded-xl bg-zinc-100" />
       ) : (
-        <div className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-5">
+        <div key={profile?.picture} className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-5">
           {profile?.picture && profile.picture !== "no-image.jpg" ? (
             <img
               src={/^(https?:)?\/\//i.test(profile.picture) ? profile.picture : `https://todu.mn/bs/lms/v1/${profile.picture}`}
@@ -135,9 +190,12 @@ export default function TeacherProfile() {
         </div>
       )}
 
-      {/* Edit form */}
-      <form onSubmit={handleSave} className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4">
-        <h2 className="font-semibold text-zinc-800">Мэдээлэл засах</h2>
+      <div className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="font-semibold text-zinc-800">
+            {isEditing ? "Мэдээлэл засах" : "Багшийн мэдээлэл"}
+          </h2>
+        </div>
 
         {error && (
           <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -145,24 +203,125 @@ export default function TeacherProfile() {
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Овог" value={form.last_name}  onChange={(v) => setForm((f) => ({ ...f, last_name: v }))} />
-          <Field label="Нэр"  value={form.first_name} onChange={(v) => setForm((f) => ({ ...f, first_name: v }))} />
+        {!isEditing ? (
+          <>
+            <div className="space-y-4">
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-400">Бүртгэлийн мэдээлэл</p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <InfoCard icon={<FiHash className="h-4 w-4" />} label="Багшийн ID" value={profile?.id ?? "—"} />
+                  <InfoCard icon={<FiUser className="h-4 w-4" />} label="Хэрэглэгчийн нэр" value={profile?.username ?? "—"} />
+                  <InfoCard icon={<FiMail className="h-4 w-4" />} label="И-мэйл" value={profile?.email ?? "—"} />
+                  <InfoCard icon={<FiPhone className="h-4 w-4" />} label="Утас" value={profile?.phone || "Бүртгэгдээгүй"} />
+                </div>
+              </div>
+
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-400">Хувийн мэдээлэл</p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <InfoCard icon={<FiUser className="h-4 w-4" />} label="Овог" value={profile?.last_name ?? "—"} />
+                  <InfoCard icon={<FiUser className="h-4 w-4" />} label="Нэр" value={profile?.first_name ?? "—"} />
+                </div>
+              </div>
+            </div>
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => setIsEditing(true)}
+                className="flex h-10 items-center gap-2 rounded-lg bg-zinc-900 px-5 text-sm font-medium text-white transition-colors hover:bg-zinc-700"
+              >
+                <FiEdit2 className="h-4 w-4" />
+                Мэдээлэл засах
+              </button>
+            </div>
+          </>
+        ) : (
+          <form onSubmit={handleSave} className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Овог" value={form.last_name} onChange={(v) => setForm((f) => ({ ...f, last_name: v }))} />
+              <Field label="Нэр" value={form.first_name} onChange={(v) => setForm((f) => ({ ...f, first_name: v }))} />
+            </div>
+            <Field label="И-мэйл" value={profile?.email} readOnly />
+            <Field label="Хэрэглэгчийн нэр" value={profile?.username} readOnly />
+            <Field label="Утас" value={form.phone} type="tel" onChange={(v) => setForm((f) => ({ ...f, phone: v }))} />
+            <Field label="Профайл зураг (URL)" value={form.picture} onChange={(v) => setForm((f) => ({ ...f, picture: v }))} />
+
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                disabled={saving || loading}
+                className="flex h-10 items-center gap-2 rounded-lg bg-zinc-900 px-5 text-sm font-medium
+                  text-white transition-colors hover:bg-zinc-700 disabled:pointer-events-none disabled:opacity-60"
+              >
+                {saving && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />}
+                <FiSave className="h-4 w-4" />
+                Хадгалах
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsEditing(false);
+                  setForm({
+                    first_name:  profile?.first_name  ?? "",
+                    last_name:   profile?.last_name   ?? "",
+                    family_name: profile?.family_name ?? "",
+                    phone:       profile?.phone       ?? "",
+                    picture:     profile?.picture     ?? "",
+                  });
+                  setError("");
+                }}
+                className="flex h-10 items-center gap-2 rounded-lg border border-zinc-200 px-5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
+              >
+                Цуцлах
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+
+      {/* Change password */}
+      <form onSubmit={handleChangePassword} className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <FiLock className="h-4 w-4 text-zinc-500" />
+          <h2 className="font-semibold text-zinc-800">Нууц үг солих</h2>
         </div>
-        <Field label="И-мэйл"   value={profile?.email}    readOnly />
-        <Field label="Хэрэглэгчийн нэр" value={profile?.username} readOnly />
-        <Field label="Утас"      value={form.phone}  type="tel" onChange={(v) => setForm((f) => ({ ...f, phone: v }))} />
-        <Field label="Профайл зураг (URL)" value={form.picture} onChange={(v) => setForm((f) => ({ ...f, picture: v }))} />
+
+        {pwError && (
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {pwError}
+          </div>
+        )}
+
+        <Field
+          label="Одоогийн нууц үг"
+          type="password"
+          value={pwForm.password}
+          onChange={(v) => setPwForm((f) => ({ ...f, password: v }))}
+        />
+        <div className="grid grid-cols-2 gap-3">
+          <Field
+            label="Шинэ нууц үг"
+            type="password"
+            value={pwForm.new_password}
+            onChange={(v) => setPwForm((f) => ({ ...f, new_password: v }))}
+          />
+          <Field
+            label="Шинэ нууц үг давтах"
+            type="password"
+            value={pwForm.confirm_password}
+            onChange={(v) => setPwForm((f) => ({ ...f, confirm_password: v }))}
+          />
+        </div>
 
         <button
           type="submit"
-          disabled={saving || loading}
+          disabled={savingPw}
           className="flex h-10 items-center gap-2 rounded-lg bg-zinc-900 px-5 text-sm font-medium
             text-white transition-colors hover:bg-zinc-700 disabled:pointer-events-none disabled:opacity-60"
         >
-          {saving && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />}
-          <FiSave className="h-4 w-4" />
-          Хадгалах
+          {savingPw && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />}
+          <FiLock className="h-4 w-4" />
+          Нууц үг солих
         </button>
       </form>
 
@@ -178,9 +337,10 @@ export default function TeacherProfile() {
         ) : (
           <div className="space-y-2">
             {courses.map((item, i) => {
-              const course = parseField(item, "course") ?? {};
+              const parsedCourse = parseField(item, "course");
+              const course = item?.name ? item : (parsedCourse ?? {});
               const courseId = course.id ?? item.id ?? item.course_id;
-              const courseName = course.name ?? course.title ?? `Хичээл #${courseId}`;
+              const courseName = item.name ?? course.name ?? course.title ?? `Хичээл #${courseId}`;
               return (
                 <Link
                   key={courseId ?? i}

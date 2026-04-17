@@ -20,7 +20,7 @@ export default function Team4() {
           }
         `}</style>
         <Routes>
-          {/* Public auth routes — no layout wrapper */}
+          {/* Public auth routes */}
           {authRoutes}
 
           {/* Protected routes — wrapped in sidebar + header layout */}

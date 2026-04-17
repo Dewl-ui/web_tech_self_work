@@ -8,8 +8,9 @@ import { FiBook, FiChevronRight, FiUser } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { EmptyState } from "../../components/ui";
-import { apiGet, parseField } from "../../utils/api";
+import { apiGet } from "../../utils/api";
 import { useAuth } from "../../utils/AuthContext";
+import useTeacherCoursesSummary from "./useTeacherCoursesSummary";
 
 const PIE_COLORS = ["#2563eb", "#0f766e", "#7c3aed", "#d97706", "#dc2626", "#0891b2", "#65a30d", "#9333ea"];
 
@@ -48,55 +49,29 @@ function QuickLink({ to, label }) {
 
 export default function TeacherHomeSummary({ userId }) {
   const { school } = useAuth();
-  const [courses, setCourses] = useState([]);
   const [schoolCount, setSchoolCount] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [schoolsLoading, setSchoolsLoading] = useState(true);
+  const { courses, loading: coursesLoading } = useTeacherCoursesSummary({
+    userId,
+    schoolId: school?.id,
+  });
 
   useEffect(() => {
-    if (!userId) return;
-    setLoading(true);
+    if (!userId) {
+      setSchoolCount(0);
+      setSchoolsLoading(false);
+      return;
+    }
+
+    setSchoolsLoading(true);
 
     apiGet(`/users/${userId}/schools`)
       .then((data) => setSchoolCount(data?.count ?? data?.items?.length ?? 0))
-      .catch(() => setSchoolCount(0));
+      .catch(() => setSchoolCount(0))
+      .finally(() => setSchoolsLoading(false));
+  }, [userId]);
 
-    apiGet(`/users/${userId}/courses/teaching`)
-      .then(async (data) => {
-        const schoolId = school?.id;
-        const items = data?.items ?? [];
-        const filtered = schoolId == null
-          ? items
-          : items.filter((item) => {
-              const course = parseField(item, "course") ?? item;
-              return String(course?.school_id ?? item?.school_id ?? "") === String(schoolId);
-            });
-
-        const enriched = await Promise.all(
-          filtered.map(async (item) => {
-            const course = parseField(item, "course") ?? item;
-            const courseId = course.id ?? item.course_id ?? item.id;
-            let userCount = 0;
-
-            try {
-              const usersData = await apiGet(`/courses/${courseId}/users`);
-              userCount = usersData?.count ?? usersData?.items?.length ?? 0;
-            } catch {
-              userCount = 0;
-            }
-
-            return {
-              courseId,
-              name: course.name ?? course.title ?? `Хичээл #${courseId}`,
-              userCount,
-            };
-          })
-        );
-
-        setCourses(enriched);
-      })
-      .catch(() => setCourses([]))
-      .finally(() => setLoading(false));
-  }, [userId, school?.id]);
+  const loading = coursesLoading || schoolsLoading;
 
   const totalStudents = courses.reduce((sum, course) => sum + (course.userCount ?? 0), 0);
   const pieData = courses.map((course, index) => ({

@@ -7,7 +7,7 @@
 @baseUrl = https://todu.mn/bs/lms/v1
 
 # Paste token from auth.http login response (must be admin):
-@token = PASTE_TOKEN_HERE
+@token = YWRtaW45eTRiZTY0b3pnNnU3amE2bWpvejIwMjYwNDAyMDc1MDM3
 @currentUser = 1
 @roleId = 1
 
