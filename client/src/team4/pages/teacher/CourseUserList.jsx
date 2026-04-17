@@ -5,6 +5,8 @@ import { apiGet, parseField } from "../../utils/api";
 import { useToast } from "../../components/ui";
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui";
 
+const COURSE_USERS_LIMIT = 10000;
+
 function getUserFullName(user) {
   return [user?.last_name, user?.first_name].filter(Boolean).join(" ").trim();
 }
@@ -29,7 +31,7 @@ export default function CourseUserList() {
 
         const [courseRes, courseUsersRes] = await Promise.all([
           apiGet(`/courses/${course_id}`).catch(() => ({})),
-          apiGet(`/courses/${course_id}/users`),
+          apiGet(`/courses/${course_id}/users?limit=${COURSE_USERS_LIMIT}`),
         ]);
 
         setCourseName(courseRes?.name ?? `Хичээл #${course_id}`);
