@@ -24,19 +24,11 @@ export function AuthProvider({ children }) {
     }
   });
 
-  // Role is stored as a number (10 / 20 / 30). localStorage always returns
-  // strings, so parse it back to a number on load.
   const [role, setRole] = useState(() => {
     const stored = localStorage.getItem(STORAGE_KEYS.ROLE);
     return stored ? Number(stored) : null;
   });
 
-  // ── Token validation on mount ────────────────────────────────────────────────
-  // When the app loads (e.g. next day after closing the browser), localStorage
-  // may still hold an expired token. This effect calls GET /users/me on mount
-  // to verify the token is still valid. If the call fails (401 or network error)
-  // and the silent refresh in api.js also fails, we clear the session and send
-  // the user to the login page instead of showing a briefly-logged-in state.
   useEffect(() => {
     if (!user) return;
 
@@ -47,10 +39,8 @@ export function AuthProvider({ children }) {
       setRole(null);
       navigate("/team4/login", { replace: true });
     });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
-  // When the token refresh in api.js fails, it fires SESSION_EXPIRED_EVENT.
-  // Catch it here and redirect to login so individual components don't need to.
   useEffect(() => {
     function handleExpired() {
       setUser(null);
@@ -63,12 +53,6 @@ export function AuthProvider({ children }) {
     return () => window.removeEventListener(SESSION_EXPIRED_EVENT, handleExpired);
   }, [navigate]);
 
-  // ── Inactivity auto-logout ──────────────────────────────────────────────────
-  // Automatically logs the user out after 15 minutes (IDLE_TIMEOUT_MS) of no
-  // interaction. Tracked events: mousemove, mousedown, keydown, touchstart,
-  // scroll. Every user interaction resets the countdown. The timer only runs
-  // while a user is logged in; it is cleaned up on unmount or when the user
-  // becomes null (already logged out).
   useEffect(() => {
     if (!user) return;
 
