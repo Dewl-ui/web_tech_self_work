@@ -18,6 +18,7 @@ import StudentReject from "./pages/student/RejectRequest";
 import StudentAct from "./pages/student/Act";
 import StudentActSuccess from "./pages/student/ActSuccess";
 import StudentSettings from "./pages/student/Settings";
+
 import TeacherHome from "./pages/teacher/Home";
 import TeacherJournal from "./pages/teacher/Journal";
 import TeacherCourseSummary from "./pages/teacher/CourseSummary";
@@ -36,35 +37,36 @@ import TeacherRequestDetail from "./pages/teacher/RequestDetail";
 import TeacherRejectRequest from "./pages/teacher/RejectRequest";
 import TeacherApproveRequest from "./pages/teacher/ApproveRequest";
 import TeacherSettings from "./pages/teacher/Settings";
-import { TeacherCourseBreakdown, TeacherStudentGradeDetail, TeacherAssignmentGrade,TeacherStudentAttendanceDetail } from './pages/teacher';
+
+// Цагаан дэлгэц гаргахгүй байх ЗӨВ импортууд
+import TeacherCourseBreakdown from './pages/teacher/CourseBreakdown';
+import TeacherStudentGradeDetail from './pages/teacher/StudentGradeDetail';
+import TeacherAssignmentGrade from './pages/teacher/AssignmentGradeDetail';
+import TeacherStudentAttendanceDetail from './pages/teacher/StudentAttendanceDetail';
+
+import Login from './pages/auth/Login';
 
 export default function Index() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route index element={<LandingPage />} />
+        
+        {/* НҮҮР ХУУДАС: Анх ороход шууд Login хуудас гарч ирнэ */}
+        <Route index element={<Login />} />
+        
+        {/* Хуучин LandingPage-ийг хэрэгтэй байж магадгүй гээд /landing зам руу үлдээв */}
+        <Route path="landing" element={<LandingPage />} />
 
+        {/* ОЮУТНЫ ХЭСЭГ */}
         <Route path="student">
           <Route index element={<StudentHome />} />
           <Route path="grades" element={<StudentGradeCards />} />
           <Route path="grades/table" element={<StudentGrades />} />
           <Route path="grades/detail" element={<StudentGradeDetail />} />
-          <Route
-            path="grades/detail/assignment"
-            element={<StudentAssignment />}
-          />
-          <Route
-            path="grades/detail/report/select"
-            element={<StudentReportSelect />}
-          />
-          <Route
-            path="grades/detail/report/items"
-            element={<StudentReportItems />}
-          />
-          <Route
-            path="grades/detail/report/confirm"
-            element={<StudentReportConfirm />}
-          />
+          <Route path="grades/detail/assignment" element={<StudentAssignment />} />
+          <Route path="grades/detail/report/select" element={<StudentReportSelect />} />
+          <Route path="grades/detail/report/items" element={<StudentReportItems />} />
+          <Route path="grades/detail/report/confirm" element={<StudentReportConfirm />} />
           <Route path="attendance" element={<StudentAttendance />} />
           <Route path="calendar" element={<StudentCalendar />} />
           <Route path="leave" element={<StudentLeave />} />
@@ -76,69 +78,34 @@ export default function Index() {
           <Route path="settings" element={<StudentSettings />} />
         </Route>
 
+        {/* БАГШИЙН ХЭСЭГ */}
         <Route path="teacher">
           <Route index element={<TeacherHome />} />
           <Route path="journal" element={<TeacherJournal />} />
-          <Route
-            path="journal/:courseId/summary"
-            element={<TeacherCourseSummary />}
-          />
-          <Route
-            path="journal/:courseId/students"
-            element={<TeacherCourseStudents />}
-          />
-          <Route
-            path="journal/:courseId/breakdown"
-            element={<TeacherCourseBreakdown />}
-          />
-          <Route
-            path="journal/:courseId/detail"
-            element={<TeacherCourseBreakdown />}
-          />
-          <Route
-            path="journal/:courseId/teacher"
-            element={<TeacherCourseTeacherInfo />}
-          />
-          <Route path="grades" element={<StudentGrades />} />
-          <Route path="attendance" element={<TeacherAttendanceIndex />} />
+          <Route path="journal/:courseId/summary" element={<TeacherCourseSummary />} />
+          <Route path="journal/:courseId/students" element={<TeacherCourseStudents />} />
+          
+          {/* Бидний шинээр хийсэн Журналын хэсгүүд */}
+          <Route path="journal/:courseId/breakdown" element={<TeacherCourseBreakdown />} />
+          <Route path="journal/:courseId/detail" element={<TeacherCourseBreakdown />} />
           <Route path="journal/:courseId/student/:studentId" element={<TeacherStudentGradeDetail />} />
           <Route path="journal/:courseId/assignment/:id" element={<TeacherAssignmentGrade />} />
           <Route path="journal/:courseId/student/:studentId/attendance" element={<TeacherStudentAttendanceDetail />} />
-          <Route
-            path="attendance/lesson-1-4"
-            element={<TeacherAttendanceLesson />}
-          />
-          <Route
-            path="attendance/lesson-1-4/search"
-            element={<TeacherAttendanceLessonSearch />}
-          />
+          
+          <Route path="journal/:courseId/teacher" element={<TeacherCourseTeacherInfo />} />
+          <Route path="grades" element={<StudentGrades />} />
+          <Route path="attendance" element={<TeacherAttendanceIndex />} />
+          <Route path="attendance/lesson-1-4" element={<TeacherAttendanceLesson />} />
+          <Route path="attendance/lesson-1-4/search" element={<TeacherAttendanceLessonSearch />} />
           <Route path="attendance/lab-2-4" element={<TeacherAttendanceLab />} />
-          <Route
-            path="attendance/confirm-lecture"
-            element={<TeacherConfirmLecture />}
-          />
-          <Route
-            path="attendance/confirm-lab"
-            element={<TeacherConfirmLab />}
-          />
+          <Route path="attendance/confirm-lecture" element={<TeacherConfirmLecture />} />
+          <Route path="attendance/confirm-lab" element={<TeacherConfirmLab />} />
           <Route path="attendance/stats" element={<TeacherAttendanceStats />} />
-          <Route
-            path="attendance/stats-empty"
-            element={<TeacherAttendanceStatsEmpty />}
-          />
+          <Route path="attendance/stats-empty" element={<TeacherAttendanceStatsEmpty />} />
           <Route path="requests" element={<TeacherRequests />} />
-          <Route
-            path="requests/:requestId"
-            element={<TeacherRequestDetail />}
-          />
-          <Route
-            path="requests/:requestId/reject"
-            element={<TeacherRejectRequest />}
-          />
-          <Route
-            path="requests/:requestId/approve"
-            element={<TeacherApproveRequest />}
-          />
+          <Route path="requests/:requestId" element={<TeacherRequestDetail />} />
+          <Route path="requests/:requestId/reject" element={<TeacherRejectRequest />} />
+          <Route path="requests/:requestId/approve" element={<TeacherApproveRequest />} />
           <Route path="settings" element={<TeacherSettings />} />
         </Route>
       </Route>

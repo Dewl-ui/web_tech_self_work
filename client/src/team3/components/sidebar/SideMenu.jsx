@@ -42,10 +42,8 @@ export default function SideMenu({ role = "student", currentPath = "" }) {
           ТЕХНОЛОГИЙН ИХ СУРГУУЛЬ
         </div>
         <div className="mt-4 rounded-2xl bg-white/5 px-4 py-3 text-xs text-slate-200 ring-1 ring-white/10">
-          <div className="font-semibold text-white">Team 3 Portal</div>
-          <div className="mt-1 text-[11px] text-slate-300">
-            Илүү өнгөлөг, орчин үеийн интерфэйс
-          </div>
+          <div className="font-semibold text-white">Team 3</div>
+          
         </div>
       </div>
 

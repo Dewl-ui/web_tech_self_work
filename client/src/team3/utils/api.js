@@ -1,13 +1,22 @@
-export const team3Api = {
-  async get(url, options = {}) {
-    return { ok: true, url, options, data: null };
-  },
-  async post(url, body, options = {}) {
-    return { ok: true, url, body, options, data: null };
-  },
-  async put(url, body, options = {}) {
-    return { ok: true, url, body, options, data: null };
-  },
-};
+import axios from 'axios';
 
-export default team3Api;
+const api = axios.create({
+  baseURL: 'https://todu.mn/bs/lms/v1', // Swagger дээрх үндсэн хаяг
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Хүсэлт явахын өмнө Token автоматаар нэмэх
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+export default api;
