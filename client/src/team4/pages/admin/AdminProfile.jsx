@@ -113,7 +113,7 @@ export default function AdminProfile() {
 
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 text-purple-700">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white border border-zinc-300 text-zinc-700">
           <FiShield className="h-5 w-5" />
         </div>
         <div>
@@ -124,7 +124,7 @@ export default function AdminProfile() {
 
       {/* Avatar + name */}
       {loading ? (
-        <div className="h-24 w-full animate-pulse rounded-xl bg-zinc-100" />
+        <div className="h-24 w-full animate-pulse rounded-xl bg-white-100" />
       ) : (
         <div className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-5">
           {profile?.picture && profile.picture !== "no-image.jpg" ? (
@@ -135,8 +135,8 @@ export default function AdminProfile() {
               onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }}
             />
           ) : null}
-          <div className={`h-16 w-16 shrink-0 items-center justify-center rounded-full bg-purple-100
-            text-2xl font-bold text-purple-700 ${profile?.picture && profile.picture !== "no-image.jpg" ? "hidden" : "flex"}`}>
+          <div className={`h-16 w-16 shrink-0 items-center justify-center rounded-full bg-zinc-100
+            text-2xl font-bold text-zinc-700 ${profile?.picture && profile.picture !== "no-image.jpg" ? "hidden" : "flex"}`}>
             {initials}
           </div>
           <div>
