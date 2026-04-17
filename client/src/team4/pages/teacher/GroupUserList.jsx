@@ -13,6 +13,8 @@ import {
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
 } from "../../components/ui/Table";
 
+const COURSE_USERS_LIMIT = 10000;
+
 export default function GroupUserList() {
   const { course_id, group_id } = useParams();
   const navigate = useNavigate();
@@ -29,7 +31,7 @@ export default function GroupUserList() {
       try {
         setLoading(true);
         const [usersRes, groupRes] = await Promise.all([
-          apiGet(`/courses/${course_id}/users`),
+          apiGet(`/courses/${course_id}/users?limit=${COURSE_USERS_LIMIT}`),
           apiGet(`/groups/${group_id}`).catch(() => null),
         ]);
 
