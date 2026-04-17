@@ -36,7 +36,6 @@ export default function StudentCourses() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      {/* <PageHeader icon={FiBook} title="Миний хичээлүүд" subtitle={subtitle} /> */}
 
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">

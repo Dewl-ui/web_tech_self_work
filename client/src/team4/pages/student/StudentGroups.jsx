@@ -98,8 +98,6 @@ export default function StudentGroups() {
 
   const groups = data ?? [];
 
-  // expandedCourseId toggles between the grid view and the detail view
-  // (null = grid, <courseId> = showing that team's detail)
   const [expandedCourseId, setExpandedCourseId] = useState(null);
   const [filter, setFilter] = useState("all");
   const [page, setPage] = useState(1);

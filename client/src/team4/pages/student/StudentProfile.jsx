@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FiEdit2, FiUser } from "react-icons/fi";
 import {
@@ -93,10 +93,7 @@ export default function StudentProfile() {
     load();
   }, []);
 
-  const school = useMemo(() => {
-    if (!profile?.schools?.length) return null;
-    return profile.schools[0];
-  }, [profile]);
+  const school = profile?.schools?.length ? profile.schools[0] : null;
 
   const displayName = toDisplayName(profile);
   const avatarSource = toAvatarSource(profile?.picture);

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   FiArrowLeft,
@@ -306,14 +306,14 @@ function GradesTab({ courseId }) {
     [courseId]
   );
 
-  const totals = useMemo(() => {
+  const totals = (() => {
     if (!data) return { examTotal: 0, subTotal: 0, attTotal: 0, total: 0 };
     const sum = (arr) => arr.reduce((s, r) => s + (Number(r.grade_point) || 0), 0);
     const examTotal = sum(data.gradeExams);
     const subTotal = sum(data.gradeSubs);
     const attTotal = sum(data.gradeAtts);
     return { examTotal, subTotal, attTotal, total: examTotal + subTotal + attTotal };
-  }, [data]);
+  })();
 
   if (loading || !data) return <div className="h-24 animate-pulse rounded-xl bg-zinc-100" />;
 

@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { useAuth } from "../../utils/AuthContext";
 import { getStudentCourses } from "./api/studentCourseApi";
 import { getCourseTimetables } from "./api/studentCalendarApi";
@@ -65,7 +64,7 @@ export default function StudentCalendar() {
 
   const rows = Array.isArray(data) ? data : [];
 
-  const courseColorMap = useMemo(() => {
+  const courseColorMap = (() => {
     const map = {};
     let idx = 0;
     for (const r of rows) {
@@ -75,9 +74,9 @@ export default function StudentCalendar() {
       }
     }
     return map;
-  }, [rows]);
+  })();
 
-  const rowsByWeekday = useMemo(() => {
+  const rowsByWeekday = (() => {
     const out = {};
     for (const day of WEEKDAYS) out[day.id] = [];
     for (const r of rows) {
@@ -87,7 +86,7 @@ export default function StudentCalendar() {
       out[k].sort((a, b) => (a.period?.start_time || "").localeCompare(b.period?.start_time || ""));
     }
     return out;
-  }, [rows]);
+  })();
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">

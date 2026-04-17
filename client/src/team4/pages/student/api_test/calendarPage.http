@@ -3,7 +3,7 @@
 @baseUrl = https://todu.mn/bs/lms/v1
 @email = schoolstudent@must.edu.mn
 @password = 123
-@accessToken = p7vXn3LH7JGiL543jqmNTA
+@accessToken = zT3r9ammlNuP0Mrt7OaZyg
 
 @userId = 539
 @schoolId = 2
@@ -18,9 +18,8 @@ POST {{baseUrl}}/token/email
 Content-Type: application/json
 
 {
-  "email": {{email}},
-  "password": {{password}},
-  "push_token": ""
+  "email": "{{email}}",
+  "password": "{{password}}"
 }
 
 
