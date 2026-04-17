@@ -82,7 +82,7 @@ export default function TeacherStudentGradeDetail() {
         </Link>
       </div>
 
-      <PageTitle title="Оюутны дүнгийн задаргаа (API холбогдсон)" />
+      <PageTitle title="Оюутны дүнгийн задаргаа" />
 
       {isLoading ? (
         <div className="flex justify-center items-center h-64">

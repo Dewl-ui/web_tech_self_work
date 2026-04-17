@@ -198,12 +198,19 @@ export function TeacherHome() {
 }
 
 export function TeacherJournal() {
+  // ЭНД ХАМГИЙН ЧУХАЛ: id-г нь "mtm121" биш шууд 1, 2 гэсэн ТОO болгож байна
+  const journalCourses = [
+    { id: 1, code: "S.MTM121", name: "Математик", group: "МТ-1а хэсэг" },
+    { id: 2, code: "F.ITM301", name: "Веб систем ба технологи", group: "ПХ-3б хэсэг" },
+  ];
+
   return (
     <Shell role="teacher">
       <PageTitle
         title="Хариуцаж буй хичээлүүд"
         subtitle="2025-2026 оны хаврын улирал дахь таны хичээлүүд"
       />
+      
       <Panel className="max-w-6xl">
         <div className="space-y-3">
           {journalCourses.map((course) => (
@@ -228,7 +235,6 @@ export function TeacherJournal() {
     </Shell>
   );
 }
-
 export function TeacherCourseSummary() {
   const { courseId } = useParams();
   const base = `/team3/teacher/journal/${courseId}`;

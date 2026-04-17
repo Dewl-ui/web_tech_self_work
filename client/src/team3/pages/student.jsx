@@ -24,6 +24,8 @@ import {
   SmallButton,
   StatusDot,
 } from "../components/common";
+import dayjs from "dayjs";
+import React, { useState } from "react";
 
 const gpaData = [
   { name: "2024-2025 Намар", value: 3.63 },
@@ -573,21 +575,111 @@ export function StudentAttendance() {
 }
 
 export function StudentCalendar() {
+  const [currentDate, setCurrentDate] = useState(dayjs());
+  const [selectedDate, setSelectedDate] = useState(dayjs());
+  const [viewMode, setViewMode] = useState("month"); // month | week | year
+
+  // Жишээ events
+  const events = [
+    { date: "2026-04-10", title: "Math Lecture" },
+    { date: "2026-04-15", title: "Science Exam" },
+    { date: "2026-04-20", title: "Project Deadline" },
+  ];
+
+  const goToPrevMonth = () => setCurrentDate(currentDate.subtract(1, "month"));
+  const goToNextMonth = () => setCurrentDate(currentDate.add(1, "month"));
+
+  const daysInMonth = Array.from(
+    { length: currentDate.daysInMonth() },
+    (_, i) => currentDate.date(i + 1)
+  );
+
+  // Сонгогдсон өдрийн events
+  const selectedDayEvents = events.filter((e) =>
+    dayjs(e.date).isSame(selectedDate, "day")
+  );
+
   return (
     <Shell role="student">
       <PageTitle title="Хуанли" />
+
       <div className="grid gap-4 lg:grid-cols-[2.5fr_1fr]">
-        <Panel className="min-h-[620px]">
-          <div className="flex items-center justify-center gap-3 text-4xl font-bold">
-            <button className="rounded-lg bg-[#d8d8d8] px-3">‹</button>3-р сар
-            2026<button className="rounded-lg bg-[#d8d8d8] px-3">›</button>
+        {/* Гол календарь */}
+        <Panel className="min-h-[620px] p-4">
+          {/* Сар солих хэсэг */}
+          <div className="flex items-center justify-center gap-4 text-2xl font-bold mb-6">
+            <button
+              className="rounded-lg bg-gray-200 px-3 py-1 hover:bg-gray-300 transition"
+              onClick={goToPrevMonth}
+            >
+              ‹
+            </button>
+            <span>{currentDate.format("MMMM YYYY")}</span>
+            <button
+              className="rounded-lg bg-gray-200 px-3 py-1 hover:bg-gray-300 transition"
+              onClick={goToNextMonth}
+            >
+              ›
+            </button>
+          </div>
+
+          {/* Өдөрүүд */}
+          <div className="grid grid-cols-7 gap-2">
+            {daysInMonth.map((day) => {
+              const isToday = day.isSame(dayjs(), "day");
+              const hasEvent = events.some((e) => dayjs(e.date).isSame(day, "day"));
+              return (
+                <div
+                  key={day.format("YYYY-MM-DD")}
+                  className={`flex items-center justify-center h-12 w-12 border rounded-md text-sm font-medium cursor-pointer transition
+                    ${isToday ? "bg-blue-100 font-bold" : ""}
+                    ${hasEvent ? "border-blue-500" : "border-gray-300"}
+                  `}
+                  onClick={() => setSelectedDate(day)}
+                >
+                  {day.date()}
+                </div>
+              );
+            })}
           </div>
         </Panel>
-        <Panel className="min-h-[620px]">
-          <div className="ml-auto mb-4 flex w-fit gap-2 rounded-full bg-[#d8d8d8] px-3 py-1 text-xs font-semibold">
-            <span>Сар</span>
-            <span>7 хоног</span>
-            <span>Жил</span>
+
+        {/* Баруун талын контрол & events */}
+        <Panel className="min-h-[620px] p-4 flex flex-col">
+          {/* View mode switch */}
+          <div className="ml-auto mb-4 flex w-fit gap-2 rounded-full bg-gray-200 px-3 py-1 text-xs font-semibold">
+            {["month", "week", "year"].map((mode) => (
+              <span
+                key={mode}
+                className={`cursor-pointer px-2 py-1 rounded-full ${
+                  viewMode === mode ? "bg-blue-500 text-white" : ""
+                }`}
+                onClick={() => setViewMode(mode)}
+              >
+                {mode === "month" ? "Сар" : mode === "week" ? "7 хоног" : "Жил"}
+              </span>
+            ))}
+          </div>
+
+          {/* Сонгогдсон өдрийн events */}
+          <div className="flex-1 overflow-y-auto">
+            <h4 className="font-semibold mb-2">
+              {selectedDate.format("MMMM D, YYYY")} Events
+            </h4>
+            {selectedDayEvents.length > 0 ? (
+              <ul className="space-y-1">
+                {selectedDayEvents.map((event, i) => (
+                  <li
+                    key={i}
+                    className="px-2 py-1 rounded border-l-4 border-blue-500 bg-gray-50"
+                  >
+                    {event.title}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-500 text-sm">Өнөөдөр ямар ч event байхгүй</p>
+            )}
           </div>
         </Panel>
       </div>
@@ -637,10 +729,94 @@ export function StudentLeave() {
 }
 
 export function StudentAct() {
+  const [lastName, setLastName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [studentCode, setStudentCode] = useState("");
+  const [date, setDate] = useState("");
+  const [description, setDescription] = useState("");
+  const [file, setFile] = useState(null);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Энд илгээх функцээ бичнэ
+    console.log({ lastName, firstName, studentCode, date, description, file });
+  };
+
   return (
     <Shell role="student">
       <PageTitle title="Акт илгээх" />
-      <Panel className="min-h-[600px]" />
+      <Panel className="min-h-[600px] p-6">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 bg-gray-100 p-6 rounded-md">
+          <label>
+            Овог
+            <input
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              className="w-full border p-2 rounded"
+            />
+          </label>
+          <label>
+            Нэр
+            <input
+              type="text"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              className="w-full border p-2 rounded"
+            />
+          </label>
+          <div className="flex gap-4">
+            <label className="flex-1">
+              Оюутан/Багш код
+              <input
+                type="text"
+                value={studentCode}
+                onChange={(e) => setStudentCode(e.target.value)}
+                className="w-full border p-2 rounded"
+              />
+            </label>
+            <label className="flex-1">
+              YYYY-MM-DD
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full border p-2 rounded"
+              />
+            </label>
+          </div>
+          <label>
+            Тайлбар
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full border p-2 rounded h-32"
+            />
+          </label>
+          <label className="inline-flex items-center gap-2">
+            File нэмэх
+            <input
+              type="file"
+              onChange={(e) => setFile(e.target.files[0])}
+              className="border p-2 rounded"
+            />
+          </label>
+          <div className="flex gap-4 mt-4">
+            <button
+              type="button"
+              className="bg-gray-300 text-black px-4 py-2 rounded"
+            >
+              Буцах
+            </button>
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-4 py-2 rounded"
+            >
+              Илгээх
+            </button>
+          </div>
+        </form>
+      </Panel>
     </Shell>
   );
 }
