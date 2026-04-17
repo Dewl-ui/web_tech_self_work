@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { FiUser } from "react-icons/fi";
+import { FiEdit2, FiUser } from "react-icons/fi";
 import {
   Alert,
   AlertDescription,
@@ -169,12 +169,6 @@ export default function StudentProfile() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <PageHeader
-        icon={FiUser}
-        title="Оюутны профайл"
-        subtitle="Хувийн мэдээлэл, нууц үг, бүртгэлийн тохиргоо"
-      />
-
       {errorMessage && (
         <Alert variant="destructive">
           <AlertTitle>Алдаа</AlertTitle>
@@ -190,7 +184,17 @@ export default function StudentProfile() {
       )}
 
       <Card>
-        <CardContent className="pt-6">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="text-base">Профайл мэдээлэл</CardTitle>
+          <Link
+            to="/team4/student/profile/edit"
+            className="inline-flex items-center gap-1.5 rounded-md border border-zinc-200 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
+          >
+            <FiEdit2 className="h-3.5 w-3.5" />
+            Засах
+          </Link>
+        </CardHeader>
+        <CardContent className="pt-2">
           {loading ? (
             <div className="grid gap-6 md:grid-cols-[220px_1fr]">
               <div className="space-y-4">
@@ -261,16 +265,7 @@ export default function StudentProfile() {
         </CardContent>
       </Card>
 
-      <div className="flex flex-wrap gap-3">
-        <Link
-          to="/team4/student/profile/edit"
-          className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900"
-        >
-          Профайл болон зураг засах
-        </Link>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-2">
+<div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Нууц үг солих</CardTitle>
@@ -340,9 +335,9 @@ export default function StudentProfile() {
         <Card className="border-red-200">
           <CardHeader>
             <CardTitle className="text-red-700">Бүртгэл устгах</CardTitle>
-            <CardDescription>
+            {/* <CardDescription>
               Бүртгэл устгавал буцаах боломжгүй. Баталгаажуулж үргэлжлүүлнэ үү.
-            </CardDescription>
+            </CardDescription> */}
           </CardHeader>
           <CardContent className="space-y-4">
             <Alert variant="warning">

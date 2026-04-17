@@ -1,10 +1,9 @@
 ### Student Payment & Debt Page APIs
-### Shows debt status, payment history, bank info, and payment submission
 
 @baseUrl = https://todu.mn/bs/lms/v1
 @email = schoolstudent@must.edu.mn
 @password = 123
-@accessToken = p7vXn3LH7JGiL543jqmNTA
+@accessToken = gxdaYifLpxQDMJtWjByBdw
 
 @userId = 539
 @schoolId = 2
@@ -22,6 +21,10 @@ Content-Type: application/json
   "push_token": ""
 }
 
+
+### User info
+GET {{baseUrl}}/users/{{userId}}
+Authorization: Bearer {{accessToken}}
 
 ### 2. Get my debt at school
 GET {{baseUrl}}/schools/{{schoolId}}/users/{{userId}}/debt

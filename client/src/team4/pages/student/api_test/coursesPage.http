@@ -21,88 +21,11 @@ GET {{baseUrl}}/users/me
 Authorization: Bearer {{accessToken}}
 
 
-# {
-#   "id": 539,
-#   "first_name": "Оюутан",
-#   "last_name": "-",
-#   "family_name": "-",
-#   "picture": "no-image.jpg",
-#   "username": "schoolstudent",
-#   "email": "schoolstudent@must.edu.mn",
-#   "phone": null,
-#   "facebook_id": null,
-#   "schools": [
-#     {
-#       "id": 2,
-#       "name": "Мэдээлэл, Холбооны Технологийн Сургууль",
-#       "role": {
-#         "id": 30,
-#         "name": "Суралцагч"
-#       }
-#     },
-#     {
-#       "id": 0,
-#       "name": "Humuun.edu.mn Нээлттэй орчин",
-#       "role": {
-#         "id": 30,
-#         "name": "Суралцагч"
-#       }
-#     }
-#   ],
-#   "links": [
-#     {
-#       "rel": "collection",
-#       "href": "https://todu.mn/bs/lms/v1/users/"
-#     }
-#   ]
-# }
-
 ### student courses
 GET {{baseUrl}}/users/{{userId}}/courses/enrolled
 Authorization: Bearer {{accessToken}}
-
-# Example response (do not paste live responses here uncommented — REST Client parses the whole file as requests):
-# HTTP/1.1 200
-# ETag: "8pOJJfXydAdd7hO9XJpMix2NunDvVlG5g2RUPr+ZU0umD5w2l1A6VbZFbxWpkP+lRwmJsUUN0KGyr2O2sXFZ6g=="
-# Content-Type: application/json
-# ...
-# { "items": [ ... ], "hasMore": false, ... }
 
 ### course detail
 GET {{baseUrl}}/courses/{{courseId}}
 Authorization: Bearer {{accessToken}}
 
-
-# HTTP/1.1 200 
-# ETag: "0veZ6xP50T8KQvDk5tgJNvc67wyjJGEHKbictCZsXIbUDrWmRZpfikQ5XQHEPXf86izjQPOWNEWtAYnO/JXvUg=="
-# Content-Type: application/json
-# Transfer-Encoding: chunked
-# Date: Sun, 05 Apr 2026 09:54:05 GMT
-# Connection: close
-
-# {
-#   "id": 204,
-#   "name": "Веб систем ба технологи",
-#   "picture": "no-image.jpg",
-#   "cloned_course_id": 200,
-#   "created_by": 0,
-#   "created_on": "2025-08-24T17:00:00Z",
-#   "updated_by": 0,
-#   "updated_on": "2026-01-24T03:36:01.695274Z",
-#   "category_id": 200,
-#   "school_id": 2,
-#   "priority": 2,
-#   "start_on": "2026-01-26T00:00:00Z",
-#   "end_on": "2026-05-31T00:00:00Z",
-#   "description": "MERN stack буюу MongoDB, ExpressJS, ReactJS, NodeJS технологиудыг ашиглан клиент сервер архитектуртай бүрэн хэмжээний веб систем хөгжүүлэх мэдлэг, чадвар олгоно.",
-#   "access_type_id": 0,
-#   "price": null,
-#   "credits": null,
-#   "teachers": null,
-#   "links": [
-#     {
-#       "rel": "collection",
-#       "href": "https://todu.mn/bs/lms/v1/courses/"
-#     }
-#   ]
-# }
