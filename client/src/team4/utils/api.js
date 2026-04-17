@@ -105,7 +105,7 @@ async function request(method, path, body, isRetry = false) {
   return data;
 }
 
-// ── Public API helpers ─────────────────────────────────────────────────────────
+// Public API helpers
 
 export const apiGet    = (path)        => request("GET",    path);
 export const apiPost   = (path, body)  => request("POST",   path, body);
