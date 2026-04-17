@@ -168,7 +168,7 @@ export default function TeacherProfile() {
       {loading ? (
         <div className="h-24 w-full animate-pulse rounded-xl bg-zinc-100" />
       ) : (
-        <div className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-5">
+        <div key={profile?.picture} className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-5">
           {profile?.picture && profile.picture !== "no-image.jpg" ? (
             <img
               src={/^(https?:)?\/\//i.test(profile.picture) ? profile.picture : `https://todu.mn/bs/lms/v1/${profile.picture}`}
