@@ -105,7 +105,7 @@ async function request(method, path, body, isRetry = false) {
   return data;
 }
 
-// ── Public API helpers ─────────────────────────────────────────────────────────
+// Public API helpers
 
 export const apiGet    = (path)        => request("GET",    path);
 export const apiPost   = (path, body)  => request("POST",   path, body);
@@ -160,7 +160,6 @@ export async function logout() {
   try {
     await apiDelete("/token", { current_user: userId });
   } catch {
-    // ignore — clear local state regardless
   }
   Object.values(STORAGE_KEYS).forEach((key) => localStorage.removeItem(key));
 }

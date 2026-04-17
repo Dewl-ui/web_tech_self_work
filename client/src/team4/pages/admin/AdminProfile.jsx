@@ -1,6 +1,6 @@
 // Member A OWNS this file — Admin profile page at /team4/profile
 import { useEffect, useState } from "react";
-import { FiUser, FiMail, FiPhone, FiSave, FiShield } from "react-icons/fi";
+import { FiUser, FiMail, FiPhone, FiSave, FiShield, FiLock } from "react-icons/fi";
 import { apiGet, apiPut, withCurrentUser } from "../../utils/api";
 import { useAuth } from "../../utils/AuthContext";
 import { useToast } from "../../components/ui/Toast";
@@ -32,6 +32,10 @@ export default function AdminProfile() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving]   = useState(false);
   const [error, setError]     = useState("");
+
+  const [pwForm, setPwForm] = useState({ password: "", new_password: "", confirm_password: "" });
+  const [savingPw, setSavingPw] = useState(false);
+  const [pwError, setPwError] = useState("");
 
   useEffect(() => {
     apiGet("/users/me")
@@ -69,6 +73,38 @@ export default function AdminProfile() {
     }
   }
 
+  async function handleChangePassword(e) {
+    e.preventDefault();
+    setPwError("");
+    if (!pwForm.password || !pwForm.new_password) {
+      setPwError("Бүх талбарыг бөглөнө үү.");
+      return;
+    }
+    if (pwForm.new_password.length < 3) {
+      setPwError("Шинэ нууц үг хамгийн багадаа 3 тэмдэгт байх ёстой.");
+      return;
+    }
+    if (pwForm.new_password !== pwForm.confirm_password) {
+      setPwError("Шинэ нууц үг таарахгүй байна.");
+      return;
+    }
+    setSavingPw(true);
+    try {
+      await apiPut("/users/me/password", withCurrentUser({
+        password: pwForm.password,
+        new_password: pwForm.new_password,
+      }));
+      toast.success("Нууц үг амжилттай солигдлоо.");
+      setPwForm({ password: "", new_password: "", confirm_password: "" });
+    } catch (err) {
+      const msg = err.message || "Нууц үг солиход алдаа гарлаа.";
+      setPwError(msg);
+      toast.error(msg);
+    } finally {
+      setSavingPw(false);
+    }
+  }
+
   const initials = [profile?.first_name, profile?.last_name]
     .filter(Boolean).map((s) => s[0].toUpperCase()).join("") || "A";
 
@@ -77,7 +113,7 @@ export default function AdminProfile() {
 
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 text-purple-700">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white border border-zinc-300 text-zinc-700">
           <FiShield className="h-5 w-5" />
         </div>
         <div>
@@ -88,9 +124,9 @@ export default function AdminProfile() {
 
       {/* Avatar + name */}
       {loading ? (
-        <div className="h-24 w-full animate-pulse rounded-xl bg-zinc-100" />
+        <div className="h-24 w-full animate-pulse rounded-xl bg-white-100" />
       ) : (
-        <div className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-5">
+        <div key={profile?.picture} className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-5">
           {profile?.picture && profile.picture !== "no-image.jpg" ? (
             <img
               src={/^(https?:)?\/\//i.test(profile.picture) ? profile.picture : `https://todu.mn/bs/lms/v1/${profile.picture}`}
@@ -99,8 +135,8 @@ export default function AdminProfile() {
               onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }}
             />
           ) : null}
-          <div className={`h-16 w-16 shrink-0 items-center justify-center rounded-full bg-purple-100
-            text-2xl font-bold text-purple-700 ${profile?.picture && profile.picture !== "no-image.jpg" ? "hidden" : "flex"}`}>
+          <div className={`h-16 w-16 shrink-0 items-center justify-center rounded-full bg-zinc-100
+            text-2xl font-bold text-zinc-700 ${profile?.picture && profile.picture !== "no-image.jpg" ? "hidden" : "flex"}`}>
             {initials}
           </div>
           <div>
@@ -140,6 +176,52 @@ export default function AdminProfile() {
           {saving && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />}
           <FiSave className="h-4 w-4" />
           Хадгалах
+        </button>
+      </form>
+
+      {/* Change password */}
+      <form onSubmit={handleChangePassword} className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <FiLock className="h-4 w-4 text-zinc-500" />
+          <h2 className="font-semibold text-zinc-800">Нууц үг солих</h2>
+        </div>
+
+        {pwError && (
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {pwError}
+          </div>
+        )}
+
+        <Field
+          label="Одоогийн нууц үг"
+          type="password"
+          value={pwForm.password}
+          onChange={(v) => setPwForm((f) => ({ ...f, password: v }))}
+        />
+        <div className="grid grid-cols-2 gap-3">
+          <Field
+            label="Шинэ нууц үг"
+            type="password"
+            value={pwForm.new_password}
+            onChange={(v) => setPwForm((f) => ({ ...f, new_password: v }))}
+          />
+          <Field
+            label="Шинэ нууц үг давтах"
+            type="password"
+            value={pwForm.confirm_password}
+            onChange={(v) => setPwForm((f) => ({ ...f, confirm_password: v }))}
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={savingPw}
+          className="flex h-10 items-center gap-2 rounded-lg bg-zinc-900 px-5 text-sm font-medium
+            text-white transition-colors hover:bg-zinc-700 disabled:pointer-events-none disabled:opacity-60"
+        >
+          {savingPw && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />}
+          <FiLock className="h-4 w-4" />
+          Нууц үг солих
         </button>
       </form>
 

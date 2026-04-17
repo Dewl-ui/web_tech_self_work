@@ -1,0 +1,60 @@
+### Student Payment & Debt Page APIs
+
+@baseUrl = https://todu.mn/bs/lms/v1
+@email = schoolstudent@must.edu.mn
+@password = 123
+@accessToken = gxdaYifLpxQDMJtWjByBdw
+
+@userId = 539
+@schoolId = 2
+@paymentId = 1
+
+
+### 1. Login
+# @name login
+POST {{baseUrl}}/token/email
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}",
+  "push_token": ""
+}
+
+
+### User info
+GET {{baseUrl}}/users/{{userId}}
+Authorization: Bearer {{accessToken}}
+
+### 2. Get my debt at school
+GET {{baseUrl}}/schools/{{schoolId}}/users/{{userId}}/debt
+Authorization: Bearer {{accessToken}}
+
+
+### 3. Get my payment history
+GET {{baseUrl}}/schools/{{schoolId}}/users/{{userId}}/payments
+Authorization: Bearer {{accessToken}}
+
+
+### 4. Submit a payment record
+POST {{baseUrl}}/schools/{{schoolId}}/users/{{userId}}/payments
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "amount": "50000",
+  "bank_receipt": "TXN123456",
+  "payment_date": "2026-04-16T00:00:00Z",
+  "payment_type": "bank_transfer",
+  "status": "pending"
+}
+
+
+### 5. Get school bank account info (where to pay)
+GET {{baseUrl}}/schools/{{schoolId}}/bank-info
+Authorization: Bearer {{accessToken}}
+
+
+### 6. Get school payment policy
+GET {{baseUrl}}/schools/{{schoolId}}/payment-policy
+Authorization: Bearer {{accessToken}}

@@ -1,0 +1,181 @@
+### Student Course Detail Page APIs
+### Lessons, exams, submissions, attendance, grades, teachers
+
+@baseUrl = https://todu.mn/bs/lms/v1
+@email = schoolstudent@must.edu.mn
+@password = 123
+@accessToken = p7vXn3LH7JGiL543jqmNTA
+
+@userId = 539
+@courseId = 204
+@lessonId = 228
+@examId = 301
+@submissionId = 1
+@attempt = 1
+
+
+### 1. Login
+# @name login
+POST {{baseUrl}}/token/email
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}",
+  "push_token": ""
+}
+
+
+### 2. Course detail (header, description, dates)
+GET {{baseUrl}}/courses/{{courseId}}
+Authorization: Bearer {{accessToken}}
+
+
+### 3. Course teachers (instructors section)
+GET {{baseUrl}}/courses/{{courseId}}/teachers
+Authorization: Bearer {{accessToken}}
+
+
+### 4. Course lessons list (syllabus)
+GET {{baseUrl}}/courses/{{courseId}}/lessons
+Authorization: Bearer {{accessToken}}
+
+
+### 5. Lesson detail (content + attached items)
+GET {{baseUrl}}/lessons/{{lessonId}}
+Authorization: Bearer {{accessToken}}
+
+
+### =============== SUBMISSIONS (assignments) ===============
+
+### 6. Submissions on a lesson (peer/teacher view — student sees own)
+GET {{baseUrl}}/lessons/{{lessonId}}/submissions
+Authorization: Bearer {{accessToken}}
+
+
+### 7. Submit assignment
+POST {{baseUrl}}/lessons/{{lessonId}}/submissions
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "content": "My submission content here",
+  "user_id": {{userId}}
+}
+
+
+### 8. Get a submission detail
+GET {{baseUrl}}/submissions/{{submissionId}}
+Authorization: Bearer {{accessToken}}
+
+
+### 9. Edit a submission
+PUT {{baseUrl}}/submissions/{{submissionId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "content": "Updated submission content",
+  "lesson_id": {{lessonId}},
+  "user_id": {{userId}}
+}
+
+
+### =============== ATTENDANCE ===============
+
+### 10. My attendance for the course
+GET {{baseUrl}}/courses/{{courseId}}/attendances
+Authorization: Bearer {{accessToken}}
+
+
+### 11. Attendance for a specific lesson
+GET {{baseUrl}}/lessons/{{lessonId}}/attendances
+Authorization: Bearer {{accessToken}}
+
+
+### 12. Course attendance point configuration
+GET {{baseUrl}}/courses/{{courseId}}/attendance-points
+Authorization: Bearer {{accessToken}}
+
+
+### =============== GRADEBOOK ===============
+
+### 13. Overall gradebook
+GET {{baseUrl}}/courses/{{courseId}}/gradebook
+Authorization: Bearer {{accessToken}}
+
+
+### 14. Gradebook - attendances
+GET {{baseUrl}}/courses/{{courseId}}/gradebook/attendances
+Authorization: Bearer {{accessToken}}
+
+
+### 15. Gradebook - exams
+GET {{baseUrl}}/courses/{{courseId}}/gradebook/exams
+Authorization: Bearer {{accessToken}}
+
+
+### 16. Gradebook - submissions
+GET {{baseUrl}}/courses/{{courseId}}/gradebook/submissions
+Authorization: Bearer {{accessToken}}
+
+
+### =============== EXAMS (student-taking flow) ===============
+
+### 17. Course exams list
+GET {{baseUrl}}/courses/{{courseId}}/exams
+Authorization: Bearer {{accessToken}}
+
+
+### 18. Exam detail
+GET {{baseUrl}}/users/me/exams/{{examId}}
+Authorization: Bearer {{accessToken}}
+
+
+### 19. Start / resume exam attempt (creates a sheet)
+POST {{baseUrl}}/users/me/exams/{{examId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{}
+
+
+### 20. Get my exam questions for current sheet
+GET {{baseUrl}}/users/me/exams/{{examId}}/questions
+Authorization: Bearer {{accessToken}}
+
+
+### 21. Save an answer
+PUT {{baseUrl}}/users/me/exams/{{examId}}/questions
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "id": 1,
+  "answer": "A"
+}
+
+
+### 22. Finish exam
+PUT {{baseUrl}}/users/me/exams/{{examId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "body_text": "finish"
+}
+
+
+### 23. My attempts history for an exam
+GET {{baseUrl}}/exams/{{examId}}/users/{{userId}}/attempts
+Authorization: Bearer {{accessToken}}
+
+
+### 24. Attempt result / evaluation
+GET {{baseUrl}}/exams/{{examId}}/users/{{userId}}/attempts/{{attempt}}/evaluation
+Authorization: Bearer {{accessToken}}
+
+
+### 25. Attempt questions (review after finish)
+GET {{baseUrl}}/exams/{{examId}}/users/{{userId}}/attempts/{{attempt}}/questions
+Authorization: Bearer {{accessToken}}

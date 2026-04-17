@@ -1,25 +1,34 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { FiPlus, FiEdit2, FiTrash2, FiUsers, FiSave, FiX, FiLayers, FiChevronLeft} from "react-icons/fi";
-import { apiGet, apiPost, apiPut, apiDelete, withCurrentUser } from "../../utils/api";
-import { useToast } from "../../components/ui/Toast";
+import { FiChevronLeft, FiEdit2, FiLayers, FiPlus, FiSave, FiTrash2, FiUsers, FiX } from "react-icons/fi";
+import { Link, useParams } from "react-router-dom";
+import { Badge } from "../../components/ui/Badge";
+import { Button } from "../../components/ui/Button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader, CardTitle,
+} from "../../components/ui/Card";
+import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { Input } from "../../components/ui/Input";
 import { Label } from "../../components/ui/Label";
-import { Button } from "../../components/ui/Button";
-import { Badge } from "../../components/ui/Badge";
-import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import {
-  Card, CardHeader, CardTitle, CardDescription, CardContent,
-} from "../../components/ui/Card";
-import {
-  Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "../../components/ui/Table";
+import { useToast } from "../../components/ui/Toast";
+import { apiDelete, apiGet, apiPost, apiPut, withCurrentUser } from "../../utils/api";
 
 export default function GroupManagement() {
   const { course_id } = useParams();
   const toast = useToast();
 
   const [groups, setGroups] = useState([]);
+  const [courseName, setCourseName] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -36,8 +45,12 @@ export default function GroupManagement() {
   async function loadGroups() {
     try {
       setLoading(true);
-      const data = await apiGet(`/courses/${course_id}/groups`);
-      setGroups(data?.items ?? (Array.isArray(data) ? data : []));
+      const [courseData, groupData] = await Promise.all([
+        apiGet(`/courses/${course_id}`).catch(() => null),
+        apiGet(`/courses/${course_id}/groups`),
+      ]);
+      setCourseName(courseData?.name ?? courseData?.title ?? "");
+      setGroups(groupData?.items ?? (Array.isArray(groupData) ? groupData : []));
     } catch (err) {
       const msg = err.message || "Бүлгүүдийг ачааллахад алдаа гарлаа.";
       setError(msg);
@@ -132,7 +145,9 @@ export default function GroupManagement() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-zinc-900">Бүлэг удирдах</h1>
-            <p className="text-sm text-zinc-500">Хичээл ID: {course_id}</p>
+            <p className="text-sm text-zinc-500">
+              {courseName || `Хичээл #${course_id}`}
+            </p>
           </div>
         </div>
         <Button onClick={openCreate}>
@@ -207,7 +222,6 @@ export default function GroupManagement() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
                   <TableHead>Нэр</TableHead>
                   <TableHead>Эрэмбэ</TableHead>
                   <TableHead className="text-right">Үйлдэл</TableHead>
@@ -216,7 +230,6 @@ export default function GroupManagement() {
               <TableBody>
                 {groups.map((g) => (
                   <TableRow key={g.id}>
-                    <TableCell>{g.id}</TableCell>
                     <TableCell>
                       <Badge variant="secondary">{g.name}</Badge>
                     </TableCell>

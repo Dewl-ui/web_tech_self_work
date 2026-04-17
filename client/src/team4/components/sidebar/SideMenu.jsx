@@ -11,7 +11,7 @@ const { ADMIN, TEACHER, STUDENT } = ROLES;
 
 const systemNavItems = [
   {
-    to: "/team4",
+    to: "/team4/",
     label: "Нүүр хуудас",
     icon: FiHome,
     roles: [ADMIN, TEACHER, STUDENT],
@@ -38,7 +38,7 @@ const schoolNavItems = [
 const manageNavItems = [
   {
     to: "/team4/student",
-    label: "Сургалтууд",
+    label: "Хичээл",
     icon: FiBookOpen,
     end: true,
     roles: [STUDENT],
@@ -51,7 +51,7 @@ const manageNavItems = [
   },
   {
     to: "/team4/student/calendar",
-    label: "Хуанли",
+    label: "Хуваарь",
     icon: FiCalendar,
     roles: [STUDENT],
   },
@@ -94,12 +94,10 @@ export default function SideMenu({ collapsed, onToggle, onClose }) {
   const { user, role, school } = useAuth();
   const roleLabel = parseField(school, "role")?.name ?? null;
 
-  const isSystemSchool = school?.id === 0;
-  const systemVisible = isSystemSchool ? filterItems(systemNavItems, role) : [];
+  const systemVisible = filterItems(systemNavItems, role);
   const schoolVisible = filterItems(schoolNavItems, role);
   const manageVisible = filterItems(manageNavItems, role);
   const bottomVisible = filterItems(bottomNavItems, role);
-
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
@@ -121,8 +119,8 @@ export default function SideMenu({ collapsed, onToggle, onClose }) {
             onClick={onToggle}
             className="hidden md:flex p-1.5 rounded-lg text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 transition-colors cursor-pointer"
             title="Хураах"
-          >
-            <FiChevronsLeft className="h-4 w-4" />
+          > 
+            <FiChevronsLeft className="h-4 w-4" /> 
           </button>
         )}
       </div>
@@ -132,13 +130,9 @@ export default function SideMenu({ collapsed, onToggle, onClose }) {
         {/* System section */}
         {systemVisible.length > 0 && (
           <div className="space-y-0.5">
-            {!collapsed && (
-              <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
-                Систем
-              </p>
-            )}
             {systemVisible.map((item) => (
               <SideNavLink key={`${item.to}-${item.label}`} item={item} collapsed={collapsed} onClose={onClose} />
+      
             ))}
           </div>
         )}
@@ -195,7 +189,6 @@ export default function SideMenu({ collapsed, onToggle, onClose }) {
           )}
         </div>
       )}
-
     </div>
   );
 }
@@ -203,7 +196,6 @@ export default function SideMenu({ collapsed, onToggle, onClose }) {
 function SideNavLink({ item, collapsed, onClose }) {
   const { pathname } = useLocation();
 
-  // For home link, manually check exact match since NavLink end doesn't work reliably in nested routes
   const isHomeActive = item.isHome && (pathname === "/team4" || pathname === "/team4/");
 
   return (
@@ -217,8 +209,8 @@ function SideNavLink({ item, collapsed, onClose }) {
         return `group relative flex items-center gap-3 rounded-lg text-sm font-medium transition-colors
         ${collapsed ? "justify-center px-2 py-2.5" : "px-3 py-2"}
         ${active
-          ? "bg-zinc-900 text-white shadow-sm"
-          : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900"
+          ? "bg-zinc-200 border border-zinc-300/30 text-zinc-900"
+          : "text-zinc-500 hover:bg-zinc-100 border border-white hover:text-zinc-900"
         }`;
       }}
     >

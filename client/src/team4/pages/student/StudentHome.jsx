@@ -1,101 +1,139 @@
-// Member C OWNS this file.
-// This is the student section shown on the home dashboard (/team4).
-// Add quick links, stats, or widgets for student here.
-// Do NOT edit Home.jsx — edit this file instead.
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { FiBook } from "react-icons/fi";
-import { studentGet, parseField } from "./api/studentCourseApi";
+import { FiBook, FiCalendar, FiClipboard, FiClock, FiCompass, FiHome } from "react-icons/fi";
+import { useAuth } from "../../utils/AuthContext";
+import { getStudentDashboardData } from "./api/studentDashboard";
+import { StatCard } from "../../components/ui/StatCard";
+import { useStudentData } from "./hooks";
+import { fmt, fmtTime } from "./utils";
+import PageHeader from "./components/PageHeader";
 
-function StatCard({ title, value, icon, loading }) {
+const CARD = "rounded-xl border border-zinc-200 bg-white p-5";
+
+export default function StudentHome({ userId: userIdProp }) {
+  const { user, school } = useAuth();
+  const userId = userIdProp ?? user?.id;
+  const schoolId = school?.id;
+
+  const { data, loading, error } = useStudentData(
+    () => getStudentDashboardData({ userId, schoolId }),
+    [userId, schoolId]
+  );
+
+  const stats = data?.stats ?? { enrolledCourses: 0, openExams: 0, totalExams: 0, schoolCount: 0 };
+  const courses = data?.courses ?? [];
+  const exams = data?.exams ?? [];
+  const catalog = data?.catalog ?? [];
+  const categories = data?.categories ?? [];
+
+  const upcomingExams = exams
+    .slice()
+    .sort((a, b) => new Date(a?.open_on || 0) - new Date(b?.open_on || 0))
+    .slice(0, 4);
+
+  const enrolledIds = new Set(courses.map((item) => item.course?.id ?? item.course_id));
+  const exploreCourses = catalog.filter((c) => !enrolledIds.has(c.id)).slice(0, 4);
+
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-sm font-medium text-zinc-500">{title}</p>
+    <div className="mx-auto max-w-6xl space-y-6">
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <StatCard
+          title="Миний хичээлүүд"
+          value={loading ? "..." : stats.enrolledCourses}
+          icon={<FiBook className="h-5 w-5" />}
+          description="Бүртгэлтэй хичээл"
+        />
+        <StatCard
+          title="Нээлттэй шалгалт"
+          value={loading ? "..." : stats.openExams}
+          icon={<FiClipboard className="h-5 w-5" />}
+          description={loading ? "" : `Нийт: ${stats.totalExams}`}
+        />
+        <StatCard
+          title="Миний сургуулиуд"
+          value={loading ? "..." : stats.schoolCount}
+          icon={<FiCalendar className="h-5 w-5" />}
+          description="Элссэн сургууль"
+        />
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className={`lg:col-span-2 ${CARD}`}>
+          <h2 className="mb-3 font-semibold text-zinc-800">Бүртгэлтэй хичээлүүд</h2>
           {loading ? (
-            <div className="mt-2 h-8 w-16 animate-pulse rounded-md bg-zinc-100" />
+            <SkeletonRows count={2} />
+          ) : courses.length === 0 ? (
+            <p className="text-sm text-zinc-400">Та ямар нэг хичээлд бүртгэлгүй байна</p>
           ) : (
-            <p className="mt-1 text-3xl font-bold text-zinc-900">{value ?? "—"}</p>
+            <div className="space-y-2">
+              {courses.map((item) => {
+                const course = item.course ?? {};
+                const courseId = course.id ?? item.course_id;
+                const group = item.group ?? null;
+                return (
+                  <div key={courseId} className="flex items-center justify-between rounded-lg border border-zinc-100 px-4 py-3">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-zinc-800">
+                        {course.name ?? `Хичээл #${courseId}`}
+                      </p>
+                      {group?.name && (
+                        <p className="text-xs text-zinc-400">Бүлэг: {group.name}</p>
+                      )}
+                    </div>
+                    <Link
+                      to={`/team4/student/courses/${courseId}`}
+                      className="shrink-0 rounded-md border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-50"
+                    >
+                      Дэлгэрэнгүй
+                    </Link>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-100 text-zinc-500">
-          {icon}
+
+        <div className={CARD}>
+          <div className="mb-3 flex items-center gap-2">
+            <FiClock className="h-4 w-4 text-zinc-500" />
+            <h2 className="font-semibold text-zinc-800">Шалгалтууд</h2>
+          </div>
+          {loading ? (
+            <SkeletonRows count={2} />
+          ) : upcomingExams.length === 0 ? (
+            <p className="text-sm text-zinc-400">Шалгалт байхгүй байна</p>
+          ) : (
+            <ul className="space-y-2">
+              {upcomingExams.map((exam) => (
+                <li key={exam.id} className="rounded-lg border border-zinc-100 px-3 py-2">
+                  <p className="truncate text-sm font-medium text-zinc-800">{exam.name}</p>
+                  <p className="truncate text-xs text-zinc-400">
+                    {exam.course?.name ?? `Хичээл #${exam.course_id}`}
+                  </p>
+                  <p className="mt-1 text-xs text-zinc-500">
+                    {fmt(exam.open_on)} {fmtTime(exam.open_on)} • {exam.duration} мин
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-function QuickLink({ to, label }) {
+function SkeletonRows({ count = 2 }) {
   return (
-    <Link
-      to={to}
-      className="flex items-center justify-between rounded-lg border border-zinc-200 bg-white
-        px-4 py-3 text-sm font-medium text-zinc-700 transition-colors hover:border-zinc-400 hover:bg-zinc-50"
-    >
-      {label}
-    </Link>
-  );
-}
-
-export default function StudentHome({ userId }) {
-  const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!userId) return;
-    studentGet(`/users/${userId}/courses`)
-      .then((data) => setCourses(data?.items ?? []))
-      .catch(() => setCourses([]))
-      .finally(() => setLoading(false));
-  }, [userId]);
-
-  return (
-    <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <StatCard title="Миний хичээлүүд" value={courses.length} icon={<FiBook className="h-5 w-5" />} loading={loading} />
-      </div>
-
-      <div className="rounded-xl border border-zinc-200 bg-white p-5">
-        <h2 className="mb-3 font-semibold text-zinc-800">Бүртгэлтэй хичээлүүд</h2>
-        {loading ? (
-          <div className="space-y-2">
-            {[1, 2].map((i) => <div key={i} className="h-10 animate-pulse rounded-lg bg-zinc-100" />)}
-          </div>
-        ) : courses.length === 0 ? (
-          <p className="text-sm text-zinc-400">Та ямар нэг хичээлд бүртгэлгүй байна</p>
-        ) : (
-          <div className="space-y-2">
-            {courses.map((item, i) => {
-              const course = parseField(item, "course") ?? {};
-              const courseId = course.id ?? item.id ?? item.course_id;
-              const courseName = course.name ?? course.title ?? `Хичээл #${courseId}`;
-              const group = parseField(item, "group");
-              return (
-                <div key={courseId ?? i} className="flex items-center justify-between rounded-lg border border-zinc-100 px-4 py-3">
-                  <div>
-                    <p className="text-sm font-medium text-zinc-800">{courseName}</p>
-                    {group?.name && (
-                      <p className="text-xs text-zinc-400">Бүлэг: {group.name}</p>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      <div className="rounded-xl border border-zinc-200 bg-white p-5">
-        <h2 className="mb-3 font-semibold text-zinc-800">Хурдан холбоосууд</h2>
-        <div className="space-y-2">
-          <QuickLink to="/team4/profile"                  label="Миний профайл" />
-          <QuickLink to="/team4/profile/change-password"  label="Нууц үг солих" />
-          <QuickLink to="/team4/schools/current"          label="Сургууль солих" />
-          {/* Member C: add more QuickLink entries here */}
-        </div>
-      </div>
+    <div className="space-y-2">
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="h-12 animate-pulse rounded-lg bg-zinc-100" />
+      ))}
     </div>
   );
 }

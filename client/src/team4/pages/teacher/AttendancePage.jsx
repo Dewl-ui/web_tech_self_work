@@ -19,6 +19,8 @@ import {
 } from "../../components/ui";
 import { apiGet, parseField } from "../../utils/api";
 
+const COURSE_USERS_LIMIT = 10000;
+
 // Attendance type ID-ууд (API-аас баталгаажсан)
 // id:1=Ирсэн, id:2=Өвчтэй, id:3=Чөлөөтэй, id:4=Тасалсан, id:5=Other
 const ABSENT_TYPE_IDS = [4]; // Тасалсан
@@ -41,7 +43,7 @@ export default function AttendancePage() {
     if (!course_id) return;
 
     Promise.all([
-      apiGet(`/courses/${course_id}/users`).catch(() => ({ items: [] })),
+      apiGet(`/courses/${course_id}/users?limit=${COURSE_USERS_LIMIT}`).catch(() => ({ items: [] })),
       apiGet(`/courses/${course_id}/lessons`).catch(() => ({ items: [] })),
     ]).then(async ([usersData, lessonsData]) => {
       const allUsers   = usersData?.items ?? [];

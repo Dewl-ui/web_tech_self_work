@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { FiEdit2, FiSearch, FiUsers, FiBarChart2, FiLayers, FiClock } from "react-icons/fi";
+import { FiEdit2, FiSearch, FiBarChart2, FiLayers, FiClock } from "react-icons/fi";
 import { apiGet, parseField } from "../../utils/api";
 import { useToast } from "../../components/ui";
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui";
+
+const COURSE_USERS_LIMIT = 10000;
 
 function getUserFullName(user) {
   return [user?.last_name, user?.first_name].filter(Boolean).join(" ").trim();
@@ -29,7 +31,7 @@ export default function CourseUserList() {
 
         const [courseRes, courseUsersRes] = await Promise.all([
           apiGet(`/courses/${course_id}`).catch(() => ({})),
-          apiGet(`/courses/${course_id}/users`),
+          apiGet(`/courses/${course_id}/users?limit=${COURSE_USERS_LIMIT}`),
         ]);
 
         setCourseName(courseRes?.name ?? `Хичээл #${course_id}`);
@@ -137,32 +139,64 @@ export default function CourseUserList() {
               Хэрэглэгч олдсонгүй.
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Нэр</TableHead>
-                  <TableHead>Имэйл</TableHead>
-                  <TableHead>Username</TableHead>
-                  <TableHead>Бүлэг</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              <div className="space-y-3 md:hidden">
                 {filtered.map((item) => {
                   const user = parseField(item, "user") ?? item.user ?? item;
                   const group = parseField(item, "group") ?? item.group ?? null;
                   const fullName = getUserFullName(user) || user?.username || `Хэрэглэгч #${item.user_id ?? item.id}`;
 
                   return (
-                    <TableRow key={item.id ?? `${item.course_id}-${item.user_id}`}>
-                      <TableCell className="font-medium text-zinc-900">{fullName}</TableCell>
-                      <TableCell>{user?.email || "—"}</TableCell>
-                      <TableCell>{user?.username || "—"}</TableCell>
-                      <TableCell>{group?.name || "Бүлэггүй"}</TableCell>
-                    </TableRow>
+                    <div
+                      key={item.id ?? `${item.course_id}-${item.user_id}`}
+                      className="rounded-xl border border-zinc-200 bg-zinc-50/60 p-4"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-zinc-900">{fullName}</p>
+                          <p className="mt-1 text-xs text-zinc-500">@{user?.username || "—"}</p>
+                        </div>
+                        <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-medium text-zinc-600">
+                          {group?.name || "Бүлэггүй"}
+                        </span>
+                      </div>
+                      <div className="mt-3 space-y-1.5 text-sm text-zinc-600">
+                        <p><span className="font-medium text-zinc-800">Имэйл:</span> {user?.email || "—"}</p>
+                      </div>
+                    </div>
                   );
                 })}
-              </TableBody>
-            </Table>
+              </div>
+
+              <div className="hidden overflow-x-auto md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Нэр</TableHead>
+                      <TableHead>Имэйл</TableHead>
+                      <TableHead>Username</TableHead>
+                      <TableHead>Бүлэг</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filtered.map((item) => {
+                      const user = parseField(item, "user") ?? item.user ?? item;
+                      const group = parseField(item, "group") ?? item.group ?? null;
+                      const fullName = getUserFullName(user) || user?.username || `Хэрэглэгч #${item.user_id ?? item.id}`;
+
+                      return (
+                        <TableRow key={item.id ?? `${item.course_id}-${item.user_id}`}>
+                          <TableCell className="font-medium text-zinc-900">{fullName}</TableCell>
+                          <TableCell>{user?.email || "—"}</TableCell>
+                          <TableCell>{user?.username || "—"}</TableCell>
+                          <TableCell>{group?.name || "Бүлэггүй"}</TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
