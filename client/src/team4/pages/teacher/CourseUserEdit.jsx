@@ -6,6 +6,8 @@ import { useAuth } from "../../utils/AuthContext";
 import { apiDelete, apiGet, apiPost, parseField, withCurrentUser } from "../../utils/api";
 import { ROLES } from "../../utils/constants";
 
+const COURSE_USERS_LIMIT = 10000;
+
 function getFullName(user) {
   return [user?.last_name, user?.first_name].filter(Boolean).join(" ").trim();
 }
@@ -60,7 +62,7 @@ export default function CourseUserEdit() {
 
         const [courseRes, courseUsersRes, schoolUsersRes, groupsRes] = await Promise.all([
           apiGet(`/courses/${course_id}`).catch(() => ({})),
-          apiGet(`/courses/${course_id}/users`).catch(() => ({ items: [] })),
+          apiGet(`/courses/${course_id}/users?limit=${COURSE_USERS_LIMIT}`).catch(() => ({ items: [] })),
           apiGet(`/schools/${school.id}/users`).catch(() => ({ items: [] })),
           apiGet(`/courses/${course_id}/groups`).catch(() => ({ items: [] })),
         ]);
