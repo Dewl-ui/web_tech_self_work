@@ -35,8 +35,6 @@ export default function StudentHome({ userId: userIdProp }) {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      {/* <PageHeader icon={FiHome} title="Нүүр хуудас" subtitle="Таны хичээл, шалгалт, мэдээллийн товчлол" /> */}
-
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
@@ -103,7 +101,7 @@ export default function StudentHome({ userId: userIdProp }) {
         <div className={CARD}>
           <div className="mb-3 flex items-center gap-2">
             <FiClock className="h-4 w-4 text-zinc-500" />
-            <h2 className="font-semibold text-zinc-800">Ирэх шалгалтууд</h2>
+            <h2 className="font-semibold text-zinc-800">Шалгалтууд</h2>
           </div>
           {loading ? (
             <SkeletonRows count={2} />
@@ -125,38 +123,6 @@ export default function StudentHome({ userId: userIdProp }) {
             </ul>
           )}
         </div>
-      </div>
-
-      <div className={CARD}>
-        <div className="mb-3 flex items-center gap-2">
-          <FiCompass className="h-4 w-4 text-zinc-500" />
-          <h2 className="font-semibold text-zinc-800">Сургуулийн бусад хичээлүүд</h2>
-        </div>
-        {loading ? (
-          <SkeletonRows count={2} />
-        ) : exploreCourses.length === 0 ? (
-          <p className="text-sm text-zinc-400">Каталогт хичээл байхгүй.</p>
-        ) : (
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            {exploreCourses.map((course) => (
-              <div key={course.id} className="rounded-lg border border-zinc-100 px-3 py-2">
-                <p className="truncate text-sm font-medium text-zinc-800">{course.name}</p>
-                <p className="mt-0.5 text-xs text-zinc-400">
-                  {fmt(course.start_on)} – {fmt(course.end_on)}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-        {!loading && categories.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {categories.slice(0, 8).map((cat) => (
-              <span key={cat.id} className="rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs text-zinc-600">
-                {cat.name}
-              </span>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );

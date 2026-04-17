@@ -14,12 +14,9 @@ const PAGE_SIZE = 6;
 async function loadStudentGroups(userId) {
   if (!userId) return [];
 
-  // 1. Fetch every course the student is enrolled in
   const enrolled = await getStudentCourses(userId);
   const courses = enrolled?.items ?? [];
 
-  // 2. Keep only courses where the student was assigned to a group
-  //    (group_id can be 0 in theory, so we check != null instead of truthy)
   const withGroup = courses
     .map((enrollment) => {
       const course = enrollment.course ?? {};
@@ -32,8 +29,6 @@ async function loadStudentGroups(userId) {
     })
     .filter((e) => e.groupId != null);
 
-  // 3. For each {course, group} pair, fetch the group details + course roster,
-  //    then keep only roster members who share the same group
   return Promise.all(
     withGroup.map(async ({ enrollment, course, courseId, groupId }) => {
       const [groupDetail, members] = await Promise.all([

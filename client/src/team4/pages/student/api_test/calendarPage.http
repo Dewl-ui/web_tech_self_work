@@ -1,5 +1,4 @@
 ### Student Calendar Page APIs
-### Shows selected timetables across courses and lesson schedules
 
 @baseUrl = https://todu.mn/bs/lms/v1
 @email = schoolstudent@must.edu.mn

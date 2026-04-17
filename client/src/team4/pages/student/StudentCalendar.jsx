@@ -14,7 +14,6 @@ const WEEKDAYS = [
   { id: 7, label: "Ня" },
 ];
 
-// JS getDay(): 0=Sun,1=Mon,...,6=Sat → convert to our 1=Mon..7=Sun
 const todayWeekday = (() => {
   const d = new Date().getDay();
   return d === 0 ? 7 : d;
@@ -105,7 +104,7 @@ export default function StudentCalendar() {
           ))}
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7">
+        <div className="grid gap-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7">
           {WEEKDAYS.map((day) => {
             const isToday = day.id === todayWeekday;
             return (

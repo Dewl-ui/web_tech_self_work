@@ -52,8 +52,6 @@ Authorization: Bearer {{token}}
 # with userId from /users/me. Example below:
 
 ### Get current user's ID first
-# GET {{baseUrl}}/users/me?current_user=
-# Then use that ID:
 @myUserId = 789
 GET {{baseUrl}}/courses/{{courseId}}/users/{{myUserId}}
 Authorization: Bearer {{token}}
