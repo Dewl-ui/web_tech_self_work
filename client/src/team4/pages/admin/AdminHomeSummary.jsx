@@ -1,7 +1,3 @@
-// Member A OWNS this file.
-// This is the admin section shown on the home dashboard (/team4).
-// Add quick links, stats, or widgets for admin here.
-// Do NOT edit Home.jsx — edit this file instead.
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FiUsers, FiShield, FiChevronRight } from "react-icons/fi";

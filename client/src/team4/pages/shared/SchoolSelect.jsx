@@ -45,17 +45,16 @@ const FALLBACK_ROLE = {
   dot: "bg-zinc-400",
 };
 
-/* ── Gradient palette for cards without images ── */
-const CARD_GRADIENTS = [
-  "from-violet-600 to-indigo-700",
-  "from-sky-500 to-cyan-600",
-  "from-emerald-500 to-teal-600",
-  "from-amber-500 to-orange-600",
-  "from-rose-500 to-pink-600",
-  "from-fuchsia-500 to-purple-600",
-  "from-blue-600 to-indigo-600",
-  "from-teal-500 to-emerald-600",
-];
+// const CARD_GRADIENTS = [
+//   "from-violet-600 to-indigo-700",
+//   "from-sky-500 to-cyan-600",
+//   "from-emerald-500 to-teal-600",
+//   "from-amber-500 to-orange-600",
+//   "from-rose-500 to-pink-600",
+//   "from-fuchsia-500 to-purple-600",
+//   "from-blue-600 to-indigo-600",
+//   "from-teal-500 to-emerald-600",
+// ];
 
 function pictureUrl(picture) {
   if (!picture || picture === "no-image.jpg") return null;
@@ -256,8 +255,8 @@ export default function SchoolSelect() {
                   ROLE_META[roleObj?.id] ?? FALLBACK_ROLE;
                 const roleLabel = roleObj?.name;
                 const imgSrc = schoolPictures[school.id];
-                const gradient =
-                  CARD_GRADIENTS[idx % CARD_GRADIENTS.length];
+                // const gradient =
+                //   CARD_GRADIENTS[idx % CARD_GRADIENTS.length];
                 const isHovered = hoveredId === school.id;
 
                 return (
