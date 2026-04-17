@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { apiGet, parseField } from "../../utils/api";
 
+const COURSE_USERS_LIMIT = 10000;
+
 export default function useTeacherCoursesSummary({ userId, schoolId }) {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -35,7 +37,7 @@ export default function useTeacherCoursesSummary({ userId, schoolId }) {
             let userCount = 0;
 
             try {
-              const usersData = await apiGet(`/courses/${courseId}/users`);
+              const usersData = await apiGet(`/courses/${courseId}/users?limit=${COURSE_USERS_LIMIT}`);
               userCount = usersData?.count ?? usersData?.items?.length ?? 0;
             } catch {
               userCount = 0;
