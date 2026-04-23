@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
@@ -111,3 +112,15 @@ export default function Login() {
     </div>
   );
 }
+=======
+import { Shell, PageTitle, EmptySettings } from '../../components/common';
+
+export default function Login() {
+  return (
+    <Shell role="student">
+      <PageTitle title="Login" subtitle="Энэ бүтэц нь Team4-тэй төстэй болгох зорилготой." />
+      <EmptySettings />
+    </Shell>
+  );
+}
+>>>>>>> 62f0732e643627258b21ca6bc5d827ff4beda4ee

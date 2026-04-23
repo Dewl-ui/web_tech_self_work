@@ -198,18 +198,24 @@ export function TeacherHome() {
 }
 
 export function TeacherJournal() {
+<<<<<<< HEAD
   const journalCourses = [
     { id: 1, code: "S.MTM121", name: "Математик", group: "МТ-1а хэсэг" },
     { id: 2, code: "F.ITM301", name: "Веб систем ба технологи", group: "ПХ-3б хэсэг" },
   ];
 
+=======
+>>>>>>> 62f0732e643627258b21ca6bc5d827ff4beda4ee
   return (
     <Shell role="teacher">
       <PageTitle
         title="Хариуцаж буй хичээлүүд"
         subtitle="2025-2026 оны хаврын улирал дахь таны хичээлүүд"
       />
+<<<<<<< HEAD
       
+=======
+>>>>>>> 62f0732e643627258b21ca6bc5d827ff4beda4ee
       <Panel className="max-w-6xl">
         <div className="space-y-3">
           {journalCourses.map((course) => (
@@ -222,10 +228,17 @@ export function TeacherJournal() {
               </div>
               <div className="text-slate-500">{course.group}</div>
               <Link
+<<<<<<< HEAD
                 to={`${course.id}/detail`}
                 className="text-right font-bold text-indigo-600 hover:underline"
               >
                 Журнал руу орох
+=======
+                to={`${course.id}/summary`}
+                className="text-right font-semibold text-indigo-600"
+              >
+                Дэлгэрэнгүй
+>>>>>>> 62f0732e643627258b21ca6bc5d827ff4beda4ee
               </Link>
             </div>
           ))}
@@ -234,6 +247,10 @@ export function TeacherJournal() {
     </Shell>
   );
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 62f0732e643627258b21ca6bc5d827ff4beda4ee
 export function TeacherCourseSummary() {
   const { courseId } = useParams();
   const base = `/team3/teacher/journal/${courseId}`;
@@ -249,13 +266,23 @@ export function TeacherCourseSummary() {
               to={`${base}/students`}
               className="font-semibold text-indigo-600"
             >
+<<<<<<< HEAD
               Бүх сурагчдыг харах
+=======
+              Бүх сурагчдыг харах →
+>>>>>>> 62f0732e643627258b21ca6bc5d827ff4beda4ee
             </Link>
           </div>
         }
       />
       <CourseActionTabs base={base} />
       <JournalSubTabs active="summary" base={base} />
+<<<<<<< HEAD
+=======
+      <Panel className="min-h-[360px] bg-[linear-gradient(135deg,#ffffff,#eef6ff)] text-lg text-slate-600">
+        Удиртгал
+      </Panel>
+>>>>>>> 62f0732e643627258b21ca6bc5d827ff4beda4ee
     </Shell>
   );
 }
@@ -310,6 +337,35 @@ export function TeacherCourseStudents() {
   );
 }
 
+<<<<<<< HEAD
+=======
+export function TeacherCourseBreakdown() {
+  const { courseId } = useParams();
+  const base = `/team3/teacher/journal/${courseId}`;
+
+  return (
+    <Shell role="teacher">
+      <PageTitle
+        title="S.MTM121 Математик"
+        right={
+          <div className="flex flex-wrap items-center gap-4 rounded-2xl bg-white px-5 py-3 font-semibold text-slate-700 shadow-sm">
+            <span>Нийт сурагчдын тоо : 100</span>
+            <Link to={`${base}/students`} className="text-indigo-600">
+              Бүх сурагчдыг харах →
+            </Link>
+          </div>
+        }
+      />
+      <CourseActionTabs base={base} />
+      <JournalSubTabs active="detail" base={base} />
+      <Panel className="min-h-[360px] bg-[linear-gradient(135deg,#ffffff,#f8fbff)]">
+        <h3 className="text-xl font-bold text-slate-800">Онооны задаргаа</h3>
+      </Panel>
+    </Shell>
+  );
+}
+
+>>>>>>> 62f0732e643627258b21ca6bc5d827ff4beda4ee
 export function TeacherCourseTeacherInfo() {
   const { courseId } = useParams();
   const base = `/team3/teacher/journal/${courseId}`;
@@ -950,8 +1006,11 @@ export function TeacherSettings() {
     </Shell>
   );
 }
+<<<<<<< HEAD
 
 export { default as TeacherCourseBreakdown } from './teacher/CourseBreakdown';
 export { default as TeacherStudentGradeDetail } from './teacher/StudentGradeDetail';
 export { default as TeacherAssignmentGrade } from './teacher/AssignmentGradeDetail';
 export { default as TeacherStudentAttendanceDetail } from './teacher/StudentAttendanceDetail';
+=======
+>>>>>>> 62f0732e643627258b21ca6bc5d827ff4beda4ee

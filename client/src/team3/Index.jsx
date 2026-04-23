@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Route, Routes } from "react-router-dom";
 import Layout from "./Layout";
 import LandingPage from "./pages/home/Landing";
@@ -44,12 +45,58 @@ import TeacherStudentAttendanceDetail from './pages/teacher/StudentAttendanceDet
 
 import Login from './pages/auth/Login';
 
+=======
+import { Route, Routes } from 'react-router-dom';
+import Layout from './Layout';
+import LandingPage from './pages/home/Landing';
+import StudentHome from './pages/student/Home';
+import StudentGradeCards from './pages/student/GradeCards';
+import StudentGrades from './pages/student/Grades';
+import StudentGradeDetail from './pages/student/GradeDetail';
+import StudentAssignment from './pages/student/Assignment';
+import StudentReportSelect from './pages/student/ReportSelect';
+import StudentReportItems from './pages/student/ReportItems';
+import StudentReportConfirm from './pages/student/ReportConfirm';
+import StudentAttendance from './pages/student/Attendance';
+import StudentCalendar from './pages/student/Calendar';
+import StudentLeave from './pages/student/Leave';
+import StudentSearchResult from './pages/student/SearchResult';
+import StudentRequestDetail from './pages/student/RequestDetail';
+import StudentReject from './pages/student/RejectRequest';
+import StudentAct from './pages/student/Act';
+import StudentActSuccess from './pages/student/ActSuccess';
+import StudentSettings from './pages/student/Settings';
+import TeacherHome from './pages/teacher/Home';
+import TeacherJournal from './pages/teacher/Journal';
+import TeacherCourseSummary from './pages/teacher/CourseSummary';
+import TeacherCourseStudents from './pages/teacher/CourseStudents';
+import TeacherCourseBreakdown from './pages/teacher/CourseBreakdown';
+import TeacherCourseTeacherInfo from './pages/teacher/CourseTeacherInfo';
+import TeacherAttendanceIndex from './pages/teacher/AttendanceIndex';
+import TeacherAttendanceLesson from './pages/teacher/AttendanceLesson';
+import TeacherAttendanceLessonSearch from './pages/teacher/AttendanceLessonSearch';
+import TeacherAttendanceLab from './pages/teacher/AttendanceLab';
+import TeacherConfirmLecture from './pages/teacher/ConfirmLecture';
+import TeacherConfirmLab from './pages/teacher/ConfirmLab';
+import TeacherAttendanceStats from './pages/teacher/AttendanceStats';
+import TeacherAttendanceStatsEmpty from './pages/teacher/AttendanceStatsEmpty';
+import TeacherRequests from './pages/teacher/Requests';
+import TeacherRequestDetail from './pages/teacher/RequestDetail';
+import TeacherRejectRequest from './pages/teacher/RejectRequest';
+import TeacherApproveRequest from './pages/teacher/ApproveRequest';
+import TeacherSettings from './pages/teacher/Settings';
+
+>>>>>>> 62f0732e643627258b21ca6bc5d827ff4beda4ee
 export default function Index() {
   return (
     <Routes>
       <Route element={<Layout />}>
+<<<<<<< HEAD
         <Route index element={<Login />} />
         <Route path="landing" element={<LandingPage />} />
+=======
+        <Route index element={<LandingPage />} />
+>>>>>>> 62f0732e643627258b21ca6bc5d827ff4beda4ee
 
         <Route path="student">
           <Route index element={<StudentHome />} />
@@ -76,6 +123,7 @@ export default function Index() {
           <Route path="journal" element={<TeacherJournal />} />
           <Route path="journal/:courseId/summary" element={<TeacherCourseSummary />} />
           <Route path="journal/:courseId/students" element={<TeacherCourseStudents />} />
+<<<<<<< HEAD
           
           <Route path="journal/:courseId/breakdown" element={<TeacherCourseBreakdown />} />
           <Route path="journal/:courseId/detail" element={<TeacherCourseBreakdown />} />
@@ -83,6 +131,10 @@ export default function Index() {
           <Route path="journal/:courseId/assignment/:id" element={<TeacherAssignmentGrade />} />
           <Route path="journal/:courseId/student/:studentId/attendance" element={<TeacherStudentAttendanceDetail />} />
           
+=======
+          <Route path="journal/:courseId/breakdown" element={<TeacherCourseBreakdown />} />
+          <Route path="journal/:courseId/detail" element={<TeacherCourseBreakdown />} />
+>>>>>>> 62f0732e643627258b21ca6bc5d827ff4beda4ee
           <Route path="journal/:courseId/teacher" element={<TeacherCourseTeacherInfo />} />
           <Route path="grades" element={<StudentGrades />} />
           <Route path="attendance" element={<TeacherAttendanceIndex />} />
@@ -102,4 +154,8 @@ export default function Index() {
       </Route>
     </Routes>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 62f0732e643627258b21ca6bc5d827ff4beda4ee
