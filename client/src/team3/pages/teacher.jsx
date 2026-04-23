@@ -198,7 +198,6 @@ export function TeacherHome() {
 }
 
 export function TeacherJournal() {
-  // ЭНД ХАМГИЙН ЧУХАЛ: id-г нь "mtm121" биш шууд 1, 2 гэсэн ТОO болгож байна
   const journalCourses = [
     { id: 1, code: "S.MTM121", name: "Математик", group: "МТ-1а хэсэг" },
     { id: 2, code: "F.ITM301", name: "Веб систем ба технологи", group: "ПХ-3б хэсэг" },

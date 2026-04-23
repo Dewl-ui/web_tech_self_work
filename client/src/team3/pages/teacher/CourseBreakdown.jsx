@@ -6,7 +6,6 @@ export default function CourseBreakdown() {
   const { courseId } = useParams();
   const base = `/team3/teacher/journal/${courseId}`;
 
-  // Бидний ашиглах бэлэн (Dummy) дата
   const journalData = [
     { id: 'B200910101', name: 'Б. Бат-Эрдэнэ', attendanceScore: 10, lab1Score: 15, lab2Score: 15, midtermScore: 28, totalScore: 68 },
     { id: 'B200910102', name: 'Д. Сувд', attendanceScore: 8, lab1Score: 12, lab2Score: 14, midtermScore: 25, totalScore: 59 },
@@ -29,7 +28,7 @@ export default function CourseBreakdown() {
       <Panel className="min-h-[400px]">
         <div className="mb-6 flex justify-between items-center">
           <h3 className="text-2xl font-bold text-slate-800">Онооны нэгдсэн журнал</h3>
-          <PrimaryButton className="bg-[#afd0ef] text-[#08335a] hover:bg-[#9ec9f3]">↓ Excel татах</PrimaryButton>
+          <PrimaryButton className="bg-[#afd0ef] text-[#08335a] hover:bg-[#9ec9f3]">Excel татах</PrimaryButton>
         </div>
 
         <div className="overflow-x-auto rounded-md border border-[#d8d8e4]">

@@ -106,7 +106,7 @@ export function StudentGrades() {
         <Panel className="flex items-center justify-between gap-4">
           <div>
             <p className="mb-3 font-semibold">Дүнгийн хуудас хэвлэх</p>
-            <PrimaryButton>🖨️ Дүнгийн мэдээлэл татах</PrimaryButton>
+            <PrimaryButton>Дүнгийн мэдээлэл татах</PrimaryButton>
           </div>
         </Panel>
         <Panel>
@@ -644,9 +644,7 @@ export function StudentCalendar() {
           </div>
         </Panel>
 
-        {/* Баруун талын контрол & events */}
         <Panel className="min-h-[620px] p-4 flex flex-col">
-          {/* View mode switch */}
           <div className="ml-auto mb-4 flex w-fit gap-2 rounded-full bg-gray-200 px-3 py-1 text-xs font-semibold">
             {["month", "week", "year"].map((mode) => (
               <span
@@ -661,7 +659,6 @@ export function StudentCalendar() {
             ))}
           </div>
 
-          {/* Сонгогдсон өдрийн events */}
           <div className="flex-1 overflow-y-auto">
             <h4 className="font-semibold mb-2">
               {selectedDate.format("MMMM D, YYYY")} Events
@@ -738,7 +735,6 @@ export function StudentAct() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Энд илгээх функцээ бичнэ
     console.log({ lastName, firstName, studentCode, date, description, file });
   };
 

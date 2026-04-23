@@ -1,13 +1,12 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://todu.mn/bs/lms/v1', // Swagger дээрх үндсэн хаяг
+  baseURL: 'https://todu.mn/bs/lms/v1',
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Хүсэлт явахын өмнө Token автоматаар нэмэх
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PageTitle, Panel, Shell, PrimaryButton } from '../../components/common';
-import api from '../../utils/api'; // API тохиргоо
+import api from '../../utils/api';
 
 export default function TeacherStudentGradeDetail() {
   const { courseId, studentId } = useParams();
@@ -15,7 +15,6 @@ export default function TeacherStudentGradeDetail() {
     const fetchStudentDetails = async () => {
       setIsLoading(true);
       try {
-        // 1. Оюутны мэдээлэл болон бүх оноог API-аас зэрэг татах
         const [studentsRes, attendancesRes, submissionsRes, midtermsRes] = await Promise.all([
           api.get(`/courses/${courseId}/students`),
           api.get(`/courses/${courseId}/gradebook/attendances`),
@@ -23,11 +22,9 @@ export default function TeacherStudentGradeDetail() {
           api.get(`/courses/${courseId}/gradebook`)
         ]);
 
-        // 2. Тухайн оюутны профайлыг шүүж олох
         const studentsList = studentsRes.data.items || [];
         const student = studentsList.find(s => String(s.id) === String(studentId) || String(s.user_id) === String(studentId));
         
-        // 3. Тухайн оюутны оноонуудыг шүүж олох
         const myAtt = (attendancesRes.data.items || []).find(a => String(a.user_id) === String(studentId));
         const attScore = myAtt ? (myAtt.grade_point || myAtt.point || 0) : 0;
 
@@ -40,13 +37,12 @@ export default function TeacherStudentGradeDetail() {
 
         const total = attScore + (lab1Score || 0) + (lab2Score || 0) + (midScore || 0);
 
-        // 4. State-д хадгалах
         if (student) {
           setStudentProfile({
             id: studentId,
             name: student.last_name ? `${student.last_name[0]}. ${student.first_name}` : (student.name || student.first_name || 'Нэргүй'),
             email: student.email || student.username || 'И-мэйл бүртгэлгүй',
-            major: 'Мэдээллийн технологи (API)',
+            major: 'Мэдээллийн технологи ',
             totalScore: total,
             status: 'Идэвхтэй'
           });
@@ -90,7 +86,6 @@ export default function TeacherStudentGradeDetail() {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* ЗҮҮН ТАЛ: Оюутны профайл */}
           <div className="lg:col-span-1">
             <Panel className="flex flex-col items-center text-center">
               <div className="h-24 w-24 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-3xl mb-4">
@@ -121,7 +116,6 @@ export default function TeacherStudentGradeDetail() {
             </Panel>
           </div>
 
-          {/* БАРУУН ТАЛ: Онооны жагсаалт */}
           <div className="lg:col-span-2">
             <Panel>
               <div className="mb-6 flex justify-between items-center">

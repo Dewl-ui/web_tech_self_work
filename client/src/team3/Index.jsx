@@ -37,8 +37,6 @@ import TeacherRequestDetail from "./pages/teacher/RequestDetail";
 import TeacherRejectRequest from "./pages/teacher/RejectRequest";
 import TeacherApproveRequest from "./pages/teacher/ApproveRequest";
 import TeacherSettings from "./pages/teacher/Settings";
-
-// Цагаан дэлгэц гаргахгүй байх ЗӨВ импортууд
 import TeacherCourseBreakdown from './pages/teacher/CourseBreakdown';
 import TeacherStudentGradeDetail from './pages/teacher/StudentGradeDetail';
 import TeacherAssignmentGrade from './pages/teacher/AssignmentGradeDetail';
@@ -50,14 +48,9 @@ export default function Index() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        
-        {/* НҮҮР ХУУДАС: Анх ороход шууд Login хуудас гарч ирнэ */}
         <Route index element={<Login />} />
-        
-        {/* Хуучин LandingPage-ийг хэрэгтэй байж магадгүй гээд /landing зам руу үлдээв */}
         <Route path="landing" element={<LandingPage />} />
 
-        {/* ОЮУТНЫ ХЭСЭГ */}
         <Route path="student">
           <Route index element={<StudentHome />} />
           <Route path="grades" element={<StudentGradeCards />} />
@@ -78,14 +71,12 @@ export default function Index() {
           <Route path="settings" element={<StudentSettings />} />
         </Route>
 
-        {/* БАГШИЙН ХЭСЭГ */}
         <Route path="teacher">
           <Route index element={<TeacherHome />} />
           <Route path="journal" element={<TeacherJournal />} />
           <Route path="journal/:courseId/summary" element={<TeacherCourseSummary />} />
           <Route path="journal/:courseId/students" element={<TeacherCourseStudents />} />
           
-          {/* Бидний шинээр хийсэн Журналын хэсгүүд */}
           <Route path="journal/:courseId/breakdown" element={<TeacherCourseBreakdown />} />
           <Route path="journal/:courseId/detail" element={<TeacherCourseBreakdown />} />
           <Route path="journal/:courseId/student/:studentId" element={<TeacherStudentGradeDetail />} />
